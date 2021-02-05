@@ -1,0 +1,9 @@
+C----------------------------------------
+C subroutine obsfit_readobsfile
+C----------------------------------------
+CADJ SUBROUTINE  obsfit_readobsfile   INPUT  =  1,2,3, 5
+CADJ SUBROUTINE  obsfit_readobsfile   DEPEND =  1,2,3 
+CADJ SUBROUTINE  obsfit_readobsfile   OUTPUT =        4 
+
+CADJ SUBROUTINE  NF_OPEN              INPUT = 
+CADJ SUBROUTINE  NF_CLOSE             INPUT =

@@ -1,0 +1,20 @@
+C----------------------------------------
+C subroutine active_read_obsfit
+C----------------------------------------
+cadj SUBROUTINE active_read_obsfit FTLNAME = g_active_read_obsfit
+cadj SUBROUTINE active_read_obsfit ADNAME  = adactive_read_obsfit
+cadj SUBROUTINE active_read_obsfit INPUT   = 1, 3,4,5,6,7,8,9,10
+cadj SUBROUTINE active_read_obsfit OUTPUT  =   2
+cadj SUBROUTINE active_read_obsfit ACTIVE  =   2
+cadj SUBROUTINE active_read_obsfit DEPEND  = 1, 3,4,5,6,7,8,9
+
+C----------------------------------------
+C subroutine active_write_obsfit
+C----------------------------------------
+cadj SUBROUTINE active_write_obsfit FTLNAME = g_active_write_obsfit
+cadj SUBROUTINE active_write_obsfit ADNAME  = adactive_write_obsfit
+cadj SUBROUTINE active_write_obsfit INPUT   = 1,2,3,4,5,6,7,8,9
+cadj SUBROUTINE active_write_obsfit OUTPUT  =                 9
+cadj SUBROUTINE active_write_obsfit ACTIVE  =   2,            9
+cadj SUBROUTINE active_write_obsfit DEPEND  = 1,  3,4,5,6,7,8
+
