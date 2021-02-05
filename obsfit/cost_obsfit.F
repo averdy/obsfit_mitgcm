@@ -63,7 +63,7 @@ C !LOCAL VARIABLES:
       _RL  samples_buff(NSAMPLEGLOB)
       _RL  samples_mask_buff(NSAMPLEGLOB)
       _RL  samples_modval_glob(NSAMPLEGLOB)
-      INTEGER samples_mask_glob(NSAMPLEGLOB)
+      _RL  samples_mask_glob(NSAMPLEGLOB)
       _RL  tmpgs
       INTEGER tmpgsi
  
