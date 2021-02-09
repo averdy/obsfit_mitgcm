@@ -3,11 +3,7 @@
 # ******************
  &OBSFIT_NML
 # obsfitDir = 'OBSFIT',
- obsfitFiles(1) = 'sample_obsfit_v2',
-# has T, S, and pH constraints. 
+ obsfitFiles(1) = 'sample_obsfit_tpose',
  mult_obsfit(1,1)   = 1.0,
- mult_obsfit(1,2)   = 1.0,
-# mult_obsfit(1,14)   = 1.0,
-# obsfitFiles(2) = 'sample_obsfit_v2_b',
- obsfitdoncoutput = .true.,
+ obsfitdoncoutput = .false.,
  &
