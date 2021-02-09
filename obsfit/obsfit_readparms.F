@@ -157,7 +157,7 @@ C     Warn user as we override obsfitFiles
      &       '** WARNING ** OBSFIT_READPARMS: missing file: ',
      &       obsfitFiles(num_file)(1:IL),' gets switched off'
             CALL PRINT_MESSAGE( msgBuf, errorMessageUnit,
-     &                    SQUEEZE_RIGHT , myThid)
+     &                    SQUEEZE_RIGHT, myThid)
 C     Switch off this file (and potential cost function term)
              obsfitFiles(num_file) = ' '
             ENDIF

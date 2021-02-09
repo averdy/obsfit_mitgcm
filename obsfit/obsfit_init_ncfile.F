@@ -59,14 +59,14 @@ c create a netcdf file
         err = NF_INQ_VARID(fid1,obsfit_names(num_file,num_var),varid0)
         IF (err.EQ.NF_NOERR) THEN
 
-         err = NF_DEF_VAR(fid2,obsfit_names(num_file,num_var),NF_DOUBLE,
-     &    1,dimid,varid(2+(num_var-1)*2))
-         err = NF_PUT_ATT_DOUBLE(fid2,varid(2+(num_var-1)*2),'_FillValue',
-     &    NF_DOUBLE,1,0. _d 0)
+         err = NF_DEF_VAR(fid2,obsfit_names(num_file,num_var),
+     &    NF_DOUBLE,1,dimid,varid(2+(num_var-1)*2))
+         err = NF_PUT_ATT_DOUBLE(fid2,varid(2+(num_var-1)*2),
+     &    '_FillValue',NF_DOUBLE,1,0. _d 0)
          err = NF_DEF_VAR(fid2,obsfit_namesmask(num_file,num_var),
      &    NF_DOUBLE,1,dimid,varid(3+(num_var-1)*2))
-         err = NF_PUT_ATT_DOUBLE(fid2,varid(3+(num_var-1)*2),'_FillValue',
-     &    NF_DOUBLE,1,0. _d 0)
+         err = NF_PUT_ATT_DOUBLE(fid2,varid(3+(num_var-1)*2),
+     &    '_FillValue',NF_DOUBLE,1,0. _d 0)
 
         ENDIF
        ENDDO

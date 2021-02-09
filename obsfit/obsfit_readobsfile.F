@@ -73,7 +73,7 @@ c implies that a forward loop is calling
      &    obsfit_minind_buff, obsfit_maxind_buff,
      &    irec, ObsNo(fNb), tmpObsNo
         CALL print_message(
-     &    msgbuf, standardmessageunit, SQUEEZE_RIGHT , myThid)
+     &    msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
        ENDIF
 #endif
 

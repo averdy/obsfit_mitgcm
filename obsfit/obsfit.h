@@ -6,12 +6,14 @@ C     ==================================================================
      & sample_depth(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy),
      & sample_weight(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy)
       _RL sample_modmask(nsx,nsy)
+      _RL obs_modmask
 #ifndef ALLOW_ECCO
       _RL m_UE(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nsx,nsy)
       _RL m_VN(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nsx,nsy)
 #endif
       COMMON /obsfit_r/ sample_time, sample_lon, sample_lat,
-     & sample_depth, sample_weight, sample_modmask
+     & sample_depth, sample_weight, sample_modmask,
+     & obs_modmask
 #ifndef ALLOW_ECCO
      & ,m_UE, m_VN
 #endif /* ALLOW_ECCO */
@@ -26,13 +28,16 @@ C     ==================================================================
      & fidtangent(NFILESOBSMAX,nsx,nsy)
       integer fiddata(NFILESOBSMAX)
       integer fidglobal(NFILESOBSMAX)
+      integer fidadglobal(NFILESOBSMAX)
+      integer fidtangglobal(NFILESOBSMAX)
       integer obs_num_var_tot(NFILESOBSMAX)
       integer obs_num_var_cur(NFILESOBSMAX,NVARMAX)
       integer obsfit_itracer(NFILESOBSMAX,NVARMAX)
       integer obs_sample1_ind(NFILESOBSMAX,NOBSGLOB)
       COMMON /obsfit_i/ obs_ind_glob, obs_np, 
      & sample_ind_glob, ObsNo, sampleNo,
-     & fidforward, fidadjoint, fidtangent, fiddata, fidglobal,
+     & fidforward, fidadjoint, fidtangent, fiddata, 
+     & fidglobal, fidadglobal, fidtangglobal,
      & obs_num_var_tot, obs_num_var_cur, obsfit_itracer,
      & obs_sample1_ind
 
@@ -101,7 +106,9 @@ C-  Cost
      &        obsfitDir, obsfitFiles
      
       _RL obsfit_dummy(NFILESOBSMAX,NVARMAX,nsx,nsy)
+      _RL obsfit_globaldummy(NFILESOBSMAX,NVARMAX)
       COMMON /obsfit_ctrl_dummy/
-     &                obsfit_dummy
+     &                obsfit_dummy,
+     &                obsfit_globaldummy
      
 C     ==================================================================

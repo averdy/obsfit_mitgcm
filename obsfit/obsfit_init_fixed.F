@@ -111,7 +111,7 @@ C     ==================================================================
      &     (.NOT.usingSphericalPolarGrid .OR. rotateGrid) ) THEN
         WRITE(msgBuf,'(2A)') 'OBSFIT_INIT_FIXED: ',
      &  'obsfitDoGenGrid=.true. is required'
-        CALL PRINT_ERROR( msgBuf , myThid )
+        CALL PRINT_ERROR( msgBuf, myThid )
         WRITE(msgBuf,'(2A)') 'OBSFIT_INIT_FIXED: ',
      &  'unless usingSphericalGrid=.TRUE. and rotateGrid=.FALSE.'
         CALL PRINT_ERROR( msgBuf, myThid )
@@ -177,7 +177,7 @@ c Initialize global variables for obsfit_readvector.F
      &     obsfitFiles(num_file)(1:IL)
         WRITE(msgbuf,'(a)') ' '
         CALL print_message( msgbuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , myThid)
+     &                    SQUEEZE_RIGHT, myThid)
         WRITE(msgbuf,'(a,i3,a,a)')
      &     'obsfit file #',num_file,' is ', obsfitFile(1:IL)
         CALL print_message(
@@ -312,47 +312,96 @@ c Available variables in the data set
      &       obsfit_namesmod(num_file,k)(1:JL)
           ENDIF
           CALL print_message(msgbuf,
-     &       standardmessageunit, SQUEEZE_RIGHT , myThid)
+     &       standardmessageunit, SQUEEZE_RIGHT, myThid)
          ENDIF
         ENDDO
 
 CAV create new netcdf global file for obs-equivalent 
-        JL  = ILNBLNK( obsfitDir )
+        IF ( myProcId .eq. 0 ) THEN
+         JL  = ILNBLNK( obsfitDir )
 
-        WRITE(fnameequinc(1:80),'(3a)')
-     &   obsfitDir(1:JL),obsfitFile(1:IL),'.equi.nc'
-cav I don't think we need adjoint file... but maybe we do?
-c      WRITE(adfnameequinc(1:80),'(4a)')
-c     & obsfitDir(1:JL),'ad',
-c     & obsfitFile(1:IL),'.equi.nc'
+         WRITE(fnameequinc(1:80),'(3a)')
+     &    obsfitDir(1:JL),obsfitFile(1:IL),'.equi.nc'
+         WRITE(adfnameequinc(1:80),'(4a)')
+     &    obsfitDir(1:JL),'ad',
+     &    obsfitFile(1:IL),'.equi.nc'
 
-        inquire( file=fnameequinc, exist=exst )
-        IF (.NOT.exst) THEN
+         inquire( file=fnameequinc, exist=exst )
+         IF (.NOT.exst) THEN
 
-         err = NF_CREATE(fnameequinc,NF_CLOBBER,fidglobal(num_file))
-         err = NF_DEF_DIM(fidglobal(num_file),'iOBS',ObsNo(num_file),
+          err = NF_CREATE(fnameequinc,NF_CLOBBER,fidglobal(num_file))
+          err = NF_DEF_DIM(fidglobal(num_file),'iOBS',ObsNo(num_file),
      &           dimid)
 
-         DO k=1,NVARMAX
-          IF (var_in_obsfile(num_file,k)) THEN
+          DO k=1,NVARMAX
+           IF (var_in_obsfile(num_file,k)) THEN
 
-           err = NF_DEF_VAR(fidglobal(num_file),
-     &        obsfit_names(num_file,k),NF_DOUBLE,
-     &        1,dimid,varid(1+(k-1)*2))
+            err = NF_DEF_VAR(fidglobal(num_file),
+     &         obsfit_names(num_file,k),NF_DOUBLE,
+     &         1,dimid,varid(1+(k-1)*2))
 
-           err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
-     &        varid(1+(k-1)*2),'_FillValue',
-     &        NF_DOUBLE,1, 0. _d 0 )
+            err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
+     &         varid(1+(k-1)*2),'_FillValue',
+     &         NF_DOUBLE,1, 0. _d 0 )
 
-          ENDIF
-         ENDDO
+            err = NF_DEF_VAR(fidglobal(num_file),
+     &         obsfit_namesmask(num_file,k),NF_DOUBLE,
+     &         1,dimid,varid(1+(k-1)*2))
+
+            err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
+     &         varid(1+(k-1)*2),'_FillValue',
+     &         NF_DOUBLE,1, 0. _d 0 )
+
+           ENDIF
+          ENDDO
        
-         err = NF_ENDDEF(fidglobal(num_file))
-         err = NF_CLOSE(fidglobal(num_file))
-         err = NF_OPEN(fnameequinc, NF_WRITE, fidglobal(num_file))
+          err = NF_ENDDEF(fidglobal(num_file))
+          err = NF_CLOSE(fidglobal(num_file))
+          err = NF_OPEN(fnameequinc, NF_WRITE, fidglobal(num_file))
 
-        ELSE
-         err = NF_OPEN(fnameequinc, NF_WRITE, fidglobal(num_file))
+         ELSE
+          err = NF_OPEN(fnameequinc, NF_WRITE, fidglobal(num_file))
+         ENDIF
+
+#ifdef ALLOW_ADJOINT_RUN
+         inquire( file=adfnameequinc, exist=exst )
+         IF (.NOT.exst) THEN
+
+          err = NF_CREATE(adfnameequinc,NF_CLOBBER,
+     &           fidadglobal(num_file))
+          err = NF_DEF_DIM(fidadglobal(num_file),'iOBS',
+     &           ObsNo(num_file),dimid)
+
+          DO k=1,NVARMAX
+           IF (var_in_obsfile(num_file,k)) THEN
+
+            err = NF_DEF_VAR(fidadglobal(num_file),
+     &         obsfit_names(num_file,k),NF_DOUBLE,
+     &         1,dimid,varid(1+(k-1)*2))
+
+            err = NF_PUT_ATT_DOUBLE(fidadglobal(num_file),
+     &         varid(1+(k-1)*2),'_FillValue',
+     &         NF_DOUBLE,1, 0. _d 0 )
+
+             err = NF_DEF_VAR(fidglobal(num_file),
+     &         obsfit_namesmask(num_file,k),NF_DOUBLE,
+     &         1,dimid,varid(1+(k-1)*2))
+
+             err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
+     &         varid(1+(k-1)*2),'_FillValue',
+     &         NF_DOUBLE,1, 0. _d 0 )
+
+           ENDIF
+          ENDDO
+       
+          err = NF_ENDDEF(fidadglobal(num_file))
+          err = NF_CLOSE(fidadglobal(num_file))
+          err = NF_OPEN(adfnameequinc, NF_WRITE, fidadglobal(num_file))
+
+         ELSE
+          err = NF_OPEN(adfnameequinc, NF_WRITE, fidadglobal(num_file))
+         ENDIF
+#endif
         ENDIF
 
 C Loop through obs 
@@ -522,13 +571,13 @@ c number of valid observations in the file
      &     '  # of obs with erroneous HHMMSS values =',
      &     ObsNo_hh
         CALL print_message(
-     &     msgbuf, standardmessageunit, SQUEEZE_RIGHT , myThid)
+     &     msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
 
         WRITE(msgbuf,'(a,i9)')
      &     '  # of obs within time period  =',
      &     ObsNo(num_file)
         CALL print_message(
-     &     msgbuf, standardmessageunit, SQUEEZE_RIGHT , myThid)
+     &     msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
 
 
 C loop through samples
@@ -893,13 +942,13 @@ c number of valid samples in the file
      &       '  current tile is bi,bj                      =',
      &       bi,',',bj
           CALL print_message(
-     &       msgbuf, standardmessageunit, SQUEEZE_RIGHT , myThid)
+     &       msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
 
           WRITE(msgbuf,'(a,i9)')
      &       '  # of samples within tile and time period  =',
      &       SampleNo(num_file,bi,bj)
           CALL print_message(
-     &       msgbuf, standardmessageunit, SQUEEZE_RIGHT , myThid)
+     &       msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
 
 
 C===========================================================
@@ -1119,22 +1168,22 @@ c2) stop after other kind of errors
 
       WRITE(msgbuf,'(a)') ' '
       CALL print_message( msgbuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , myThid)
+     &                    SQUEEZE_RIGHT, myThid)
       WRITE(msgbuf,'(a)')
      &'// ======================================================='
       CALL print_message( msgbuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , myThid)
+     &                    SQUEEZE_RIGHT, myThid)
       WRITE(msgbuf,'(a)')
      &'// obsfit model sampling >>> END <<<'
       CALL print_message( msgbuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , myThid)
+     &                    SQUEEZE_RIGHT, myThid)
       WRITE(msgbuf,'(a)')
      &'// ======================================================='
       CALL print_message( msgbuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , myThid)
+     &                    SQUEEZE_RIGHT, myThid)
       WRITE(msgbuf,'(a)') ' '
       CALL print_message( msgbuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , myThid)
+     &                    SQUEEZE_RIGHT, myThid)
 
 #endif
 

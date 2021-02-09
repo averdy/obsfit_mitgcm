@@ -46,7 +46,6 @@ c--   Initialize the tiled cost function contributions.
            DO num_var=1,NVARMAX
             obsfit_dummy(num_file,num_var,bi,bj)=0. _d 0
            ENDDO
-           
           ENDDO
         ENDDO
       ENDDO
@@ -55,6 +54,7 @@ c--   Initialize the tiled cost function contributions.
         DO num_var=1,NVARMAX
           objf_obsfit(num_file,num_var)= 0. _d 0
           num_obsfit(num_file,num_var) = 0. _d 0
+          obsfit_globaldummy(num_file,num_var) = 0. _d 0
         ENDDO
       ENDDO
 

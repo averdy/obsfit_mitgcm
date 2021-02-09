@@ -46,7 +46,7 @@ C !LOCAL VARIABLES:
       integer K,num_file,num_var,sample_num
       integer bi,bj,iG,jG
       _RL sample_modval, sample_modvaltmp
-      _RL obs_modval, obs_modmask
+      _RL obs_modval
       _RL obs_data, obs_weight
 #ifndef ALLOW_CTRL
       integer optimcycle
@@ -79,10 +79,10 @@ C     ==================================================================
 
       write(msgbuf,'(a)') ' '
       CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT , myThid)
+     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
       write(msgbuf,'(a)') '== cost_obsfit: begin =='
       CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT , myThid)
+     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
 
         _BEGIN_MASTER( myThid )
 
@@ -162,6 +162,8 @@ C Combine all processes
           samples_mask_glob(ii) = tmpgs
          ENDDO     
 
+         IF ( myProcId .eq. 0 ) THEN
+
 C Loop over obs
          DO obs_num=1,NOBSGLOB
           IF (obs_num.LE.ObsNo(num_file)) THEN
@@ -184,6 +186,8 @@ C Calculate model equi of each obs by averaging NP samples
               IF (samples_mask_glob(irec) .GT. 0. _d 0) THEN
                num_valid_samples = num_valid_samples+1
               ENDIF
+cc              print*,'CAV cost',irec,samples_mask_glob(irec),
+cc     & sample_mask_sum,num_valid_samples
             ENDIF
            ENDDO
             
@@ -196,19 +200,46 @@ C Spatial averaging
              obs_modmask = 0
            ENDIF
 
-c Write to global netcdf file
-           IF ( myProcId .eq. 0 ) THEN
-            irec = obs_ind_glob(num_file,obs_num)
-            err = NF_INQ_VARID(fidglobal(num_file), obsfit_names(
-     &       num_file,num_var), varid1)
-            err = NF_PUT_VARA_DOUBLE(fidglobal(num_file), varid1, 
-     &       irec, 1, obs_modval)
-            err = NF_INQ_VARID(fidglobal(num_file), obsfit_namesmask(
-     &       num_file,num_var), varid1)
-            err = NF_PUT_VARA_DOUBLE(fidglobal(num_file), varid1, 
-     &       irec, 1, obs_modmask)
-           ENDIF
+cc              print*,'CAV obs',obs_num,obs_modval,obs_modmask
 
+c Write to global netcdf file
+cc           IF ( myProcId .eq. 0 ) THEN
+c            irec = obs_ind_glob(num_file,obs_num)
+c            err = NF_INQ_VARID(fidglobal(num_file), obsfit_names(
+c     &       num_file,num_var), varid1)
+c            err = NF_PUT_VARA_DOUBLE(fidglobal(num_file), varid1, 
+c     &       irec, 1, obs_modval)
+c            err = NF_INQ_VARID(fidglobal(num_file), obsfit_namesmask(
+c     &       num_file,num_var), varid1)
+c            err = NF_PUT_VARA_DOUBLE(fidglobal(num_file), varid1, 
+c     &       irec, 1, obs_modmask)
+              CALL active_write_globsfit(num_file,
+     &         obs_modval,num_var,
+     &         obs_num,optimcycle,myThid,
+     &         obsfit_globaldummy(num_file,num_var))
+cc           ENDIF
+
+          ENDIF !if (obs_num.LE.ObsNo(num_file)) then
+         ENDDO !do obs_num=..
+
+cc         IF ( myProcId .eq. 0 ) THEN
+           err = NF_CLOSE(fidglobal(num_file))
+           IL  = ILNBLNK( obsfitfiles(num_file) )
+           write(obsfitfile(1:80),'(1a)')
+     &      obsfitfiles(num_file)(1:IL)
+           IL  = ILNBLNK( obsfitfile )
+           JL  = ILNBLNK( obsfitDir )
+           write(fnameequinc(1:80),'(3a)')
+     &      obsfitDir(1:JL),obsfitfile(1:IL),'.equi.nc'
+           err = NF_OPEN(fnameequinc,NF_NOWRITE,fidglobal(num_file))
+cc         ENDIF
+           print*,'err',err
+         
+C Loop over obs
+         DO obs_num=1,NOBSGLOB
+          IF (obs_num.LE.ObsNo(num_file)) THEN
+
+           obs_modval=0.
            obs_data=0.
            obs_weight=0.
 
@@ -220,6 +251,16 @@ C Read observation and uncertainty (weight)
            CALL obsfit_readobsfile(num_file,-num_var,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_weight,myThid)
+
+C Read model equivalent from global file
+cc           IF ( myProcId .eq. 0 ) THEN
+              CALL active_read_globsfit(num_file,
+     &         obs_modval,num_var,
+     &         obs_num,.false.,optimcycle,myThid,
+     &         obsfit_globaldummy(num_file,num_var))
+cc           ENDIF
+
+              print*,'CAV obs',obs_num,obs_modval,obs_modmask
 
            IF (obs_weight.GT.0.
      &            ) THEN
@@ -234,12 +275,14 @@ C Read observation and uncertainty (weight)
            ENDIF
 
           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
-         ENDDO !do obs_num=..
+         ENDDO !do obs_num...
+
+         ENDIF !if myprocid = 0
 
         ENDIF !if (var_in_obsfile.EQV..TRUE.) then
        ENDDO !do num_var...
       ENDDO !do num_file=1,NFILESOBSMAX
-
+  
         _END_MASTER( myThid )
 
 c Print cost function values
@@ -256,17 +299,17 @@ c
      &  objf_obsfit_glo,num_obsfit_glo
 
       IF ( num_obsfit_glo .GT. 0. ) CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT , myThid)
+     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
 c
        ENDDO
       ENDDO
 
       write(msgbuf,'(a)') '== cost_obsfit: end   =='
       CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT , myThid)
+     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
       write(msgbuf,'(a)') ' '
       CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT , myThid)
+     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
 
 #endif
 
