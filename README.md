@@ -9,7 +9,6 @@ Input files contain the observation time, observed values, and observation uncer
 TO DO:
 - time integration / averaging (add obsfitOperation)
 - generic grid
-- obsfit_init_fixed.F: Read samples weights, check that they add up to 1
 - obsfit_init_fixed.F: Update sample_interp_weights using fancier 3d interpolation (see MM email)
 
 
