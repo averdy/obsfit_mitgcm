@@ -1,5 +1,5 @@
 # obsfit
-obsfit package for MITgcm
+obsfit package for MITgcm (test)
 
 - Adapted from MITgcm/pkg/profiles.
 - Input observations are in vector form, unlike profiles which are matrices (nprof x ndepth).
