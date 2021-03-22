@@ -4,13 +4,12 @@ obsfit package for MITgcm
 - Adapted from MITgcm/pkg/profiles.
 - Input observations are in vector form, unlike profiles which are matrices (nprof x ndepth).
 - Observations can be made of multiple samples that are averaged or integrated spatially and temporally.
-- Input files contain the observation time, observed values, and observation uncertainties, as well as sample location (longitude, latitude, depth) and sample weights (relative importance in calculating observed value). 
+- Input files are netcdf; they provide the observation(s) start time and duration, observed value(s) with associated uncertainty, and the number of samples that make each observation, as well as sample(s) location (longitude, latitude, depth) and sample(s) weight (relative importance of each sample in calculating the observed value). Note that observations with a positive duration are averaged in time, and a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. If no sample weights are provided, it is assumed that all samples are weighed equally.  
 - During the model run, model variable at sampled locations are saved in binary tiled files.
 - After the run, sampled values are read averaged to calculate the model-equivalent for each observations. Model values and masks are written in a global netcdf file (which is directly comparable to the input file, so no need to "recompose" later). The global file is then read during cost calculation (and hopefully will make the package compatible with multigrid).
 
 
 TO DO:
-- time integration / averaging (add obsfitOperation)
 - generic grid
 - obsfit_init_fixed.F: update sample_interp_weights using triangular interpolation (not a priority)
 
