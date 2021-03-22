@@ -20,10 +20,10 @@ C ======================================================================
       PARAMETER ( NOBSGLOB=500 )
 
       INTEGER NSAMPLEGLOB
-      PARAMETER ( NSAMPLEGLOB=5000 )
+      PARAMETER ( NSAMPLEGLOB=55000 )
 
       INTEGER NPMAX
-      PARAMETER ( NPMAX=1000 )
+      PARAMETER ( NPMAX=110 )
 
       INTEGER NUM_INTERP_POINTS
       PARAMETER ( NUM_INTERP_POINTS=8 )

@@ -13,6 +13,9 @@ C To use file units between 9 and 99 (seems to conflict
 C with NF_OPEN some times, but is needed when using g77)
 # undef OBSFIT_USE_MDSFINDUNITS
 
+C Sound speed calculation (will be moved out of obsfit eventually)
+# define ALLOW_SOUNDSPEED_CALC_CODE
+
 #endif /* ALLOW_OBSFIT */
 #endif /* OBSFIT_OPTIONS_H */
 

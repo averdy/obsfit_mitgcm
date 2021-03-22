@@ -2,6 +2,9 @@
 #ifdef ALLOW_CTRL
 # include "CTRL_OPTIONS.h"
 #endif
+#ifdef ALLOW_AUTODIFF
+# include "AUTODIFF_OPTIONS.h"
+#endif
 
 CBOP 0
 C     !ROUTINE: OBSFIT_INLOOP
@@ -23,16 +26,19 @@ C !USES:
 #include "DYNVARS.h"
 #include "PARAMS.h"
 #ifdef ALLOW_CAL
-#include "cal.h"
+# include "cal.h"
 #endif
 #ifdef ALLOW_CTRL
-#include "optim.h"
+# include "optim.h"
 #endif
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
 # include "obsfit.h"
 # include "netcdf.inc"
 #endif
+#endif
+#ifdef ALLOW_AUTODIFF
+# include "tamc.h"
 
 C !INPUT PARAMETERS:
       _RL     myTime
@@ -43,7 +49,7 @@ CEOP
 
 C !LOCAL VARIABLES:
       integer k,bi,bj,sample_num,num_file,num_var
-      _RL     sample_modval
+      _RL     sample_modval, saved_modval
       integer sample_i(NUM_INTERP_POINTS),sample_j(NUM_INTERP_POINTS)
       integer sample_k(NUM_INTERP_POINTS)
       _RL     sample_w(NUM_INTERP_POINTS)
@@ -58,6 +64,9 @@ C     ==================================================================
 
 #ifndef ALLOW_CTRL
       optimcycle = 0
+#endif
+#ifdef ALLOW_AUTODIFF_TAMC
+      itdkey = bi + (bj - 1)*nSx + (ikey_dynamics - 1)*nSx*nSy
 #endif
 
         _BEGIN_MASTER( myThid )
@@ -87,11 +96,11 @@ C     ==================================================================
         DO num_file=1,NFILESOBSMAX
 
 c for now, not dealing with del_time (obs are instantaneous)
-
+         
          DO sample_num=1,NOBSGLOB
           IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
-           IF ((sample_time(num_file,sample_num,bi,bj).GE.myTime).AND.
-     &      (sample_time(num_file,sample_num,bi,bj).LT. 
+           IF ((sample_timeE(num_file,sample_num,bi,bj).GE.myTime)
+     &      .AND.(sample_timeS(num_file,sample_num,bi,bj).LT. 
      &      (myTime+deltaTclock))) THEN
 
             DO k=1,NUM_INTERP_POINTS
@@ -102,8 +111,36 @@ c for now, not dealing with del_time (obs are instantaneous)
             ENDDO
 
             DO num_var=1,NVARMAX
+
+C Calculate sound speed
+             IF (obsfit_names(num_file,num_var).eq.'obs_CS') THEN
+              CALL diags_sound_speed(
+     I                       myThid)
+#ifdef ALLOW_DIAGNOSTICS
+              IF ( useDiagnostics ) THEN
+               CALL DIAGNOSTICS_FILL(cs,'CSound  ',0,Nr,1,bi,bj,myThid)
+              ENDIF
+#endif /* ALLOW_DIAGNOSTICS */
+             ENDIF
+
+CADJ STORE sample_modval  = comlev1_bibj, key=itdkey, kind=isbyte
+CADJ STORE saved_modval  = comlev1_bibj, key=itdkey, kind=isbyte
+CADJ STORE sample_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
+
              sample_modval=0
+             saved_modval=0
              IF (var_in_obsfile(num_file,num_var).EQV..TRUE.) THEN
+
+C If averaging or integrating in time, read previously 
+C recorded value and add to it
+              IF (obsfitOperation(num_file).gt.0) THEN
+               CALL active_read_obsfit(num_file,
+     &          saved_modval,num_var,
+     &          sample_num,.false.,optimcycle,bi,bj,myThid,
+     &          obsfit_dummy(num_file,num_var,bi,bj))
+               sample_modval = saved_modval+sample_modval*deltaTclock
+              ENDIF
+
               CALL obsfit_interp(sample_modval,
      &         sample_i,sample_j,sample_k,sample_w,
      &         obsfit_namesmod(num_file,num_var),
@@ -111,8 +148,14 @@ c for now, not dealing with del_time (obs are instantaneous)
      &         num_file,myTime,bi,bj,myThid)
               sample_modval=sample_modval*
      &                   obsfit_facmod(num_file,num_var)
+
+              IF (obsfitOperation(num_file).gt.0) THEN
+               sample_modval = saved_modval+sample_modval*deltaTclock
+              ENDIF
+              
               sample_modmask(bi,bj)=sample_modmask(bi,bj)*
      &                   sample_weight(num_file,sample_num,bi,bj)
+
               CALL active_write_obsfit(num_file,
      &         sample_modval,num_var,
      &         sample_num,optimcycle,bi,bj,myThid,

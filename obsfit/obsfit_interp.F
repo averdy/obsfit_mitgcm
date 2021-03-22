@@ -116,6 +116,8 @@ c horizontal interpolation:
                tab_coeffs1(q)=m_UE(i_cur(q),j_cur(q),k_cur(q),bi,bj)
          ELSEIF (var_cur.EQ.'VN') THEN
                tab_coeffs1(q)=m_VN(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+         ELSEIF (var_cur.EQ.'CS') THEN
+               tab_coeffs1(q)=cs(i_cur(q),j_cur(q),k_cur(q),bi,bj)
          ELSE
                tab_coeffs1(q)=0. _d 0
          ENDIF

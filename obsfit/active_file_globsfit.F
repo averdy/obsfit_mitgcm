@@ -60,9 +60,6 @@ CEOP
      &     irec, obs_ind_glob(active_num_file,irec),
      &     FORWARD_SIMULATION, myOptimIter, myThid)
 
-      print*,'*** CAV read ***',active_var,irec, 
-     & obs_ind_glob(active_num_file,irec),obs_modmask
-
 #endif
 
       RETURN
@@ -113,9 +110,6 @@ c     myThid:          thread number for this instance
 CEOP
 
 #ifdef ALLOW_OBSFIT
-
-cc      print*,'*** CAV write ***',active_var,irec, 
-cc     & obs_ind_glob(active_num_file,irec)
 
       call active_write_globsfit_rl( 
      &     fidglobal(active_num_file),

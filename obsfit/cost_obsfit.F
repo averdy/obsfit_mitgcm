@@ -186,8 +186,6 @@ C Calculate model equi of each obs by averaging NP samples
               IF (samples_mask_glob(irec) .GT. 0. _d 0) THEN
                num_valid_samples = num_valid_samples+1
               ENDIF
-cc              print*,'CAV cost',irec,samples_mask_glob(irec),
-cc     & sample_mask_sum,num_valid_samples
             ENDIF
            ENDDO
             
@@ -199,8 +197,6 @@ C Spatial averaging
              obs_modval = -9999.
              obs_modmask = 0
            ENDIF
-
-cc              print*,'CAV obs',obs_num,obs_modval,obs_modmask
 
 c Write to global netcdf file
 cc           IF ( myProcId .eq. 0 ) THEN
@@ -233,7 +229,6 @@ cc         IF ( myProcId .eq. 0 ) THEN
      &      obsfitDir(1:JL),obsfitfile(1:IL),'.equi.nc'
            err = NF_OPEN(fnameequinc,NF_NOWRITE,fidglobal(num_file))
 cc         ENDIF
-           print*,'err',err
          
 C Loop over obs
          DO obs_num=1,NOBSGLOB
@@ -260,8 +255,11 @@ cc           IF ( myProcId .eq. 0 ) THEN
      &         obsfit_globaldummy(num_file,num_var))
 cc           ENDIF
 
-              print*,'CAV obs',obs_num,obs_modval,obs_modmask
-
+C Time averaging
+           IF (obsfitOperation(num_file).eq.1) THEN
+            obs_modval = obs_modval/obs_delT(num_file, obs_num)
+           ENDIF
+           
            IF (obs_weight.GT.0.
      &            ) THEN
                  objf_obsfit(num_file,num_var)=
