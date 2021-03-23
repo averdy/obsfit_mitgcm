@@ -34,7 +34,7 @@ obs_T=zeros(1,nobs);
 obs_Tweight=ones(1,nobs);
 
 % obs start time
-obs_YYYYMMDD=20140702*ones(1,nobs);
+obs_YYYYMMDD=20130702*ones(1,nobs);
 obs_HHMMSS=000000*ones(1,nobs);
 
 % obs duration
