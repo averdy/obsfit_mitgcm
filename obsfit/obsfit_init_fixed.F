@@ -37,18 +37,19 @@ CEOP
 C !LOCAL VARIABLES:
       INTEGER i,j,k,l,m,bi,bj,iG,jG,num_file,sampleNo_tile
       INTEGER stopObsfit
-      INTEGER fid, dimid, varid0, varid1, varid1a, varid1b
+      INTEGER fid, dimid, varid0, varid1, varid1a, varid1b, varid1c
       INTEGER varid2, varid3, varid4, varid5
       _RL tmpyymmdd(1000),tmphhmmss(1000),diffsecs
       _RL yymmddMin,yymmddMax
       _RL hhmmssMin,hhmmssMax
       INTEGER tmpdate(4),tmpdiff(4),obsIsInRunTime,sampleIsInTile
-      INTEGER loopThroughSamples, weighSamples
-      _RL tmpnp(1000)
+      INTEGER loopThroughSamples, weighSamples, readDelT
+      _RL tmpnp(1000), tmpdelT(1000)
       _RL tmp_lon, tmp_lon2(1000), tmp_lat2(1000), lon_cur, lat_cur
-      _RL tmp_depth2(1000), depth_cur
+      _RL tmp_depth2(1000), depth_cur, delT_cur
       _RL tmp_weight2(1000)
       _RL tmp_sample_time(NSAMPLEGLOB)
+      _RL tmp_sample_delT(NSAMPLEGLOB)
       _RL lon_1, lon_2, lat_1, lat_2
       _RL depth_1, depth_2
       _RL lon_tmp1, lon_tmp2
@@ -232,6 +233,20 @@ c2 Read the info for observations:
          stopObsfit=1
         ENDIF
 
+        readDelT=1
+        err = NF_INQ_VARID(fid,'obs_delT', varid1c )
+c time interval (if missing, assume instanteneous):
+        IF (err.NE.NF_NOERR) THEN
+         readDelT=0
+
+         WRITE(msgbuf,'(a,a)')
+     &     '      input obsfit file does not have time interval;',
+     &     '      assume observations are instantaneous '
+         CALL print_message(
+     &      msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
+
+        ENDIF
+                
 c Read the info for samples:
         err = NF_INQ_VARID(fid,'sample_x', varid2 )
         err = err + NF_INQ_VARID(fid,'sample_y', varid3 )
@@ -316,7 +331,7 @@ c Available variables in the data set
          ENDIF
         ENDDO
 
-CAV create new netcdf global file for obs-equivalent 
+C create new netcdf global file for obs-equivalent 
         IF ( myProcId .eq. 0 ) THEN
          JL  = ILNBLNK( obsfitDir )
 
@@ -445,11 +460,15 @@ c read time
      &     vec_count, tmpyymmdd)
           err = NF_GET_VARA_DOUBLE(fid,varid1b,vec_start,
      &     vec_count, tmphhmmss)
+c read time interval
+          IF (readDelT.GT.0) THEN      
+           err = NF_GET_VARA_DOUBLE(fid,varid1c,vec_start,
+     &      vec_count, tmpdelT)
+          ENDIF
 c read number of samples per obs
           IF (loopThroughSamples.EQ.1) THEN      
            err = NF_GET_VARA_DOUBLE(fid,varid0,vec_start,
      &      vec_count, tmpnp)
-c samples lon/lat/depth will be read later
           ENDIF
           
           IF (err.NE.NF_NOERR) THEN
@@ -489,7 +508,9 @@ c loop through this chunk
            IF ( stopObsfit .EQ. 0) THEN
       
             obsIsInRunTime=1
-      
+
+CAV if obs starts before model run, will be ignored even if it ends after 
+CAV model starts - ok for now      
             IF (( ( tmpyymmdd(m).GT.yymmddMin ).OR.(( tmpyymmdd(m).EQ.
      &        yymmddMin ).AND.( tmphhmmss(m).GT.hhmmssMin ))).AND.
      &      ( ( tmpyymmdd(m).LT.yymmddMax ).OR.(( tmpyymmdd(m).EQ.
@@ -520,6 +541,25 @@ c if tmphhmmss is out of range then disregard obs
              np_cur = 1
             ENDIF
 
+            IF (readDelT.EQ.1) THEN      
+             IF (tmpdelT(m).GT.0. _d 0) THEN      
+c delT>0: time average      
+              delT_cur = tmpdelT(m)
+              obsfitOperation(num_file)=1
+             ELSEIF (tmpdelT(m).LT.0. _d 0) THEN
+c delT<0: time integral      
+              delT_cur = -tmpdelT(m)
+              obsfitOperation(num_file)=2
+             ELSE
+c delT=0: instantaneous
+              delT_cur = 0. _d 0
+              obsfitOperation(num_file)=0
+             ENDIF
+            ELSE
+             delT_cur = 0. _d 0
+             obsfitOperation(num_file)=0
+            ENDIF
+
             IF (obsIsInRunTime.EQ.1) THEN
 c if yes then store obs index position and number of samples:
              ObsNo_valid=ObsNo_valid+1
@@ -530,6 +570,7 @@ c number of samples in each valid observation
              IF (np_cur.GT.obs_np_max) obs_np_max = np_cur
 c position of first sample            
              obs_sample1_ind(num_file,ObsNo_valid)=sample_cnt
+             obs_delT(num_file,ObsNo_valid) = delT_cur
       
             ENDIF !if (obsIsInRunTime.EQ.1) then
       
@@ -538,6 +579,7 @@ c keep track of samples index position
 c and assign time to samples
             DO k=1,np_cur
              tmp_sample_time(sample_cnt)=diffsecs
+             tmp_sample_delT(sample_cnt)=delT_cur
              sample_cnt=sample_cnt+1
             ENDDO
 
@@ -594,7 +636,8 @@ C if isample is not a dimension, use iobs for size of sampleno
           ENDIF
          
           DO k=1,NSAMPLEGLOB
-           sample_time(num_file,k,bi,bj)=-999. _d 0
+           sample_timeS(num_file,k,bi,bj)=-999. _d 0
+           sample_timeE(num_file,k,bi,bj)=-999. _d 0
            sample_lon(num_file,k,bi,bj)=-999. _d 0
            sample_lat(num_file,k,bi,bj)=-999. _d 0
            sample_depth(num_file,k,bi,bj)=-999. _d 0
@@ -780,8 +823,11 @@ c if yes then store sample index position and number of samples:
                 sample_ind_glob(num_file,SampleNo_tile,bi,bj)
      &           =m+1000*(kk-1)
 
-                sample_time(num_file,SampleNo_tile,bi,bj)=
+                sample_timeS(num_file,SampleNo_tile,bi,bj)=
      &           tmp_sample_time(m+1000*(kk-1)) 
+                sample_timeE(num_file,SampleNo_tile,bi,bj)=
+     &           sample_timeS(num_file,SampleNo_tile,bi,bj)
+     &           +tmp_sample_delT(m+1000*(kk-1))
                 sample_lon(num_file,SampleNo_tile,bi,bj)=lon_cur
                 sample_lat(num_file,SampleNo_tile,bi,bj)=lat_cur
                 sample_depth(num_file,SampleNo_tile,bi,bj)=depth_cur
@@ -850,7 +896,7 @@ c determine whether sample is in current tile domain (generic grid case)
 
 c if yes then store sample_time and interpolation coeffs and indices:
        SampleNo_tile=SampleNo_tile+1
-       sample_time(num_file,SampleNo_tile,bi,bj)=diffsecs
+       sample_timeS(num_file,SampleNo_tile,bi,bj)=diffsecs
        sample_interp_xC11(num_file,SampleNo_tile,bi,bj)=tmp_xC11(m)
        sample_interp_yC11(num_file,SampleNo_tile,bi,bj)=tmp_yC11(m)
        sample_interp_xCNINJ(num_file,SampleNo_tile,bi,bj)=tmp_xCNINJ(m)
@@ -1061,7 +1107,8 @@ C===========================================================
            obs_np(num_file,k)=-999. _d 0
           ENDDO
           DO k=1,NSAMPLEGLOB
-           sample_time(num_file,k,bi,bj)=-999. _d 0
+           sample_timeS(num_file,k,bi,bj)=-999. _d 0
+           sample_timeE(num_file,k,bi,bj)=-999. _d 0
            sample_lon(num_file,k,bi,bj)=-999. _d 0
            sample_lat(num_file,k,bi,bj)=-999. _d 0
            sample_depth(num_file,k,bi,bj)=-999. _d 0
@@ -1186,6 +1233,16 @@ c2) stop after other kind of errors
      &                    SQUEEZE_RIGHT, myThid)
 
 #endif
+
+CAV Speed of sound diagnostic (eventually move to DIAGNOSTICS_MAIN_INIT?)
+#ifdef ALLOW_DIAGNOSTICS
+      diagName  = 'CSound  '
+      diagTitle = 'Speed of sound in seawater'
+      diagUnits = 'm/s             '
+      diagCode  = 'SMR     MR      '
+      CALL DIAGNOSTICS\_ADDTOLIST( diagNum,
+     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
+#endif /* ALLOW_DIAGNOSTICS */
 
 C     ==================================================================
 

@@ -78,8 +78,6 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & obs_modmask)
 
-      print*,'*** CAV read2 ***',active_var,irecglob,obs_modmask
-
         _END_MASTER( myThid )
 
       endif
@@ -201,9 +199,6 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       if (theSimulationMode .eq. FORWARD_SIMULATION) then
 
         _BEGIN_MASTER( myThid )
-
-cc      print*,'*** CAV write2 ***',active_var,irecglob
-
 
       vec_start=irecglob
       vec_count=1

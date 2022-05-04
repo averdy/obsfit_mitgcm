@@ -1,25 +1,31 @@
 C     ==================================================================
 
-      _RL sample_time(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy),
+      _RL sample_timeS(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy),
+     & sample_timeE(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy),
      & sample_lon(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy),
      & sample_lat(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy),
      & sample_depth(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy),
      & sample_weight(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy)
       _RL sample_modmask(nsx,nsy)
       _RL obs_modmask
+      _RL obs_delT(NFILESOBSMAX,NOBSGLOB)
 #ifndef ALLOW_ECCO
       _RL m_UE(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nsx,nsy)
       _RL m_VN(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nsx,nsy)
 #endif
-      COMMON /obsfit_r/ sample_time, sample_lon, sample_lat,
+      _RL cs(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nsx,nsy)
+      COMMON /obsfit_r/ sample_timeS, sample_timeE,
+     & sample_lon, sample_lat,
      & sample_depth, sample_weight, sample_modmask,
-     & obs_modmask
+     & obs_modmask, obs_delT
 #ifndef ALLOW_ECCO
      & ,m_UE, m_VN
 #endif /* ALLOW_ECCO */
+     & ,cs
 
       integer obs_ind_glob(NFILESOBSMAX,NOBSGLOB)
       integer obs_np(NFILESOBSMAX,NOBSGLOB)
+      integer obsfitOperation(NFILESOBSMAX)
       integer sample_ind_glob(NFILESOBSMAX,NSAMPLEGLOB,nsx,nsy)
       integer ObsNo(NFILESOBSMAX)
       integer sampleNo(NFILESOBSMAX,nsx,nsy)
@@ -35,6 +41,7 @@ C     ==================================================================
       integer obsfit_itracer(NFILESOBSMAX,NVARMAX)
       integer obs_sample1_ind(NFILESOBSMAX,NOBSGLOB)
       COMMON /obsfit_i/ obs_ind_glob, obs_np, 
+     & obsfitOperation,
      & sample_ind_glob, ObsNo, sampleNo,
      & fidforward, fidadjoint, fidtangent, fiddata, 
      & fidglobal, fidadglobal, fidtangglobal,
