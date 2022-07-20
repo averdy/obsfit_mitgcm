@@ -38,7 +38,8 @@ C !USES:
 # include "cal.h"
 #endif
 #ifdef ALLOW_ECCO
-# include "ecco.h"
+# include "ECCO_SIZE.h"
+# include "ECCO.h"
 #endif
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
@@ -62,17 +63,17 @@ C !INPUT PARAMETERS:
       INTEGER  i_cur, j_cur, k_cur
 #else
       _RL      modval_cur_out
-      _RL      weights_cur(NUM_INTERP_POINTS)
-      INTEGER  i_cur(NUM_INTERP_POINTS)
-      INTEGER  j_cur(NUM_INTERP_POINTS)
-      INTEGER  k_cur(NUM_INTERP_POINTS)
+      _RL      weights_cur(NUM_INTERP_PTS_OF)
+      INTEGER  i_cur(NUM_INTERP_PTS_OF)
+      INTEGER  j_cur(NUM_INTERP_PTS_OF)
+      INTEGER  k_cur(NUM_INTERP_PTS_OF)
 #endif
 CEOP
 
 C !LOCAL VARIABLES:
-      _RL      tab_coeffs1(NUM_INTERP_POINTS)
-      _RL      tab_coeffs3(NUM_INTERP_POINTS)
-      _RL      ponderations(NUM_INTERP_POINTS),pondsSUM
+      _RL      tab_coeffs1(NUM_INTERP_PTS_OF)
+      _RL      tab_coeffs3(NUM_INTERP_PTS_OF)
+      _RL      ponderations(NUM_INTERP_PTS_OF),pondsSUM
       INTEGER  q,k,kk,kcur,bi,bj
       _RL      modval_cur,mask_cur
       _RL      tmp_coeff
@@ -86,7 +87,7 @@ C     ==================================================================
 c horizontal interpolation:
         pondsSUM=0. _d 0
 
-        DO q=1,NUM_INTERP_POINTS
+        DO q=1,NUM_INTERP_PTS_OF
          IF (var_cur.EQ.'theta') THEN
                tab_coeffs1(q)=theta(i_cur(q),j_cur(q),k_cur(q),bi,bj)
          ELSEIF (var_cur.EQ.'salt') THEN
@@ -116,8 +117,8 @@ c horizontal interpolation:
                tab_coeffs1(q)=m_UE(i_cur(q),j_cur(q),k_cur(q),bi,bj)
          ELSEIF (var_cur.EQ.'VN') THEN
                tab_coeffs1(q)=m_VN(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.'CS') THEN
-               tab_coeffs1(q)=cs(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+cav         ELSEIF (var_cur.EQ.'CS') THEN
+cav               tab_coeffs1(q)=cSound(i_cur(q),j_cur(q),k_cur(q),bi,bj)
          ELSE
                tab_coeffs1(q)=0. _d 0
          ENDIF
@@ -130,7 +131,7 @@ c horizontal interpolation:
         IF (pondsSUM.GT.0) THEN
          modval_cur=0. _d 0
          mask_cur=1. _d 0
-         DO q=1,NUM_INTERP_POINTS
+         DO q=1,NUM_INTERP_PTS_OF
            modval_cur=modval_cur
      &     +tab_coeffs1(q)*ponderations(q)/pondsSUM
          ENDDO

@@ -55,7 +55,7 @@ c create a netcdf file
      &  varid(1))
        err = NF_PUT_ATT_INT(fid2,varid(1),'_FillValue',NF_INT,1,0)
 
-       DO num_var=1,NVARMAX
+       DO num_var=1,NVARMAX_OF
         err = NF_INQ_VARID(fid1,obsfit_names(num_file,num_var),varid0)
         IF (err.EQ.NF_NOERR) THEN
 

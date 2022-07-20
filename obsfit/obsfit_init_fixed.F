@@ -48,8 +48,8 @@ C !LOCAL VARIABLES:
       _RL tmp_lon, tmp_lon2(1000), tmp_lat2(1000), lon_cur, lat_cur
       _RL tmp_depth2(1000), depth_cur, delT_cur
       _RL tmp_weight2(1000)
-      _RL tmp_sample_time(NSAMPLEGLOB)
-      _RL tmp_sample_delT(NSAMPLEGLOB)
+      _RL tmp_sample_time(NSAMPLESMAX)
+      _RL tmp_sample_delT(NSAMPLESMAX)
       _RL lon_1, lon_2, lat_1, lat_2
       _RL depth_1, depth_2
       _RL lon_tmp1, lon_tmp2
@@ -67,15 +67,22 @@ C !LOCAL VARIABLES:
       INTEGER varid(10)
       INTEGER varid_intp1, varid_intp2, varid_intp11, varid_intp22
       INTEGER varid_intp3, varid_intp4, varid_intp5, q, iINTERP
-      _RL tmp_i(1000,NUM_INTERP_POINTS)
-      _RL tmp_j(1000,NUM_INTERP_POINTS)
-      _RL tmp_weights(1000,NUM_INTERP_POINTS),tmp_sum_weights
+      _RL tmp_i(1000,NUM_INTERP_PTS_OF)
+      _RL tmp_j(1000,NUM_INTERP_PTS_OF)
+      _RL tmp_weights(1000,NUM_INTERP_PTS_OF),tmp_sum_weights
       _RL tmp_xC11(1000),tmp_yC11(1000)
       _RL tmp_xCNINJ(1000),tmp_yCNINJ(1000)
       INTEGER stopGenericGrid
       Real*8 xy_buffer_r8(0:sNx+1,0:sNy+1)
       INTEGER vec_start2(2), vec_count2(2)
       INTEGER hh, obsNo_hh, obs_np_max
+#ifdef ALLOW_DIAGNOSTICS
+      INTEGER       diagNum
+      CHARACTER*8   diagName
+      CHARACTER*16  diagCode
+      CHARACTER*16  diagUnits
+      CHARACTER*(80) diagTitle
+#endif
 
 C !FUNCTIONS:
       INTEGER  ILNBLNK
@@ -155,7 +162,7 @@ C     ==================================================================
 c Initialize global variables for obsfit_readvector.F
       obsfit_curfile_buff=0
       DO l=1,1000
-       DO k=1,NVARMAX
+       DO k=1,NVARMAX_OF
         obsfit_data_buff(l,k)=0. _d 0
         obsfit_weight_buff(l,k)=0. _d 0
        ENDDO
@@ -166,7 +173,7 @@ c Initialize global variables for obsfit_readvector.F
       hhmmssMin=modelstartdate(2)
       hhmmssMax=modelenddate(2)
 
-      DO num_file=1,NFILESOBSMAX
+      DO num_file=1,NFILESMAX_OF
 
        ObsNo_hh=0
        obs_np_max=0
@@ -267,8 +274,8 @@ c weight for each sample (if missing, assume all samples weigh equally):
          weighSamples=0
 
          WRITE(msgbuf,'(a,a)')
-     &     '      input obsfit file does not have samples weight;',
-     &     '      assume all samples are weighed evenly '
+     &     '      input obsfit file does not have obsfit weight;',
+     &     '      assume all obsfit are weighed evenly '
          CALL print_message(
      &      msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
 
@@ -294,12 +301,12 @@ c Read interpolation information (grid points, coeffs, etc.)
         ENDIF
 
 c Available variables in the data set
-        DO k=1,NVARMAX
+        DO k=1,NVARMAX_OF
          obs_num_var_cur(num_file,k)=0
         ENDDO
         obs_num_var_tot(num_file)=0
 
-        DO k=1,NVARMAX
+        DO k=1,NVARMAX_OF
          JL  = ILNBLNK( obsfit_names(num_file,k) )
          err = NF_INQ_VARID(fid,obsfit_names(num_file,k)(1:JL), varid1)
          IF (err.EQ.NF_NOERR) THEN
@@ -311,7 +318,7 @@ c Available variables in the data set
          ENDIF
         ENDDO
 
-        DO k=1,NVARMAX
+        DO k=1,NVARMAX_OF
          IF (var_in_obsfile(num_file,k)) THEN
           KL  = ILNBLNK( obsfit_names(num_file,k) )
           JL  = ILNBLNK( obsfit_namesmod(num_file,k) )
@@ -348,7 +355,7 @@ C create new netcdf global file for obs-equivalent
           err = NF_DEF_DIM(fidglobal(num_file),'iOBS',ObsNo(num_file),
      &           dimid)
 
-          DO k=1,NVARMAX
+          DO k=1,NVARMAX_OF
            IF (var_in_obsfile(num_file,k)) THEN
 
             err = NF_DEF_VAR(fidglobal(num_file),
@@ -387,7 +394,7 @@ C create new netcdf global file for obs-equivalent
           err = NF_DEF_DIM(fidadglobal(num_file),'iOBS',
      &           ObsNo(num_file),dimid)
 
-          DO k=1,NVARMAX
+          DO k=1,NVARMAX_OF
            IF (var_in_obsfile(num_file,k)) THEN
 
             err = NF_DEF_VAR(fidadglobal(num_file),
@@ -422,7 +429,7 @@ C create new netcdf global file for obs-equivalent
 C Loop through obs 
 
 c default values
-        DO k=1,NOBSGLOB
+        DO k=1,NOBSMAX_OF
          obs_np(num_file,k)=1
          obs_ind_glob(num_file,k)=0
         ENDDO
@@ -489,7 +496,7 @@ c if obsfitDoGenGrid then also read in the interpolation coeffs and indices
      &      vec_count, tmp_xCNINJ)
            err = NF_GET_VARA_DOUBLE(fid,varid_intp22,vec_start,
      &      vec_count, tmp_yCNINJ)
-           DO q=1,NUM_INTERP_POINTS
+           DO q=1,NUM_INTERP_PTS_OF
             vec_start2(1)=q
             vec_start2(2)=1+1000*(kk-1)
             vec_count2(1)=1
@@ -575,7 +582,7 @@ c position of first sample
             ENDIF !if (obsIsInRunTime.EQ.1) then
       
 c regardless of whether obs is in run time or not, 
-c keep track of samples index position
+c keep track of obsfit index position
 c and assign time to samples
             DO k=1,np_cur
              tmp_sample_time(sample_cnt)=diffsecs
@@ -584,19 +591,19 @@ c and assign time to samples
             ENDDO
 
 c check that maximum size was not reached:
-            IF (ObsNo_valid.GE.NOBSGLOB) THEN
+            IF (ObsNo_valid.GE.NOBSMAX_OF) THEN
              WRITE(msgBuf,'(3A)')
      &        'OBSFIT_INIT_FIXED: file ', obsfitFile(1:IL),
-     &        '.nc was not read properly (increase NOBSGLOB).'
+     &        '.nc was not read properly (increase NOBSMAX_OF).'
              CALL PRINT_ERROR( msgBuf, myThid)
              stopObsfit=1
             ENDIF
 
 c check that maximum NP was not reached:
-            IF (obs_np_max.GE.NPMAX) THEN
+            IF (obs_np_max.GE.NSAMP_PER_OBS_MAX) THEN
              WRITE(msgBuf,'(3A)')
      &        'OBSFIT_INIT_FIXED: file ', obsfitFile(1:IL),
-     &        '.nc was not read properly (increase NPMAX).'
+     &        '.nc was not read properly (increase NSAMP_PER_OBS_MAX).'
              CALL PRINT_ERROR( msgBuf, myThid)
              stopObsfit=1
             ENDIF
@@ -635,14 +642,14 @@ C if isample is not a dimension, use iobs for size of sampleno
            err = NF_INQ_DIMLEN(fid, dimid, SampleNo(num_file,bi,bj) )
           ENDIF
          
-          DO k=1,NSAMPLEGLOB
+          DO k=1,NSAMPLESMAX
            sample_timeS(num_file,k,bi,bj)=-999. _d 0
            sample_timeE(num_file,k,bi,bj)=-999. _d 0
            sample_lon(num_file,k,bi,bj)=-999. _d 0
            sample_lat(num_file,k,bi,bj)=-999. _d 0
            sample_depth(num_file,k,bi,bj)=-999. _d 0
            sample_weight(num_file,k,bi,bj)=1. _d 0
-           DO q = 1,NUM_INTERP_POINTS
+           DO q = 1,NUM_INTERP_PTS_OF
             sample_interp_i(num_file,k,q,bi,bj) = 1
             sample_interp_j(num_file,k,q,bi,bj) = 1
             sample_interp_k(num_file,k,q,bi,bj) = 1
@@ -968,10 +975,10 @@ c ==============================================================================
     
  
 c check that maximum size was not reached:
-              IF (SampleNo_tile.GE.NSAMPLEGLOB) then
+              IF (SampleNo_tile.GE.NSAMPLESMAX) then
                WRITE(msgBuf,'(3A)')
      &          'OBSFIT_INIT_FIXED: file ', obsfitFile(1:IL),
-     &          '.nc was not read properly (increase NSAMPLEGLOB).'
+     &          '.nc was not read properly (increase NSAMPLESMAX).'
                CALL PRINT_ERROR( msgBuf, myThid)
                stopObsfit=1
               ENDIF
@@ -1020,24 +1027,24 @@ C===========================================================
       
              CALL obsfit_init_ncfile(num_file,
      &        fiddata(num_file),fnameequinc,
-     &        fidforward(num_file,bi,bj),SampleNo(num_file,bi,bj),
+     &        fidfwd_of(num_file,bi,bj),SampleNo(num_file,bi,bj),
      &        myThid)
      
             ELSE
       
              err = NF_OPEN(fnameequinc,NF_WRITE,
-     &         fidforward(num_file,bi,bj))
+     &         fidfwd_of(num_file,bi,bj))
             ENDIF
 #ifdef ALLOW_ADJOINT_RUN
             inquire( file=adfnameequinc, exist=exst )
             IF (.NOT.exst) THEN
              CALL obsfit_init_ncfile(num_file,fiddata(num_file),
-     &        adfnameequinc, fidadjoint(num_file,bi,bj),
+     &        adfnameequinc, fidadj_of(num_file,bi,bj),
      &        SampleNo(num_file,bi,bj),
      &        myThid)
             ELSE
              err = NF_OPEN(adfnameequinc,NF_WRITE,
-     &        fidadjoint(num_file,bi,bj))
+     &        fidadj_of(num_file,bi,bj))
             ENDIF
 #endif
            ELSE
@@ -1051,34 +1058,34 @@ C===========================================================
 
             inquire( file=fnameequinc, exist=exst )
 #ifdef OBSFIT_USE_MDSFINDUNITS
-            CALL MDSFINDUNIT( fidforward(num_file,bi,bj), myThid )
+            CALL MDSFINDUNIT( fidfwd_of(num_file,bi,bj), myThid )
 #else
-            CALL OBSFIT_FINDUNIT( fidforward(num_file,bi,bj), myThid )
+            CALL OBSFIT_FINDUNIT( fidfwd_of(num_file,bi,bj), myThid )
 #endif
             IF (.NOT.exst) THEN
              CALL obsfit_init_ncfile(num_file,fiddata(num_file),
-     &        fnameequinc,fidforward(num_file,bi,bj),
+     &        fnameequinc,fidfwd_of(num_file,bi,bj),
      &        SampleNo(num_file,bi,bj),
      &        myThid)
             ELSE
-             open( fidforward(num_file,bi,bj),file=fnameequinc,
+             open( fidfwd_of(num_file,bi,bj),file=fnameequinc,
      &        form ='unformatted',status='unknown', access='direct',
      &        recl=  2*WORDLENGTH*2 )
             ENDIF
 #ifdef ALLOW_ADJOINT_RUN
             inquire( file=adfnameequinc, exist=exst )
 #ifdef OBSFIT_USE_MDSFINDUNITS
-            CALL MDSFINDUNIT( fidadjoint(num_file,bi,bj), myThid )
+            CALL MDSFINDUNIT( fidadj_of(num_file,bi,bj), myThid )
 #else
-            CALL OBSFIT_FINDUNIT( fidadjoint(num_file,bi,bj), myThid )
+            CALL OBSFIT_FINDUNIT( fidadj_of(num_file,bi,bj), myThid )
 #endif
             IF (.NOT.exst) THEN
              CALL obsfit_init_ncfile(num_file,fiddata(num_file),
-     &         adfnameequinc, fidadjoint(num_file,bi,bj),
+     &         adfnameequinc, fidadj_of(num_file,bi,bj),
      &         SampleNo(num_file,bi,bj),
      &         myThid)
             ELSE
-             open( fidadjoint(num_file,bi,bj),file=adfnameequinc,
+             open( fidadj_of(num_file,bi,bj),file=adfnameequinc,
      &         form ='unformatted',status='unknown', access='direct',
      &         recl=  2*WORDLENGTH*2 )
             ENDIF
@@ -1098,22 +1105,22 @@ C===========================================================
          DO bi=1,nSx
           ObsNo(num_file)=0
           SampleNo(num_file,bi,bj)=0
-          DO k=1,NVARMAX
+          DO k=1,NVARMAX_OF
            obs_num_var_cur(num_file,k)=0
            var_in_obsfile(num_file,k)=.FALSE.
           ENDDO
           obs_num_var_tot(num_file)=0
-          DO k=1,NOBSGLOB
+          DO k=1,NOBSMAX_OF
            obs_np(num_file,k)=-999. _d 0
           ENDDO
-          DO k=1,NSAMPLEGLOB
+          DO k=1,NSAMPLESMAX
            sample_timeS(num_file,k,bi,bj)=-999. _d 0
            sample_timeE(num_file,k,bi,bj)=-999. _d 0
            sample_lon(num_file,k,bi,bj)=-999. _d 0
            sample_lat(num_file,k,bi,bj)=-999. _d 0
            sample_depth(num_file,k,bi,bj)=-999. _d 0
            sample_ind_glob(num_file,k,bi,bj)=0
-           DO q = 1,NUM_INTERP_POINTS
+           DO q = 1,NUM_INTERP_PTS_OF
             sample_interp_i(num_file,k,q,bi,bj) = 1
             sample_interp_j(num_file,k,q,bi,bj) = 1
             sample_interp_k(num_file,k,q,bi,bj) = 1
@@ -1128,7 +1135,7 @@ C===========================================================
         ENDDO !bi
 
        ENDIF !if (IL.NE.0) then
-      ENDDO !      do num_file=1,NFILESOBSMAX
+      ENDDO !      do num_file=1,NFILESMAX_OF
 
 C===========================================================
 C error cases:
@@ -1233,16 +1240,6 @@ c2) stop after other kind of errors
      &                    SQUEEZE_RIGHT, myThid)
 
 #endif
-
-CAV Speed of sound diagnostic (eventually move to DIAGNOSTICS_MAIN_INIT?)
-#ifdef ALLOW_DIAGNOSTICS
-      diagName  = 'CSound  '
-      diagTitle = 'Speed of sound in seawater'
-      diagUnits = 'm/s             '
-      diagCode  = 'SMR     MR      '
-      CALL DIAGNOSTICS\_ADDTOLIST( diagNum,
-     I          diagName, diagCode, diagUnits, diagTitle, 0, myThid )
-#endif /* ALLOW_DIAGNOSTICS */
 
 C     ==================================================================
 

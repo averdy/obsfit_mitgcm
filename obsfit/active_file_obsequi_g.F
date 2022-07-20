@@ -1,29 +1,27 @@
 #include "OBSFIT_OPTIONS.h"
 
-C--  File active_file_obsfit_g.F:
+C--  File active_file_obsequi_g.F:
 C--   Contents
-C--   o g_active_read_obsfit
-C--   o g_active_write_obsfit
+C--   o g_active_read_obsequi
+C--   o g_active_write_obsequi
 
 CBOP 0
-C     !ROUTINE: G_ACTIVE_READ_OBSFIT
+C     !ROUTINE: G_ACTIVE_READ_OBSEQUI
 C     !INTERFACE:
-      SUBROUTINE G_ACTIVE_READ_OBSFIT(
+      SUBROUTINE G_ACTIVE_READ_OBSEQUI(
      I                                 active_num_file,
      O                                 active_var,
      I                                 active_varnum,
      I                                 irec,
      I                                 lAdInit,
      I                                 myOptimIter,
-     I                                 bi,
-     I                                 bj,
      I                                 myThid,
      I                                 dummy,
      I                                 g_active_var )
 
 C     !DESCRIPTION: 
 C     ==================================================================
-C     | SUBROUTINE G_ACTIVE_READ_OBSFIT
+C     | SUBROUTINE G_ACTIVE_READ_OBSEQUI
 C     | Read an active record from an obsfit .equi. tiled file
 C     | for tangent linear calculations
 C     ==================================================================
@@ -49,24 +47,24 @@ C                      variable and write to active file
       _RL     g_active_var
       integer irec, active_varnum, active_num_file
       integer myOptimIter
-      integer bi, bj, myThid
+      integer myThid
       logical lAdInit
       _RL     dummy
 CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_read_obsfit_rl( fidfwd_of(active_num_file,bi,bj),
+      call active_read_obsequi_rl( fidglobal(active_num_file),
      &     active_num_file,
      &     active_var, active_varnum, lAdInit,
-     &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
-     &     TANGENT_SIMULATION, myOptimIter, bi, bj, myThid)
+     &     irec, obs_ind_glob(active_num_file,irec),
+     &     TANGENT_SIMULATION, myOptimIter, myThid)
 
-      call active_read_obsfit_rl( fidtan_of(active_num_file,bi,bj),
+      call active_read_obsequi_rl( fidtangglobal(active_num_file),
      &     active_num_file,
      &     g_active_var,active_varnum, lAdInit,
-     &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
-     &     TANGENT_SIMULATION, myOptimIter, bi, bj, myThid)
+     &     irec, obs_ind_glob(active_num_file,irec),
+     &     TANGENT_SIMULATION, myOptimIter, myThid)
 
 #endif
 
@@ -77,16 +75,14 @@ CEOP
 C     ==================================================================
 
 CBOP 0
-C     !ROUTINE: G_ACTIVE_WRITE_OBSFIT
+C     !ROUTINE: G_ACTIVE_WRITE_OBSEQUI
 C     !INTERFACE:
-      SUBROUTINE G_ACTIVE_WRITE_OBSFIT(
+      SUBROUTINE G_ACTIVE_WRITE_OBSEQUI(
      I                           active_num_file,
      I                           active_var,
      I                           active_varnum,
      I                           irec,
      I                           myOptimIter,
-     I                           bi,
-     I                           bj,
      I                           myThid,
      I                           dummy,
      I                           g_active_var,
@@ -94,7 +90,7 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==================================================================
-C     | SUBROUTINE G_ACTIVE_READ_OBSFIT
+C     | SUBROUTINE G_ACTIVE_READ_OBSEQUI
 C     | Read an active record from an obsfit .equi. tiled file
 C     | for tangent linear calculations
 C     ==================================================================
@@ -119,24 +115,24 @@ C     myThid:          thread number for this instance
       _RL     g_active_var
       integer irec, active_varnum
       integer myOptimIter
-      integer bi, bj, myThid
+      integer myThid
       _RL     dummy
       _RL     g_dummy
 CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_write_obsfit_rl( fidfwd_of(active_num_file,bi,bj),
+      call active_write_obsequi_rl( fidglobal(active_num_file),
      &     active_num_file,
      &     active_var, active_varnum,
-     &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
-     &     TANGENT_SIMULATION, myOptimIter, bi, bj, myThid)
+     &     irec, obs_ind_glob(active_num_file,irec),
+     &     TANGENT_SIMULATION, myOptimIter, myThid)
 
-      call active_write_obsfit_rl( fidtan_of(active_num_file,bi,bj),
+      call active_write_obsequi_rl( fidtangglobal(active_num_file),
      &     active_num_file,
      &     g_active_var, active_varnum,
-     &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
-     &     TANGENT_SIMULATION, myOptimIter, bi, bj, myThid)
+     &     irec, obs_ind_glob(active_num_file,irec),
+     &     TANGENT_SIMULATION, myOptimIter, myThid)
 
 #endif
 

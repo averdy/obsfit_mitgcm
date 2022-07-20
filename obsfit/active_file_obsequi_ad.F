@@ -1,27 +1,26 @@
 #include "OBSFIT_OPTIONS.h"
 
-C--  File active_file_obsfit_ad.F:
+C--  File active_file_obsequi_ad.F:
 C--   Contents
-C--   o adactive_read_obsfit
-C--   o adactive_write_obsfit
+C--   o adactive_read_obsequi
+C--   o adactive_write_obsequi
 
 CBOP 0
-C     !ROUTINE: ADACTIVE_READ_OBSFIT
+C     !ROUTINE: ADACTIVE_READ_OBSEQUI
 C     !INTERFACE:
-      SUBROUTINE ADACTIVE_READ_OBSFIT(
+      SUBROUTINE ADACTIVE_READ_OBSEQUI(
      I                              active_num_file,
      I                              adactive_var,
      I                              active_varnum,
      I                              irec,
      I                              lAdInit,
      I                              myIter,
-     I                              bi,
-     I                              bj,
      I                              myThid )
 
 C     !DESCRIPTION:
 C     ==================================================================
-C     | Adjoint of active_read_obsfit
+C     | SUBROUTINE ADACTIVE_READ_OBSEQUI
+C     | Adjoint of ACTIVE_READ_OBSEQUI.F
 C     ==================================================================
 
 C !USES:
@@ -45,17 +44,17 @@ C                      variable and write to active file
       _RL     adactive_var
       integer irec, active_varnum
       integer myIter
-      integer bi, bj, myThid
+      integer myThid
       logical lAdInit
 CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_read_obsfit_rl( fidadj_of(active_num_file,bi,bj),
+      call active_read_obsequi_rl( fidadglobal(active_num_file),
      &     active_num_file,
      &     adactive_var, active_varnum, lAdInit,
-     &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
-     &     REVERSE_SIMULATION, myIter, bi, bj, myThid)
+     &     irec, obs_ind_glob(active_num_file,irec),
+     &     REVERSE_SIMULATION, myIter, myThid)
 
 #endif
 
@@ -64,22 +63,21 @@ CEOP
 C     ==================================================================
 
 CBOP 0
-C     !ROUTINE: ADACTIVE_WRITE_OBSFIT
+C     !ROUTINE: ADACTIVE_WRITE_OBSEQUI
 C     !INTERFACE:
-      SUBROUTINE ADACTIVE_WRITE_OBSFIT(
+      SUBROUTINE ADACTIVE_WRITE_OBSEQUI(
      I                                  active_num_file,
      I                                  adactive_var,
      I                                  active_varnum,
      I                                  irec,
      I                                  myIter,
-     I                                  bi,
-     I                                  bj,
      I                                  myThid,
      I                                  dummy )
 
 C     !DESCRIPTION:
 C     ==================================================================
-C     | Adjoint of active_write_obsfit
+C     | SUBROUTINE ADACTIVE_WRITE_OBSEQUI
+C     | Adjoint of ACTIVE_WRITE_OBSEQUI.F
 C     ==================================================================
 
 C !USES:
@@ -103,17 +101,17 @@ C                      variable and write to active file
       _RL     adactive_var
       integer irec, active_varnum
       integer myIter
-      integer bi, bj, myThid
+      integer myThid
       _RL     dummy
 CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_write_obsfit_rl( fidadj_of(active_num_file,bi,bj),
+      call active_write_obsequi_rl( fidadglobal(active_num_file),
      &     active_num_file,
      &     adactive_var, active_varnum,
-     &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
-     &     REVERSE_SIMULATION, myIter, bi, bj, myThid)
+     &     irec, obs_ind_glob(active_num_file,irec),
+     &     REVERSE_SIMULATION, myIter,myThid)
 
 #endif
 

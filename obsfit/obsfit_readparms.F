@@ -64,12 +64,12 @@ C     print a (weak) warning if data.obsfit is found
 C     Set default values
       obsfitDir=' '
 
-      DO num_file=1,NFILESOBSMAX
+      DO num_file=1,NFILESMAX_OF
        obsfitFiles(num_file)      =    ' '
       ENDDO
 
-      DO num_file=1,NFILESOBSMAX
-       DO num_var=1,NVARMAX
+      DO num_file=1,NFILESMAX_OF
+       DO num_var=1,NVARMAX_OF
         mult_obsfit(num_file,num_var) = 1. _d 0
         obsfit_facmod(num_file,num_var) = 1. _d 0
         obsfit_names(num_file,num_var) = 'empty'
@@ -109,10 +109,10 @@ C       Next, read the cost data file
       CLOSE(iUnit,STATUS='DELETE')
 #endif /* SINGLE_DISK_IO */
 
-      DO num_file=1,NFILESOBSMAX
+      DO num_file=1,NFILESMAX_OF
 
        specifiedNames=.FALSE.
-        DO num_var=1,NVARMAX
+        DO num_var=1,NVARMAX_OF
          IF (obsfit_names(num_file,num_var).NE.'empty')
      &    specifiedNames=.TRUE.
           ENDDO
@@ -124,7 +124,7 @@ C       Next, read the cost data file
             obsfit_namesmod(num_file,2)='salt'
           ENDIF
 
-          DO num_var=1,NVARMAX
+          DO num_var=1,NVARMAX_OF
            IF (((obsfit_names(num_file,num_var).NE.'empty').AND.
      &           (obsfit_namesmod(num_file,num_var).EQ.'empty')).OR.
      &          ((obsfit_names(num_file,num_var).EQ.'empty').AND.
@@ -139,7 +139,7 @@ C       Next, read the cost data file
            ENDIF
           ENDDO
 
-          DO num_var=1,NVARMAX
+          DO num_var=1,NVARMAX_OF
            IL  = ILNBLNK( obsfit_names(num_file,num_var) )
            WRITE(obsfit_namesmask(num_file,num_var),'(2A)')
      &        obsfit_names(num_file,num_var)(1:IL),'mask'

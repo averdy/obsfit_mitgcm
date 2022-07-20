@@ -60,10 +60,10 @@ C !LOCAL VARIABLES:
       logical exst
       _RL  objf_obsfit_glo
       _RL  num_obsfit_glo
-      _RL  samples_buff(NSAMPLEGLOB)
-      _RL  samples_mask_buff(NSAMPLEGLOB)
-      _RL  samples_modval_glob(NSAMPLEGLOB)
-      _RL  samples_mask_glob(NSAMPLEGLOB)
+      _RL  samples_buff(NSAMPLESMAX)
+      _RL  samples_mask_buff(NSAMPLESMAX)
+      _RL  samples_modval_glob(NSAMPLESMAX)
+      _RL  samples_mask_glob(NSAMPLESMAX)
       _RL  tmpgs
       INTEGER tmpgsi
  
@@ -86,7 +86,7 @@ C     ==================================================================
 
         _BEGIN_MASTER( myThid )
 
-      DO num_file=1,NFILESOBSMAX
+      DO num_file=1,NFILESMAX_OF
 
 C File maintenance
        DO bj=1,nSy
@@ -95,7 +95,7 @@ C File maintenance
          IF ( (sampleNo(num_file,bi,bj).GT.0).AND.
      &         (obsfitDoNcOutput) ) THEN
 c need to close the file so that the data is not lost when run finishes
-           err = NF_CLOSE(fidforward(num_file,bi,bj))
+           err = NF_CLOSE(fidfwd_of(num_file,bi,bj))
 c then re-open it to compute cost function
            iG=bi+(myXGlobalLo-1)/sNx ! Kludge until unstructered tiles
            jG=bj+(myYGlobalLo-1)/sNy ! Kludge until unstructered tiles
@@ -108,18 +108,18 @@ c then re-open it to compute cost function
      &     obsfitDir(1:JL),obsfitfile(1:IL),'.',iG,'.',jG,'.equi.nc'
 c
            err = NF_OPEN(fnameequinc,NF_NOWRITE,
-     &     fidforward(num_file,bi,bj))
+     &     fidfwd_of(num_file,bi,bj))
          ENDIF
 
         ENDDO
        ENDDO
 
 c Loop over variables
-       DO num_var=1,NVARMAX
+       DO num_var=1,NVARMAX_OF
         IF (var_in_obsfile(num_file,num_var).EQV..TRUE.) THEN
 
 c Loop over samples
-         DO ii=1,NSAMPLEGLOB
+         DO ii=1,NSAMPLESMAX
            samples_buff(ii) = 0.
            samples_mask_buff(ii) = 0.
          ENDDO
@@ -128,7 +128,7 @@ c Loop over samples
           DO bi=1,nSx
 
 C Open tiled files and read to buffer
-           DO sample_num=1,NSAMPLEGLOB
+           DO sample_num=1,NSAMPLESMAX
             IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
 
              sample_modvaltmp=0.
@@ -153,7 +153,7 @@ C Combine all threads here
          ENDDO !bi
 
 C Combine all processes
-         DO ii=1,NSAMPLEGLOB
+         DO ii=1,NSAMPLESMAX
           tmpgs = samples_buff(ii)
           _GLOBAL_SUM_RL (tmpgs, myThid) 
           samples_modval_glob(ii) = tmpgs
@@ -165,7 +165,7 @@ C Combine all processes
          IF ( myProcId .eq. 0 ) THEN
 
 C Loop over obs
-         DO obs_num=1,NOBSGLOB
+         DO obs_num=1,NOBSMAX_OF
           IF (obs_num.LE.ObsNo(num_file)) THEN
 
            obs_modval=0.
@@ -173,7 +173,7 @@ C Loop over obs
            num_valid_samples=0
 
 C Calculate model equi of each obs by averaging NP samples               
-           DO sample_num=1,NPMAX
+           DO sample_num=1,NSAMP_PER_OBS_MAX
             IF (sample_num.LE.obs_np(num_file,obs_num)) THEN
               
               irec = obs_sample1_ind(num_file,obs_num)
@@ -209,7 +209,7 @@ c            err = NF_INQ_VARID(fidglobal(num_file), obsfit_namesmask(
 c     &       num_file,num_var), varid1)
 c            err = NF_PUT_VARA_DOUBLE(fidglobal(num_file), varid1, 
 c     &       irec, 1, obs_modmask)
-              CALL active_write_globsfit(num_file,
+              CALL active_write_obsequi(num_file,
      &         obs_modval,num_var,
      &         obs_num,optimcycle,myThid,
      &         obsfit_globaldummy(num_file,num_var))
@@ -231,7 +231,7 @@ cc         IF ( myProcId .eq. 0 ) THEN
 cc         ENDIF
          
 C Loop over obs
-         DO obs_num=1,NOBSGLOB
+         DO obs_num=1,NOBSMAX_OF
           IF (obs_num.LE.ObsNo(num_file)) THEN
 
            obs_modval=0.
@@ -239,17 +239,17 @@ C Loop over obs
            obs_weight=0.
 
 C Read observation and uncertainty (weight)
-           CALL obsfit_readobsfile(num_file,num_var,
+           CALL obsfit_read_obs(num_file,num_var,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_data,myThid)
 
-           CALL obsfit_readobsfile(num_file,-num_var,
+           CALL obsfit_read_obs(num_file,-num_var,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_weight,myThid)
 
 C Read model equivalent from global file
 cc           IF ( myProcId .eq. 0 ) THEN
-              CALL active_read_globsfit(num_file,
+              CALL active_read_obsequi(num_file,
      &         obs_modval,num_var,
      &         obs_num,.false.,optimcycle,myThid,
      &         obsfit_globaldummy(num_file,num_var))
@@ -279,13 +279,13 @@ C Time averaging
 
         ENDIF !if (var_in_obsfile.EQV..TRUE.) then
        ENDDO !do num_var...
-      ENDDO !do num_file=1,NFILESOBSMAX
+      ENDDO !do num_file=1,NFILESMAX_OF
   
         _END_MASTER( myThid )
 
 c Print cost function values
-      DO num_file=1,NFILESOBSMAX
-       DO num_var=1,NVARMAX
+      DO num_file=1,NFILESMAX_OF
+       DO num_var=1,NVARMAX_OF
 c
           objf_obsfit_glo =
      &             objf_obsfit(num_file,num_var)

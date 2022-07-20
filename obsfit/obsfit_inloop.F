@@ -36,9 +36,9 @@ C !USES:
 # include "obsfit.h"
 # include "netcdf.inc"
 #endif
-#endif
 #ifdef ALLOW_AUTODIFF
 # include "tamc.h"
+#endif
 
 C !INPUT PARAMETERS:
       _RL     myTime
@@ -50,9 +50,10 @@ CEOP
 C !LOCAL VARIABLES:
       integer k,bi,bj,sample_num,num_file,num_var
       _RL     sample_modval, saved_modval
-      integer sample_i(NUM_INTERP_POINTS),sample_j(NUM_INTERP_POINTS)
-      integer sample_k(NUM_INTERP_POINTS)
-      _RL     sample_w(NUM_INTERP_POINTS)
+      integer sample_i(NUM_INTERP_PTS_OF)
+      integer sample_j(NUM_INTERP_PTS_OF)
+      integer sample_k(NUM_INTERP_PTS_OF)
+      _RL     sample_w(NUM_INTERP_PTS_OF)
 #ifndef ALLOW_CTRL
       integer optimcycle
 #endif
@@ -93,35 +94,24 @@ C     ==================================================================
       DO bj=1,nSy
        DO bi=1,nSx
 
-        DO num_file=1,NFILESOBSMAX
+        DO num_file=1,NFILESMAX_OF
 
 c for now, not dealing with del_time (obs are instantaneous)
          
-         DO sample_num=1,NOBSGLOB
+         DO sample_num=1,NOBSMAX_OF
           IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
            IF ((sample_timeE(num_file,sample_num,bi,bj).GE.myTime)
      &      .AND.(sample_timeS(num_file,sample_num,bi,bj).LT. 
      &      (myTime+deltaTclock))) THEN
 
-            DO k=1,NUM_INTERP_POINTS
+            DO k=1,NUM_INTERP_PTS_OF
              sample_i(k)= sample_interp_i(num_file,sample_num,k,bi,bj)
              sample_j(k)= sample_interp_j(num_file,sample_num,k,bi,bj)
              sample_k(k)= sample_interp_k(num_file,sample_num,k,bi,bj)
              sample_w(k)= sample_interp_w(num_file,sample_num,k,bi,bj)
             ENDDO
 
-            DO num_var=1,NVARMAX
-
-C Calculate sound speed
-             IF (obsfit_names(num_file,num_var).eq.'obs_CS') THEN
-              CALL diags_sound_speed(
-     I                       myThid)
-#ifdef ALLOW_DIAGNOSTICS
-              IF ( useDiagnostics ) THEN
-               CALL DIAGNOSTICS_FILL(cs,'CSound  ',0,Nr,1,bi,bj,myThid)
-              ENDIF
-#endif /* ALLOW_DIAGNOSTICS */
-             ENDIF
+            DO num_var=1,NVARMAX_OF
 
 CADJ STORE sample_modval  = comlev1_bibj, key=itdkey, kind=isbyte
 CADJ STORE saved_modval  = comlev1_bibj, key=itdkey, kind=isbyte
@@ -166,7 +156,7 @@ C recorded value and add to it
            ENDIF !if ((sample_time...
           ENDIF !if (sampleNo(num_file,bi,bj).NE.0) then
          ENDDO !do sample_num...
-        ENDDO !do num_file=1,NFILESOBSMAX
+        ENDDO !do num_file=1,NFILESMAX_OF
       
        ENDDO
       ENDDO

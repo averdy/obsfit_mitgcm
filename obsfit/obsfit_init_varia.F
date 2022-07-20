@@ -42,16 +42,16 @@ C     ==================================================================
 c--   Initialize the tiled cost function contributions.
       DO bj = jtlo,jthi
         DO bi = itlo,ithi
-          DO num_file=1,NFILESOBSMAX
-           DO num_var=1,NVARMAX
+          DO num_file=1,NFILESMAX_OF
+           DO num_var=1,NVARMAX_OF
             obsfit_dummy(num_file,num_var,bi,bj)=0. _d 0
            ENDDO
           ENDDO
         ENDDO
       ENDDO
 
-      DO num_file=1,NFILESOBSMAX
-        DO num_var=1,NVARMAX
+      DO num_file=1,NFILESMAX_OF
+        DO num_var=1,NVARMAX_OF
           objf_obsfit(num_file,num_var)= 0. _d 0
           num_obsfit(num_file,num_var) = 0. _d 0
           obsfit_globaldummy(num_file,num_var) = 0. _d 0
