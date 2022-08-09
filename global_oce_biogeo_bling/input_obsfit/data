@@ -32,7 +32,7 @@
  hFacMin=.1,
  hFacMindz=50.,
  useCDscheme=.TRUE.,
- debuglevel=4,
+ debuglevel=2,
  &
 
 # Elliptic solver parameters
@@ -44,7 +44,7 @@
 # Time stepping parameters
  &PARM03
  nIter0=0,
- nTimeSteps = 4,
+ nTimeSteps = 96,
  deltaTmom  = 900.,
  tauCD =     321428.,
  deltaTtracer= 900.,
