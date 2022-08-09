@@ -200,7 +200,10 @@ C Spatial averaging
 
 C Time averaging
            IF (obsfitOperation(num_file).eq.1) THEN
-            obs_modval = obs_modval/obs_delT(num_file, obs_num)
+cav            obs_modval = obs_modval/obs_delT(num_file, obs_num)
+cav 1 more time step in loop!
+            obs_modval =
+     &        obs_modval/(obs_delT(num_file,obs_num)+deltaTclock)
            ENDIF
 
 c Write to global netcdf file
@@ -260,11 +263,6 @@ cc           IF ( myProcId .eq. 0 ) THEN
      &         obsfit_globaldummy(num_file,num_var))
 cc           ENDIF
 
-C Time averaging
-c           IF (obsfitOperation(num_file).eq.1) THEN
-c            obs_modval = obs_modval/obs_delT(num_file, obs_num)
-c           ENDIF
-           
            IF (obs_weight.GT.0.
      &            ) THEN
                  objf_obsfit(num_file,num_var)=
