@@ -133,7 +133,6 @@ C recorded value and add to it
      &          saved_modval,num_var,
      &          sample_num,.false.,optimcycle,bi,bj,myThid,
      &          obsfit_dummy(num_file,num_var,bi,bj))
-               sample_modval = saved_modval+sample_modval*deltaTclock
               ENDIF
 
               CALL obsfit_interp(sample_modval,
