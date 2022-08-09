@@ -1,5 +1,3 @@
-#include "PACKAGES_CONFIG.h"
-
 c     ================================================================
 c     HEADER TAMC
 c     ================================================================
@@ -59,11 +57,11 @@ C run  87630 time steps
 C 16 usually runs OK
 C
       integer    nchklev_1
-      parameter( nchklev_1      =   1 )
+      parameter( nchklev_1      =   2 )
       integer    nchklev_2
-      parameter( nchklev_2      =   2 )
+      parameter( nchklev_2      =   10 )
       integer    nchklev_3
-      parameter( nchklev_3      =   2 )
+      parameter( nchklev_3      =   10 )
       integer    nchklev_4
       parameter( nchklev_4      =   1 )
 
@@ -110,14 +108,8 @@ c     and writing data.
       PARAMETER( maxpass     = 3 )
 #endif
       INTEGER    maxcube
-      PARAMETER( maxcube     = 3 )
-
-      INTEGER act0, act1, act2, act3, act4
-      INTEGER max0, max1, max2, max3
-      INTEGER iikey, kkey, passkey, igadkey,
-     &        itdkey, idynkey, igmkey, iptrkey
+      PARAMETER( maxcube     = 2 )
 
 c     ================================================================
 c     END OF HEADER TAMC
 c     ================================================================
-

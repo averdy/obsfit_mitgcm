@@ -65,9 +65,7 @@ C     data.pkg namelists
      &          useGrdchk,
      &          useSMOOTH,
      &          usePROFILES,
-cav(
      &          useOBSFIT,
-cav)
      &          useECCO,
      &          useCTRL,
      &          useSBO,
@@ -132,9 +130,7 @@ c     useGAD          =.FALSE.
       useGrdchk       =.FALSE.
       useSMOOTH       =.FALSE.
       usePROFILES     =.FALSE.
-cav(
       useOBSFIT       =.FALSE.
-cav)
       useECCO         =.FALSE.
       useCTRL         =.FALSE.
       useSBO          =.FALSE.
@@ -228,9 +224,7 @@ cav)
 
 #ifdef ALLOW_CAL
       IF (usePROFILES) useCAL = .TRUE.
-cav(
       IF (useOBSFIT) useCAL = .TRUE.
-cav)
       IF (useECCO) useCAL = .TRUE.
 #endif
 
@@ -340,11 +334,9 @@ C----- pkgs with a standard "usePKG" On/Off switch in "data.pkg":
 #ifdef ALLOW_PROFILES
       CALL PACKAGES_PRINT_MSG( usePROFILES,   'PROFILES',    ' ' )
 #endif
-cav(
 #ifdef ALLOW_OBSFIT
       CALL PACKAGES_PRINT_MSG( useOBSFIT,     'OBSFIT',      ' ' )
 #endif
-cav)
 #ifdef ALLOW_ECCO
       CALL PACKAGES_PRINT_MSG( useECCO,       'ECCO',        ' ' )
 #endif

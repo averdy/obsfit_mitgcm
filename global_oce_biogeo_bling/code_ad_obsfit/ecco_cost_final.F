@@ -1,9 +1,17 @@
+C------------------------------------------------------------------------
+C QUESTIONS
+C IS it ok to add objf_obsfit to glofc?
+C cost.h:c     glofc      - contributions from global mean constraints
+
+C------------------------------------------------------------------------
+
+
 #include "ECCO_OPTIONS.h"
 #ifdef ALLOW_CTRL
 # include "CTRL_OPTIONS.h"
 #endif
 
-      subroutine ecco_cost_final( mythid )
+      subroutine ecco_cost_final( myThid )
 
 c     ==================================================================
 c     SUBROUTINE cost_final
@@ -30,7 +38,8 @@ c     == global variables ==
 # ifdef ECCO_CTRL_DEPRECATED
 #  include "ecco_cost.h"
 # else
-#  include "ecco.h"
+#  include "ECCO_SIZE.h"
+#  include "ECCO.h"
 # endif
 #endif
 #ifdef ALLOW_CTRL
@@ -38,7 +47,9 @@ c     == global variables ==
 # include "optim.h"
 # include "CTRL_SIZE.h"
 # include "CTRL_GENARR.h"
-# include "CTRL_OBCS.h"
+# ifdef ALLOW_OBCS
+#  include "CTRL_OBCS.h"
+# endif /* ALLOW_OBCS */
 #endif
 #ifdef ALLOW_PROFILES
 # include "PROFILES_SIZE.h"
@@ -53,37 +64,33 @@ cav)
 
 c     == routine arguments ==
 
-      integer mythid
+      integer myThid
 
 C     === Functions ====
       LOGICAL  MASTER_CPU_THREAD
       EXTERNAL MASTER_CPU_THREAD
+      INTEGER  ILNBLNK
+      EXTERNAL ILNBLNK
 
 c     == local variables ==
 
       integer bi,bj
-      integer itlo,ithi
-      integer jtlo,jthi
       integer ifc
-      integer totnum
-      integer num_file,num_var
+      integer num_var
+      integer num_var_obs
 
 #ifndef ALLOW_PROFILES
       integer NFILESPROFMAX
       parameter (NFILESPROFMAX=1)
-cav(
-#ifndef ALLOW_OBSFIT
-cav)
       integer NVARMAX
       parameter (NVARMAX=1)
-cav(
-#endif
-cav)
 #endif
 cav(
 #ifndef ALLOW_OBSFIT
-      integer NFILESOBSMAX
-      parameter (NFILESOBSMAX=1)
+      integer NFILESMAX_OBS
+      parameter (NFILESMAX_OBS=1)
+      integer NVARMAX_OBS
+      parameter (NVARMAX_OBS=1)
 #endif
 cav)
 
@@ -119,7 +126,7 @@ c the adjoint, pkg/autodiff most likely require cost though.
       _RL f_ssh , f_tp, f_ers, f_gfo
       _RL f_argot, f_argos, f_ctdtclim, f_ctdsclim
       _RL f_scatx, f_scaty, f_scatxm, f_scatym
-      _RL f_ageos, f_curmtr
+      _RL f_curmtr
       _RL f_ini_fin
       _RL f_kapgm, f_kapredi, f_diffkr
       _RL f_eddytau, f_bottomdrag
@@ -127,14 +134,16 @@ c the adjoint, pkg/autodiff most likely require cost though.
 #endif /* ECCO_CTRL_DEPRECATED */
 
       _RL f_gencost(NGENCOST)
-      _RL f_obcsn, f_obcss, f_obcsw, f_obcse
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
+      _RL f_obcsn, f_obcss, f_obcsw, f_obcse, f_ageos
+#endif
 #ifdef ALLOW_PROFILES
       _RL f_profiles(NFILESPROFMAX,NVARMAX)
       _RL f_profiles_mean(NVARMAX)
 #endif
 cav(
 #ifdef ALLOW_OBSFIT
-      _RL f_obsfit(NFILESOBSMAX,NVARMAX)
+      _RL f_obsfit(NFILESMAX_OBS,NVARMAX_OBS)
 #endif
 cav)
 #ifdef ALLOW_GENTIM2D_CONTROL
@@ -164,7 +173,7 @@ cav)
       _RL no_ssh, no_tp, no_ers, no_gfo
       _RL no_argot, no_argos, no_ctdtclim, no_ctdsclim
       _RL no_scatx, no_scaty, no_scatxm, no_scatym
-      _RL no_ageos, no_curmtr
+      _RL no_curmtr
       _RL no_ini_fin
       _RL no_kapgm, no_kapredi, no_diffkr
       _RL no_eddytau, no_bottomdrag
@@ -173,14 +182,18 @@ cav)
 #endif /* ECCO_CTRL_DEPRECATED */
 
       _RL no_gencost(NGENCOST)
-      _RL no_obcsn, no_obcss, no_obcsw, no_obcse
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
+      _RL no_obcsn, no_obcss, no_obcsw, no_obcse, no_ageos
+#endif
 #ifdef ALLOW_PROFILES
+      integer num_file
       _RL no_profiles(NFILESPROFMAX,NVARMAX)
       _RL no_profiles_mean(NVARMAX)
 #endif
 cav(
 #ifdef ALLOW_OBSFIT
-      _RL no_obsfit(NFILESOBSMAX,NVARMAX)
+      integer num_file_obs
+      _RL no_obsfit(NFILESMAX_OBS,NVARMAX_OBS)
 #endif
 cav)
 #ifdef ALLOW_GENTIM2D_CONTROL
@@ -197,15 +210,8 @@ cav)
       character*(MAX_LEN_MBUF) msgBuf
 
       INTEGER IL
-C Functions
-      INTEGER ILNBLNK
 
 c     == end of interface ==
-
-      jtlo = mybylo(mythid)
-      jthi = mybyhi(mythid)
-      itlo = mybxlo(mythid)
-      ithi = mybxhi(mythid)
 
       ifc = 30
 
@@ -288,7 +294,6 @@ c     == end of interface ==
       f_scatxm = 0. _d 0
       f_scatym = 0. _d 0
       f_curmtr  = 0. _d 0
-      f_ageos   = 0. _d 0
       f_ini_fin = 0. _d 0
       f_kapgm   = 0. _d 0
       f_kapredi   = 0. _d 0
@@ -299,10 +304,13 @@ c     == end of interface ==
       f_ies = 0. _d 0
 #endif /* ECCO_CTRL_DEPRECATED */
 
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
       f_obcsn   = 0. _d 0
       f_obcss   = 0. _d 0
       f_obcsw   = 0. _d 0
       f_obcse   = 0. _d 0
+      f_ageos   = 0. _d 0
+#endif
 #ifdef ALLOW_PROFILES
       do num_file=1,NFILESPROFMAX
        do num_var=1,NVARMAX
@@ -315,21 +323,16 @@ c     == end of interface ==
 #endif
 cav(
 #ifdef ALLOW_OBSFIT
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-        f_obsfit(num_file,num_var)= 0. _d 0
+      do num_file_obs=1,NFILESMAX_OBS
+       do num_var_obs=1,NVARMAX_OBS
+c        f_obsfit(num_file_obs,num_var_obs)= 0. _d 0
 cav this is already global sum
-c        f_obsfit(num_file,num_var)= 
-c     &          objf_obsfit(num_file,num_var)
+        f_obsfit(num_file_obs,num_var_obs)= 
+     &          objf_obsfit(num_file_obs,num_var_obs)
        enddo
       enddo
 #endif
 cav)
-        print*,'CAV ecco 000',f_obsfit(1,1),
-     &   tile_fc(bi,bj),
-     &   no_obsfit(1,1)
-     &   , objf_obsfit(1,1,bi,bj)
-     &   , num_obsfit(1,1,bi,bj)
 #ifdef ALLOW_GENCOST_CONTRIBUTION
        do num_var=1,NGENCOST
         f_gencost(num_var)= 0. _d 0
@@ -411,12 +414,7 @@ cav)
       no_scaty = 0. _d 0
       no_scatxm = 0. _d 0
       no_scatym = 0. _d 0
-      no_obcsn   = 0. _d 0
-      no_obcss   = 0. _d 0
-      no_obcsw   = 0. _d 0
-      no_obcse   = 0. _d 0
       no_curmtr  = 0. _d 0
-      no_ageos   = 0. _d 0
       no_ini_fin = 0. _d 0
       no_kapgm   = 0. _d 0
       no_kapredi   = 0. _d 0
@@ -427,6 +425,13 @@ cav)
       no_ies = 0. _d 0
 #endif /* ECCO_CTRL_DEPRECATED */
 
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
+      no_obcsn   = 0. _d 0
+      no_obcss   = 0. _d 0
+      no_obcsw   = 0. _d 0
+      no_obcse   = 0. _d 0
+      no_ageos   = 0. _d 0
+#endif
 #ifdef ALLOW_PROFILES
       do num_file=1,NFILESPROFMAX
        do num_var=1,NVARMAX
@@ -439,12 +444,12 @@ cav)
 #endif
 cav(
 #ifdef ALLOW_OBSFIT
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-        no_obsfit(num_file,num_var)= 0. _d 0
+      do num_file_obs=1,NFILESMAX_OBS
+       do num_var_obs=1,NVARMAX_OBS
+c        no_obsfit(num_file_obs,num_var_obs)= 0. _d 0
 cav this is already global sum
-c        no_obsfit(num_file,num_var)= 
-c     &           num_obsfit(num_file,num_var)
+        no_obsfit(num_file_obs,num_var_obs)= 
+     &           num_obsfit(num_file_obs,num_var_obs)
        enddo
       enddo
 #endif
@@ -471,15 +476,9 @@ cav)
 #endif
 
 c--   Sum up all contributions.
-      do bj = jtlo,jthi
-        do bi = itlo,ithi
+      DO bj = myByLo(myThid), myByHi(myThid)
+       DO bi = myBxLo(myThid), myBxHi(myThid)
 
-        print*,'CAV ecco before',f_obsfit(1,1),
-     &   tile_fc(bi,bj),
-     &   no_obsfit(1,1)
-     &   , objf_obsfit(1,1,bi,bj)
-     &   , num_obsfit(1,1,bi,bj)
-     
           tile_fc(bi,bj) = tile_fc(bi,bj)
 #ifdef ECCO_CTRL_DEPRECATED
      &         + mult_temp    * objf_temp(bi,bj)
@@ -554,13 +553,13 @@ c--   Sum up all contributions.
 
 #endif /* ECCO_CTRL_DEPRECATED */
 
-#if (defined (ALLOW_CTRL) && defined (ALLOW_OBCS))
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
           tile_fc(bi,bj) = tile_fc(bi,bj)
      &         + mult_obcsn   * objf_obcsn(bi,bj)
      &         + mult_obcss   * objf_obcss(bi,bj)
      &         + mult_obcsw   * objf_obcsw(bi,bj)
      &         + mult_obcse   * objf_obcse(bi,bj)
-# ifdef ECCO_CTRL_DEPRECATED
+# ifdef OBCS_AGEOS_COST_CONTRIBUTION
      &         + mult_ageos   * objf_ageos(bi,bj)
 # endif
 #endif
@@ -581,13 +580,13 @@ c--   Sum up all contributions.
 cav(
 #ifdef ALLOW_OBSFIT
 cav don't add to all tiles
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-          tile_fc(bi,bj) = tile_fc(bi,bj)
-     &            + mult_obsfit(num_file,num_var)
-     &            *objf_obsfit(num_file,num_var,bi,bj)
-       enddo
-      enddo
+c      do num_file_obs=1,NFILESMAX_OBS
+c       do num_var_obs=1,NVARMAX_OBS
+c          tile_fc(bi,bj) = tile_fc(bi,bj)
+c     &            + mult_obsfit(num_file_obs,num_var_obs)
+c     &            *objf_obsfit(num_file_obs,num_var_obs)
+c       enddo
+c      enddo
 #endif
 cav)
 #ifdef ALLOW_GENCOST_CONTRIBUTION
@@ -703,12 +702,12 @@ cav)
           f_bottomdrag = f_bottomdrag + objf_bottomdrag(bi,bj)
 #endif /* ECCO_CTRL_DEPRECATED */
 
-#if (defined (ALLOW_CTRL) && defined (ALLOW_OBCS))
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
           f_obcsn  = f_obcsn + objf_obcsn(bi,bj)
           f_obcss  = f_obcss + objf_obcss(bi,bj)
           f_obcsw  = f_obcsw + objf_obcsw(bi,bj)
           f_obcse  = f_obcse + objf_obcse(bi,bj)
-# ifdef ECCO_CTRL_DEPRECATED
+# ifdef OBCS_AGEOS_COST_CONTRIBUTION
           f_ageos  = f_ageos + objf_ageos(bi,bj)
 # endif
 #endif
@@ -727,12 +726,13 @@ cav)
 cav(
 #ifdef ALLOW_OBSFIT
 cav do this outside of bi,bj loops
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-          f_obsfit(num_file,num_var)=f_obsfit(num_file,num_var)
-     &            +objf_obsfit(num_file,num_var,bi,bj)
-       enddo
-      enddo
+c      do num_file_obs=1,NFILESMAX_OBS
+c       do num_var=1,NVARMAX_OBS
+c          f_obsfit(num_file_obs,num_var_obs)=
+c     &            f_obsfit(num_file_obs,num_var_obs)
+c     &            +objf_obsfit(num_file_obs,num_var_obs)
+c       enddo
+c      enddo
 #endif
 cav)
 #ifdef ALLOW_GENCOST_CONTRIBUTION
@@ -819,7 +819,6 @@ cav)
           no_scatxm = no_scatxm + num_scatxm(bi,bj)
           no_scatym = no_scatym + num_scatym(bi,bj)
           no_curmtr = no_curmtr + num_curmtr(bi,bj)
-          no_ageos = no_ageos + num_ageos(bi,bj)
           no_kapgm = no_kapgm + num_kapgm(bi,bj)
           no_kapredi = no_kapredi + num_kapredi(bi,bj)
           no_diffkr = no_diffkr + num_diffkr(bi,bj)
@@ -830,11 +829,14 @@ cav)
 
 #endif /* ECCO_CTRL_DEPRECATED */
 
-#if (defined (ALLOW_CTRL) && defined (ALLOW_OBCS))
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
           no_obcsn = no_obcsn + num_obcsn(bi,bj)
           no_obcss = no_obcss + num_obcss(bi,bj)
           no_obcse = no_obcse + num_obcse(bi,bj)
           no_obcsw = no_obcsw + num_obcsw(bi,bj)
+# ifdef OBCS_AGEOS_COST_CONTRIBUTION
+          no_ageos = no_ageos + num_ageos(bi,bj)
+# endif
 #endif
 #ifdef ALLOW_PROFILES
       do num_file=1,NFILESPROFMAX
@@ -851,17 +853,13 @@ cav)
 cav(
 #ifdef ALLOW_OBSFIT
 cav do this outside of bi,bj loops
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-          no_obsfit(num_file,num_var)=no_obsfit(num_file,num_var)
-     &            +num_obsfit(num_file,num_var,bi,bj)
-       enddo
-      enddo
-        print*,'CAV ecco after',f_obsfit(1,1),
-     &   tile_fc(bi,bj),
-     &   no_obsfit(1,1)
-     &   , objf_obsfit(1,1,bi,bj)
-     &   , num_obsfit(1,1,bi,bj)
+c      do num_file_obs=1,NFILESMAX_OBS
+c       do num_var_obs=1,NVARMAX_OBS
+c          no_obsfit(num_file_obs,num_var_obs)=
+c     &            no_obsfit(num_file_obs,num_var_obs)
+c     &            +num_obsfit(num_file_obs,num_var_obs)
+c       enddo
+c      enddo
 #endif
 cav)
 #ifdef ALLOW_GENCOST_CONTRIBUTION
@@ -889,14 +887,13 @@ cav)
        enddo
 #endif
 
-        enddo
-      enddo
+C-   end bi,bj loops
+       ENDDO
+      ENDDO
 
 c local copy used in print statements, for
 c which we always want to do the global sum.
       CALL GLOBAL_SUM_TILE_RL( tile_fc, locfc, myThid )
-
-
 
 #ifndef ALLOW_COST
 cgf global sum is now done in cost_final if allow_cost
@@ -980,7 +977,6 @@ c--   Do global summation for each part of the cost function
       _GLOBAL_SUM_RL( f_scatxm , myThid )
       _GLOBAL_SUM_RL( f_scatym , myThid )
       _GLOBAL_SUM_RL( f_curmtr , myThid )
-      _GLOBAL_SUM_RL( f_ageos , myThid )
       _GLOBAL_SUM_RL( f_kapgm , myThid )
       _GLOBAL_SUM_RL( f_kapredi, myThid )
       _GLOBAL_SUM_RL( f_diffkr , myThid )
@@ -989,11 +985,14 @@ c--   Do global summation for each part of the cost function
       _GLOBAL_SUM_RL( f_bottomdrag , myThid )
 #endif /* ECCO_CTRL_DEPRECATED */
 
-#if (defined (ALLOW_CTRL) && defined (ALLOW_OBCS))
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
       _GLOBAL_SUM_RL( f_obcsn , myThid )
       _GLOBAL_SUM_RL( f_obcss , myThid )
       _GLOBAL_SUM_RL( f_obcsw , myThid )
       _GLOBAL_SUM_RL( f_obcse , myThid )
+# ifdef OBCS_AGEOS_COST_CONTRIBUTION
+      _GLOBAL_SUM_RL( f_ageos , myThid )
+# endif
 #endif
 #ifdef ALLOW_PROFILES
       do num_file=1,NFILESPROFMAX
@@ -1007,14 +1006,13 @@ c--   Do global summation for each part of the cost function
 #endif
 cav(
 #ifdef ALLOW_OBSFIT
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-        _GLOBAL_SUM_RL(f_obsfit(num_file,num_var), myThid )
-       enddo
-      enddo
+c      do num_file_obs=1,NFILESMAX_OBS
+c       do num_var_obs=1,NVARMAX_OBS
+c        _GLOBAL_SUM_RL(f_obsfit(num_file_obs,num_var_obs), myThid )
+c       enddo
+c      enddo
 #endif
 cav)
-
 #ifdef ALLOW_GENCOST_CONTRIBUTION
        do num_var=1,NGENCOST
         _GLOBAL_SUM_RL(f_gencost(num_var), myThid )
@@ -1096,7 +1094,6 @@ cav)
       _GLOBAL_SUM_RL( no_scatxm , myThid )
       _GLOBAL_SUM_RL( no_scatym , myThid )
       _GLOBAL_SUM_RL( no_curmtr , myThid )
-      _GLOBAL_SUM_RL( no_ageos , myThid )
       _GLOBAL_SUM_RL( no_kapgm , myThid )
       _GLOBAL_SUM_RL( no_kapredi , myThid )
       _GLOBAL_SUM_RL( no_diffkr , myThid )
@@ -1105,11 +1102,14 @@ cav)
       _GLOBAL_SUM_RL( no_bottomdrag , myThid )
 #endif /* ECCO_CTRL_DEPRECATED */
 
-#if (defined (ALLOW_CTRL) && defined (ALLOW_OBCS))
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
       _GLOBAL_SUM_RL( no_obcsn , myThid )
       _GLOBAL_SUM_RL( no_obcss , myThid )
       _GLOBAL_SUM_RL( no_obcsw , myThid )
       _GLOBAL_SUM_RL( no_obcse , myThid )
+# ifdef OBCS_AGEOS_COST_CONTRIBUTION
+      _GLOBAL_SUM_RL( no_ageos , myThid )
+# endif
 #endif
 #ifdef ALLOW_PROFILES
       do num_file=1,NFILESPROFMAX
@@ -1123,14 +1123,12 @@ cav)
 #endif
 cav(
 #ifdef ALLOW_OBSFIT
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-        _GLOBAL_SUM_RL(no_obsfit(num_file,num_var), myThid )
-       enddo
-      enddo
+c      do num_file_obs=1,NFILESMAX_OBS
+c       do num_var_obs=1,NVARMAX_OBS
+c        _GLOBAL_SUM_RL(no_obsfit(num_file_obs,num_var_obs), myThid )
+c       enddo
+c      enddo
 #endif
-        print*,'CAV ecco global sum',f_obsfit(1,1)
-     &        ,no_obsfit(1,1) 
 cav)
 #ifdef ALLOW_GENCOST_CONTRIBUTION
        do num_var=1,NGENCOST
@@ -1314,7 +1312,7 @@ cav)
      &     ' --> f_bottomdrag =', f_bottomdrag
 #endif /* ECCO_CTRL_DEPRECATED */
 
-#if (defined (ALLOW_CTRL) && defined (ALLOW_OBCS))
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
       write(standardmessageunit,'(A,D22.15)')
      &     ' --> f_obcsn   =',f_obcsn
       write(standardmessageunit,'(A,D22.15)')
@@ -1323,7 +1321,7 @@ cav)
      &     ' --> f_obcsw   =',f_obcsw
       write(standardmessageunit,'(A,D22.15)')
      &     ' --> f_obcse   =',f_obcse
-# ifdef ECCO_CTRL_DEPRECATED
+# ifdef OBCS_AGEOS_COST_CONTRIBUTION
       write(standardmessageunit,'(A,D22.15)')
      &     ' --> f_ageos   =',f_ageos
 # endif
@@ -1337,7 +1335,7 @@ cav)
      &     ' --> f_profiles =',f_profiles(num_file,num_var),
      &      num_file, num_var
          call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
+     &                       SQUEEZE_RIGHT, myThid )
         endif
        enddo
       enddo
@@ -1347,7 +1345,7 @@ cav)
      &     ' --> f_profiles_mean =',f_profiles_mean(num_var),
      &      num_var
          call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
+     &                       SQUEEZE_RIGHT, myThid )
         endif
       enddo
       endif
@@ -1355,12 +1353,12 @@ cav)
 cav(
 #ifdef ALLOW_OBSFIT
       if (useOBSFIT) then
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-        if ( no_obsfit(num_file,num_var).GT.zeroRL ) then
+      do num_file_obs=1,NFILESMAX_OBS
+       do num_var_obs=1,NVARMAX_OBS
+        if ( no_obsfit(num_file_obs,num_var_obs).GT.zeroRL ) then
          write(msgBuf,'(A,D22.15,i2.0,i2.0)')
-     &     ' --> f_obsfit =',f_obsfit(num_file,num_var),
-     &      num_file, num_var
+     &     ' --> f_obsfit =',f_obsfit(num_file_obs,num_var_obs),
+     &      num_file_obs, num_var_obs
          call print_message( msgBuf, standardmessageunit,
      &                       SQUEEZE_RIGHT , mythid)
         endif
@@ -1376,7 +1374,7 @@ cav)
      &     ' --> f_gencost =',f_gencost(num_var),
      &      num_var
          call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
+     &                       SQUEEZE_RIGHT, myThid )
         endif
        enddo
 #endif
@@ -1387,7 +1385,7 @@ cav)
      &     ' --> f_gentim2d =',f_gentim2d(num_var),
      &      num_var
          call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
+     &                       SQUEEZE_RIGHT, myThid )
         endif
        enddo
 #endif
@@ -1398,7 +1396,7 @@ cav)
      &     ' --> f_genarr2d =',f_genarr2d(num_var),
      &      num_var
          call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
+     &                       SQUEEZE_RIGHT, myThid )
         endif
        enddo
 #endif
@@ -1409,7 +1407,7 @@ cav)
      &     ' --> f_genarr3d =',f_genarr3d(num_var),
      &      num_var
          call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
+     &                       SQUEEZE_RIGHT, myThid )
         endif
        enddo
 #endif
@@ -1447,14 +1445,15 @@ cgf this sum is now done in cost_final if allow_cost
 #endif
 
 cav(
+cost.h:c     glofc      - contributions from global mean constraints
 #ifdef ALLOW_OBSFIT
-c      do num_file=1,NFILESOBSMAX
-c       do num_var=1,NVARMAX
-c        glofc = glofc
-c     &          +  mult_obsfit(num_file,num_var)
-c     &            *objf_obsfit(num_file,num_var)
-c       enddo
-c      enddo
+      do num_file_obs=1,NFILESMAX_OBS
+       do num_var_obs=1,NVARMAX_OBS
+        glofc = glofc
+     &          +  mult_obsfit(num_file_obs,num_var_obs)
+     &            *objf_obsfit(num_file_obs,num_var_obs)
+       enddo
+      enddo
 #endif
 cav)
 
@@ -1476,7 +1475,7 @@ C     only master thread of master CPU open and write to file
         write(msgBuf,'(A,D22.15)')
      &           ' --> fc               =', locfc
         call print_message( msgBuf, standardmessageunit,
-     &                      SQUEEZE_RIGHT , mythid)
+     &                      SQUEEZE_RIGHT, myThid )
 
         write(cfname,'(A,i4.4)') 'costfunction',eccoiter
         open(unit=ifc,file=cfname)
@@ -1660,7 +1659,7 @@ C     only master thread of master CPU open and write to file
      &       'f_transp =', f_transp, no_transp
 #endif /* ECCO_CTRL_DEPRECATED */
 
-#if (defined (ALLOW_CTRL) && defined (ALLOW_OBCS))
+#if (defined ALLOW_CTRL && defined ALLOW_OBCS)
         write(ifc,'(A,2D22.15)')
      &       'f_obcsn =', f_obcsn, no_obcsn
         write(ifc,'(A,2D22.15)')
@@ -1669,7 +1668,7 @@ C     only master thread of master CPU open and write to file
      &       'f_obcsw =', f_obcsw, no_obcsw
         write(ifc,'(A,2D22.15)')
      &       'f_obcse =', f_obcse, no_obcse
-# ifdef ECCO_CTRL_DEPRECATED
+# ifdef OBCS_AGEOS_COST_CONTRIBUTION
         write(ifc,'(A,2D22.15)')
      &       'f_ageos =', f_ageos, no_ageos
 # endif
@@ -1703,16 +1702,16 @@ C     only master thread of master CPU open and write to file
 cav(
 #ifdef ALLOW_OBSFIT
       if (useOBSFIT) then
-      do num_file=1,NFILESOBSMAX
-       do num_var=1,NVARMAX
-        if ( no_obsfit(num_file,num_var).GT.zeroRL ) then
-         IL  = ILNBLNK( obsfitFiles(num_file) )
+      do num_file_obs=1,NFILESMAX_OBS
+       do num_var_obs=1,NVARMAX_OBS
+        if ( no_obsfit(num_file_obs,num_var_obs).GT.zeroRL ) then
+         IL  = ILNBLNK( obsfitFiles(num_file_obs) )
          IL  = max (IL,30)
          write(ifc,'(4A,2D22.15)')
-     &    obsfitFiles(num_file)(1:IL),' ',
-     &    obsfit_names(num_file,num_var), ' = ',
-     &    f_obsfit(num_file,num_var),
-     &    no_obsfit(num_file,num_var)
+     &    obsfitFiles(num_file_obs)(1:IL),' ',
+     &    obsfit_names(num_file_obs,num_var_obs), ' = ',
+     &    f_obsfit(num_file_obs,num_var_obs),
+     &    no_obsfit(num_file_obs,num_var_obs)
         endif
        enddo
       enddo
@@ -1787,17 +1786,17 @@ c#endif /* ECCO_CTRL_DEPRECATED */
       write(msgBuf,'(a,D22.15)')
      &  ' cost_Final: final cost function = ',locfc
       call print_message( msgBuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , mythid)
+     &                    SQUEEZE_RIGHT, myThid )
       write(msgBuf,'(a)') ' '
       call print_message( msgBuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , mythid)
+     &                    SQUEEZE_RIGHT, myThid )
       write(msgBuf,'(a)')
      &  '             cost function evaluation finished.'
       call print_message( msgBuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , mythid)
+     &                    SQUEEZE_RIGHT, myThid )
       write(msgBuf,'(a)') ' '
       call print_message( msgBuf, standardmessageunit,
-     &                    SQUEEZE_RIGHT , mythid)
+     &                    SQUEEZE_RIGHT, myThid )
 #endif
 
       return
