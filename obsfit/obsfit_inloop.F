@@ -50,15 +50,20 @@ CEOP
 C !LOCAL VARIABLES:
       integer k,bi,bj,sample_num,num_file,num_var
       _RL     sample_modval, saved_modval
-      integer sample_i(NUM_INTERP_PTS_OF)
-      integer sample_j(NUM_INTERP_PTS_OF)
-      integer sample_k(NUM_INTERP_PTS_OF)
-      _RL     sample_w(NUM_INTERP_PTS_OF)
+      integer sample_i(NUM_INTERP_PTS_OBS)
+      integer sample_j(NUM_INTERP_PTS_OBS)
+      integer sample_k(NUM_INTERP_PTS_OBS)
+      _RL     sample_w(NUM_INTERP_PTS_OBS)
 #ifndef ALLOW_CTRL
       integer optimcycle
 #endif
 #ifndef ALLOW_ECCO
       integer i,j
+#endif
+#ifdef ALLOW_AUTODIFF_TAMC
+      INTEGER act1, act2, act3, act4
+      INTEGER max1, max2, max3
+      INTEGER ikey, itdkey
 #endif
       
 C     ==================================================================
@@ -94,24 +99,24 @@ C     ==================================================================
       DO bj=1,nSy
        DO bi=1,nSx
 
-        DO num_file=1,NFILESMAX_OF
+        DO num_file=1,NFILESMAX_OBS
 
 c for now, not dealing with del_time (obs are instantaneous)
          
-         DO sample_num=1,NOBSMAX_OF
+         DO sample_num=1,NOBSMAX_OBS
           IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
            IF ((sample_timeE(num_file,sample_num,bi,bj).GE.myTime)
      &      .AND.(sample_timeS(num_file,sample_num,bi,bj).LT. 
      &      (myTime+deltaTclock))) THEN
 
-            DO k=1,NUM_INTERP_PTS_OF
+            DO k=1,NUM_INTERP_PTS_OBS
              sample_i(k)= sample_interp_i(num_file,sample_num,k,bi,bj)
              sample_j(k)= sample_interp_j(num_file,sample_num,k,bi,bj)
              sample_k(k)= sample_interp_k(num_file,sample_num,k,bi,bj)
              sample_w(k)= sample_interp_w(num_file,sample_num,k,bi,bj)
             ENDDO
 
-            DO num_var=1,NVARMAX_OF
+            DO num_var=1,NVARMAX_OBS
 
 CADJ STORE sample_modval  = comlev1_bibj, key=itdkey, kind=isbyte
 CADJ STORE saved_modval  = comlev1_bibj, key=itdkey, kind=isbyte
@@ -133,7 +138,7 @@ C recorded value and add to it
 
               CALL obsfit_interp(sample_modval,
      &         sample_i,sample_j,sample_k,sample_w,
-     &         obsfit_namesmod(num_file,num_var),
+     &         obsfit_namesvar(num_file,num_var),
      &         obsfit_itracer(num_file,num_var),
      &         num_file,myTime,bi,bj,myThid)
               sample_modval=sample_modval*
@@ -156,7 +161,7 @@ C recorded value and add to it
            ENDIF !if ((sample_time...
           ENDIF !if (sampleNo(num_file,bi,bj).NE.0) then
          ENDDO !do sample_num...
-        ENDDO !do num_file=1,NFILESMAX_OF
+        ENDDO !do num_file=1,NFILESMAX_OBS
       
        ENDDO
       ENDDO

@@ -68,7 +68,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_names(active_num_file,
+      err = NF_INQ_VARID(fid, obsfit_namesequi(active_num_file,
      &  active_varnum), varid1 )
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
@@ -93,7 +93,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_names(active_num_file, 
+      err = NF_INQ_VARID(fid, obsfit_namesequi(active_num_file, 
      & active_varnum), varid1 )
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
@@ -104,7 +104,7 @@ c     Store the result on disk.
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_names(active_num_file,
+      err = NF_INQ_VARID(fid, obsfit_namesequi(active_num_file,
      & active_varnum), varid1 )
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
@@ -127,7 +127,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_names(active_num_file,
+      err = NF_INQ_VARID(fid,obsfit_namesequi(active_num_file,
      & active_varnum), varid1 )
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
@@ -203,7 +203,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_names(active_num_file,
+      err = NF_INQ_VARID(fid,obsfit_namesequi(active_num_file,
      & active_varnum),varid1 )
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
@@ -227,7 +227,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 
       vec_start=irec
       vec_count=1
-      err = NF_INQ_VARID(fid,obsfit_names(active_num_file,
+      err = NF_INQ_VARID(fid,obsfit_namesequi(active_num_file,
      & active_varnum),varid1 )
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
@@ -239,7 +239,7 @@ c     Add active_var to data.
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_names(active_num_file,
+      err = NF_INQ_VARID(fid,obsfit_namesequi(active_num_file,
      & active_varnum),varid1 )
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
@@ -259,7 +259,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_names(active_num_file,
+      err = NF_INQ_VARID(fid, obsfit_namesequi(active_num_file,
      & active_varnum),varid1 )
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)

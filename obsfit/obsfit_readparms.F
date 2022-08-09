@@ -42,7 +42,7 @@ C !FUNCTIONS
      &                   mult_obsfit,
      &                   obsfit_facmod,
      &                   obsfit_names,
-     &                   obsfit_namesmod,
+     &                   obsfit_namesvar,
      &                   obsfit_itracer,
      &                   obsfitDoNcOutput,
      &                   obsfitDoGenGrid
@@ -64,16 +64,16 @@ C     print a (weak) warning if data.obsfit is found
 C     Set default values
       obsfitDir=' '
 
-      DO num_file=1,NFILESMAX_OF
+      DO num_file=1,NFILESMAX_OBS
        obsfitFiles(num_file)      =    ' '
       ENDDO
 
-      DO num_file=1,NFILESMAX_OF
-       DO num_var=1,NVARMAX_OF
+      DO num_file=1,NFILESMAX_OBS
+       DO num_var=1,NVARMAX_OBS
         mult_obsfit(num_file,num_var) = 1. _d 0
         obsfit_facmod(num_file,num_var) = 1. _d 0
         obsfit_names(num_file,num_var) = 'empty'
-        obsfit_namesmod(num_file,num_var) = 'empty'
+        obsfit_namesvar(num_file,num_var) = 'empty'
         obsfit_itracer(num_file,num_var) = 1
        ENDDO
       ENDDO
@@ -109,10 +109,10 @@ C       Next, read the cost data file
       CLOSE(iUnit,STATUS='DELETE')
 #endif /* SINGLE_DISK_IO */
 
-      DO num_file=1,NFILESMAX_OF
+      DO num_file=1,NFILESMAX_OBS
 
        specifiedNames=.FALSE.
-        DO num_var=1,NVARMAX_OF
+        DO num_var=1,NVARMAX_OBS
          IF (obsfit_names(num_file,num_var).NE.'empty')
      &    specifiedNames=.TRUE.
           ENDDO
@@ -120,31 +120,53 @@ C       Next, read the cost data file
           IF (.NOT.specifiedNames) THEN
             obsfit_names(num_file,1)='obs_T'
             obsfit_names(num_file,2)='obs_S'
-            obsfit_namesmod(num_file,1)='theta'
-            obsfit_namesmod(num_file,2)='salt'
+            obsfit_namesvar(num_file,1)='theta'
+            obsfit_namesvar(num_file,2)='salt'
+CAV(
+#ifdef ALLOW_BLING
+            obsfit_names(num_file,11)='obs_DIC'
+            obsfit_names(num_file,12)='obs_ALK'
+            obsfit_names(num_file,11)='obs_O2'
+            obsfit_names(num_file,12)='obs_NO3'
+            obsfit_names(num_file,11)='obs_PO4'
+            obsfit_names(num_file,12)='obs_FE'
+            obsfit_names(num_file,11)='obs_DON'
+            obsfit_names(num_file,12)='obs_DOP'
+            obsfit_namesvar(num_file,11)='pTracer01'
+            obsfit_namesvar(num_file,12)='pTracer02'
+            obsfit_namesvar(num_file,11)='pTracer03'
+            obsfit_namesvar(num_file,12)='pTracer04'
+            obsfit_namesvar(num_file,11)='pTracer05'
+            obsfit_namesvar(num_file,12)='pTracer06'
+            obsfit_namesvar(num_file,11)='pTracer07'
+            obsfit_namesvar(num_file,12)='pTracer08'
+#endif
+CAV)
           ENDIF
 
-          DO num_var=1,NVARMAX_OF
+          DO num_var=1,NVARMAX_OBS
            IF (((obsfit_names(num_file,num_var).NE.'empty').AND.
-     &           (obsfit_namesmod(num_file,num_var).EQ.'empty')).OR.
+     &           (obsfit_namesvar(num_file,num_var).EQ.'empty')).OR.
      &          ((obsfit_names(num_file,num_var).EQ.'empty').AND.
-     &           (obsfit_namesmod(num_file,num_var).NE.'empty'))) THEN
+     &           (obsfit_namesvar(num_file,num_var).NE.'empty'))) THEN
             print*,'obsfit_names=',obsfit_names(num_file,num_var),' ',
-     &         obsfit_namesmod(num_file,num_var),' ',num_file,num_var
+     &         obsfit_namesvar(num_file,num_var),' ',num_file,num_var
             WRITE(errorMessageUnit,'(2A)')
      &         'ERROR in OBSFIT_READPARMS: inconsistent ',
-     &         'obsfit_names and obsfit_namesmod'
+     &         'obsfit_names and obsfit_namesvar'
             CALL ALL_PROC_DIE( myThid )
             STOP 'ABNORMAL END: S/R OBSFIT_READPARMS'
            ENDIF
           ENDDO
 
-          DO num_var=1,NVARMAX_OF
+          DO num_var=1,NVARMAX_OBS
            IL  = ILNBLNK( obsfit_names(num_file,num_var) )
-           WRITE(obsfit_namesmask(num_file,num_var),'(2A)')
-     &        obsfit_names(num_file,num_var)(1:IL),'mask'
+           WRITE(obsfit_namesmask(num_file,num_var),'(3A)')
+     &        'mod',obsfit_names(num_file,num_var)(4:IL),'mask'
            WRITE(obsfit_namesweight(num_file,num_var),'(2A)')
      &        obsfit_names(num_file,num_var)(1:IL),'weight'
+           WRITE(obsfit_namesequi(num_file,num_var),'(2A)')
+     &        'mod',obsfit_names(num_file,num_var)(4:IL)
           ENDDO
 
           IF ( obsfitFiles(num_file) .NE. ' ' ) THEN

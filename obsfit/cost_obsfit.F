@@ -86,7 +86,7 @@ C     ==================================================================
 
         _BEGIN_MASTER( myThid )
 
-      DO num_file=1,NFILESMAX_OF
+      DO num_file=1,NFILESMAX_OBS
 
 C File maintenance
        DO bj=1,nSy
@@ -95,7 +95,7 @@ C File maintenance
          IF ( (sampleNo(num_file,bi,bj).GT.0).AND.
      &         (obsfitDoNcOutput) ) THEN
 c need to close the file so that the data is not lost when run finishes
-           err = NF_CLOSE(fidfwd_of(num_file,bi,bj))
+           err = NF_CLOSE(fidfwd_obs(num_file,bi,bj))
 c then re-open it to compute cost function
            iG=bi+(myXGlobalLo-1)/sNx ! Kludge until unstructered tiles
            jG=bj+(myYGlobalLo-1)/sNy ! Kludge until unstructered tiles
@@ -108,14 +108,14 @@ c then re-open it to compute cost function
      &     obsfitDir(1:JL),obsfitfile(1:IL),'.',iG,'.',jG,'.equi.nc'
 c
            err = NF_OPEN(fnameequinc,NF_NOWRITE,
-     &     fidfwd_of(num_file,bi,bj))
+     &     fidfwd_obs(num_file,bi,bj))
          ENDIF
 
         ENDDO
        ENDDO
 
 c Loop over variables
-       DO num_var=1,NVARMAX_OF
+       DO num_var=1,NVARMAX_OBS
         IF (var_in_obsfile(num_file,num_var).EQV..TRUE.) THEN
 
 c Loop over samples
@@ -165,7 +165,7 @@ C Combine all processes
          IF ( myProcId .eq. 0 ) THEN
 
 C Loop over obs
-         DO obs_num=1,NOBSMAX_OF
+         DO obs_num=1,NOBSMAX_OBS
           IF (obs_num.LE.ObsNo(num_file)) THEN
 
            obs_modval=0.
@@ -196,6 +196,11 @@ C Spatial averaging
            ELSE
              obs_modval = -9999.
              obs_modmask = 0
+           ENDIF
+
+C Time averaging
+           IF (obsfitOperation(num_file).eq.1) THEN
+            obs_modval = obs_modval/obs_delT(num_file, obs_num)
            ENDIF
 
 c Write to global netcdf file
@@ -231,7 +236,7 @@ cc         IF ( myProcId .eq. 0 ) THEN
 cc         ENDIF
          
 C Loop over obs
-         DO obs_num=1,NOBSMAX_OF
+         DO obs_num=1,NOBSMAX_OBS
           IF (obs_num.LE.ObsNo(num_file)) THEN
 
            obs_modval=0.
@@ -256,9 +261,9 @@ cc           IF ( myProcId .eq. 0 ) THEN
 cc           ENDIF
 
 C Time averaging
-           IF (obsfitOperation(num_file).eq.1) THEN
-            obs_modval = obs_modval/obs_delT(num_file, obs_num)
-           ENDIF
+c           IF (obsfitOperation(num_file).eq.1) THEN
+c            obs_modval = obs_modval/obs_delT(num_file, obs_num)
+c           ENDIF
            
            IF (obs_weight.GT.0.
      &            ) THEN
@@ -279,13 +284,13 @@ C Time averaging
 
         ENDIF !if (var_in_obsfile.EQV..TRUE.) then
        ENDDO !do num_var...
-      ENDDO !do num_file=1,NFILESMAX_OF
+      ENDDO !do num_file=1,NFILESMAX_OBS
   
         _END_MASTER( myThid )
 
 c Print cost function values
-      DO num_file=1,NFILESMAX_OF
-       DO num_var=1,NVARMAX_OF
+      DO num_file=1,NFILESMAX_OBS
+       DO num_var=1,NVARMAX_OBS
 c
           objf_obsfit_glo =
      &             objf_obsfit(num_file,num_var)

@@ -51,7 +51,7 @@ CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_read_obsfit_rl( fidadj_of(active_num_file,bi,bj),
+      call active_read_obsfit_rl( fidadj_obs(active_num_file,bi,bj),
      &     active_num_file,
      &     adactive_var, active_varnum, lAdInit,
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
@@ -109,7 +109,7 @@ CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_write_obsfit_rl( fidadj_of(active_num_file,bi,bj),
+      call active_write_obsfit_rl( fidadj_obs(active_num_file,bi,bj),
      &     active_num_file,
      &     adactive_var, active_varnum,
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),

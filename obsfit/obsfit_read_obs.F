@@ -50,8 +50,8 @@ C     ==================================================================
       IF ( (irec.LT.obsfit_minind_buff).OR.
      &  (irec.GT.obsfit_maxind_buff).OR.
      & (obsfit_curfile_buff.NE.fNb) ) THEN
-       err = NF_INQ_DIMID(fiddata(fNb),'iOBS', varid1)
-       err = NF_INQ_DIMLEN(fiddata(fNb), varid1, tmpObsNo)
+       err = NF_INQ_DIMID(fiddata_obs(fNb),'iOBS', varid1)
+       err = NF_INQ_DIMLEN(fiddata_obs(fNb), varid1, tmpObsNo)
 
        IF (obsfit_curfile_buff.NE.fNb) THEN
 c no asumption on whether a forward or a backward loop is calling
@@ -81,15 +81,15 @@ c implies that a forward loop is calling
        vec_start=obsfit_minind_buff
        vec_count=obsfit_maxind_buff-obsfit_minind_buff+1
 
-       DO kkk=1,NVARMAX_OF
+       DO kkk=1,NVARMAX_OBS
         IF (var_in_obsfile(fNb,kkk).EQV..TRUE.) THEN
-         err = NF_INQ_VARID(fiddata(fNb),obsfit_names(fNb,kkk),
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_names(fNb,kkk),
      &    varid1 )
-         err = NF_GET_VARA_DOUBLE(fiddata(fNb), varid1, vec_start,
+         err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp1)
-         err = NF_INQ_VARID(fiddata(fNb),obsfit_namesweight(fNb,kkk)
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_namesweight(fNb,kkk)
      &    , varid1 )
-         err = NF_GET_VARA_DOUBLE(fiddata(fNb), varid1, vec_start,
+         err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp2)
 
          IF (err.NE.NF_NOERR) THEN

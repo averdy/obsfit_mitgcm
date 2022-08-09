@@ -55,11 +55,12 @@ c create a netcdf file
      &  varid(1))
        err = NF_PUT_ATT_INT(fid2,varid(1),'_FillValue',NF_INT,1,0)
 
-       DO num_var=1,NVARMAX_OF
-        err = NF_INQ_VARID(fid1,obsfit_names(num_file,num_var),varid0)
+       DO num_var=1,NVARMAX_OBS
+        err = NF_INQ_VARID(fid1,obsfit_namesequi(num_file,num_var),
+     &                      varid0)
         IF (err.EQ.NF_NOERR) THEN
 
-         err = NF_DEF_VAR(fid2,obsfit_names(num_file,num_var),
+         err = NF_DEF_VAR(fid2,obsfit_namesequi(num_file,num_var),
      &    NF_DOUBLE,1,dimid,varid(2+(num_var-1)*2))
          err = NF_PUT_ATT_DOUBLE(fid2,varid(2+(num_var-1)*2),
      &    '_FillValue',NF_DOUBLE,1,0. _d 0)

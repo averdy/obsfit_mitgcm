@@ -63,17 +63,17 @@ C !INPUT PARAMETERS:
       INTEGER  i_cur, j_cur, k_cur
 #else
       _RL      modval_cur_out
-      _RL      weights_cur(NUM_INTERP_PTS_OF)
-      INTEGER  i_cur(NUM_INTERP_PTS_OF)
-      INTEGER  j_cur(NUM_INTERP_PTS_OF)
-      INTEGER  k_cur(NUM_INTERP_PTS_OF)
+      _RL      weights_cur(NUM_INTERP_PTS_OBS)
+      INTEGER  i_cur(NUM_INTERP_PTS_OBS)
+      INTEGER  j_cur(NUM_INTERP_PTS_OBS)
+      INTEGER  k_cur(NUM_INTERP_PTS_OBS)
 #endif
 CEOP
 
 C !LOCAL VARIABLES:
-      _RL      tab_coeffs1(NUM_INTERP_PTS_OF)
-      _RL      tab_coeffs3(NUM_INTERP_PTS_OF)
-      _RL      ponderations(NUM_INTERP_PTS_OF),pondsSUM
+      _RL      tab_coeffs1(NUM_INTERP_PTS_OBS)
+      _RL      tab_coeffs3(NUM_INTERP_PTS_OBS)
+      _RL      ponderations(NUM_INTERP_PTS_OBS),pondsSUM
       INTEGER  q,k,kk,kcur,bi,bj
       _RL      modval_cur,mask_cur
       _RL      tmp_coeff
@@ -87,7 +87,7 @@ C     ==================================================================
 c horizontal interpolation:
         pondsSUM=0. _d 0
 
-        DO q=1,NUM_INTERP_PTS_OF
+        DO q=1,NUM_INTERP_PTS_OBS
          IF (var_cur.EQ.'theta') THEN
                tab_coeffs1(q)=theta(i_cur(q),j_cur(q),k_cur(q),bi,bj)
          ELSEIF (var_cur.EQ.'salt') THEN
@@ -131,7 +131,7 @@ cav               tab_coeffs1(q)=cSound(i_cur(q),j_cur(q),k_cur(q),bi,bj)
         IF (pondsSUM.GT.0) THEN
          modval_cur=0. _d 0
          mask_cur=1. _d 0
-         DO q=1,NUM_INTERP_PTS_OF
+         DO q=1,NUM_INTERP_PTS_OBS
            modval_cur=modval_cur
      &     +tab_coeffs1(q)*ponderations(q)/pondsSUM
          ENDDO
