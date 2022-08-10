@@ -101,9 +101,7 @@ C     ==================================================================
 
         DO num_file=1,NFILESMAX_OBS
 
-c for now, not dealing with del_time (obs are instantaneous)
-         
-         DO sample_num=1,NOBSMAX_OBS
+         DO sample_num=1,NSAMPLESMAX
           IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
            IF ((sample_timeE(num_file,sample_num,bi,bj).GE.myTime)
      &      .AND.(sample_timeS(num_file,sample_num,bi,bj).LT. 

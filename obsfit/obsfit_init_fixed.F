@@ -550,7 +550,7 @@ c if tmphhmmss is out of range then disregard obs
 
             IF (readDelT.EQ.1) THEN      
              IF (tmpdelT(m).GT.0. _d 0) THEN      
-c delT>0: time average      
+c delT>0: time average
               delT_cur = tmpdelT(m)
               obsfitOperation(num_file)=1
              ELSEIF (tmpdelT(m).LT.0. _d 0) THEN
@@ -831,10 +831,18 @@ c if yes then store sample index position and number of samples:
      &           =m+1000*(kk-1)
 
                 sample_timeS(num_file,SampleNo_tile,bi,bj)=
-     &           tmp_sample_time(m+1000*(kk-1)) 
+     &           tmp_sample_time(m+1000*(kk-1))
+cav "-1" to avoid counting in an extra time step 
+cav when time averaging
+               IF (obsfitOperation(num_file).eq.0) THEN 
                 sample_timeE(num_file,SampleNo_tile,bi,bj)=
      &           sample_timeS(num_file,SampleNo_tile,bi,bj)
      &           +tmp_sample_delT(m+1000*(kk-1))
+               ELSE
+                sample_timeE(num_file,SampleNo_tile,bi,bj)=
+     &           sample_timeS(num_file,SampleNo_tile,bi,bj)
+     &           +tmp_sample_delT(m+1000*(kk-1))-1
+               ENDIF
                 sample_lon(num_file,SampleNo_tile,bi,bj)=lon_cur
                 sample_lat(num_file,SampleNo_tile,bi,bj)=lat_cur
                 sample_depth(num_file,SampleNo_tile,bi,bj)=depth_cur

@@ -175,7 +175,7 @@ C Loop over obs
 C Calculate model equi of each obs by averaging NP samples               
            DO sample_num=1,NSAMP_PER_OBS_MAX
             IF (sample_num.LE.obs_np(num_file,obs_num)) THEN
-              
+
               irec = obs_sample1_ind(num_file,obs_num)
      &                + sample_num-1
                
@@ -186,9 +186,15 @@ C Calculate model equi of each obs by averaging NP samples
               IF (samples_mask_glob(irec) .GT. 0. _d 0) THEN
                num_valid_samples = num_valid_samples+1
               ENDIF
+
             ENDIF
            ENDDO
-            
+           
+C Time averaging
+           IF (obsfitOperation(num_file).eq.1) THEN
+            obs_modval = obs_modval/obs_delT(num_file, obs_num)
+           ENDIF
+ 
 C Spatial averaging
            IF (num_valid_samples.gt.0) THEN
              obs_modval = obs_modval/sample_mask_sum
@@ -196,14 +202,6 @@ C Spatial averaging
            ELSE
              obs_modval = -9999.
              obs_modmask = 0
-           ENDIF
-
-C Time averaging
-           IF (obsfitOperation(num_file).eq.1) THEN
-cav            obs_modval = obs_modval/obs_delT(num_file, obs_num)
-cav 1 more time step in loop!
-            obs_modval =
-     &        obs_modval/(obs_delT(num_file,obs_num)+deltaTclock)
            ENDIF
 
 c Write to global netcdf file
