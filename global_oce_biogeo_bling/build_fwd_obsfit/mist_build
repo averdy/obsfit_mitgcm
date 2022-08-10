@@ -1,0 +1,27 @@
+#!/bin/bash
+
+FC=gfortran
+F90C=gfortran
+CC=gcc
+DEFINES='-DWORDLENGTH=4 -DNML_TERMINATOR '
+INCLUDES='-I/usr/local/include'
+LIBS='-L/usr/lib64 -lnetcdf'
+CPP='cpp -traditional -P'
+NOOPTFLAGS='-O0'
+EXTENDED_SRC_FLAG='-ffixed-line-length-132'
+FFLAGS="$FFLAGS -fconvert=big-endian -fimplicit-none -mcmodel=medium"
+
+if test "x$IEEE" = x ; then
+     FOPTIM='-O3 -funroll-loops'
+else
+     FFLAGS="$FFLAGS -Waliasing -Wampersand -Wsurprising -Wline-truncation"
+     FOPTIM="$FOPTIM -g -ffpe-trap=invalid,zero,overflow -fbounds-check"
+fi
+
+F90FLAGS=$FFLAGS
+F90OPTIM=$FOPTIM
+CFLAGS=$FOPTIM
+
+
+
+
