@@ -5,8 +5,7 @@
 # obsfitDir = 'OBSFIT',
  obsfitFiles(1) = 'sst_clim_2007',
  mult_obsfit(1,1)   = 1.0,
-# obsfitFiles(2) = 'sample_obsfit',
- obsfitFiles(2) = 'sst_clim_2007_dt0',
+ obsfitFiles(2) = 'sample_obsfit',
  mult_obsfit(2,1)   = 1.0,
  obsfitdoncoutput = .false.,
  &
