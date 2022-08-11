@@ -16,7 +16,7 @@ git clone https://github.com/MITgcm/MITgcm.git <br />
 cd MITgcm <br />
 git checkout checkpoint68i <br />
 #obtain obsfit package code and example <br />
-git clone https://github.com/averdy/obsfit.git <br />
+git clone https://github.com/averdy/obsfit_mitgcm.git <br />
 cd obsfit <br />
 mv obsfit ../pkg <br />
 mv global_oce_biogeo_bling/* ../verification/global_oce_biogeo_bling/ <br />
