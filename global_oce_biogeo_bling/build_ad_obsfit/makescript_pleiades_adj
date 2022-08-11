@@ -1,0 +1,35 @@
+#!/bin/bash
+
+module load comp-intel/2018.3.222 mpi-hpe/mpt.2.25 hdf4/4.2.12 hdf5/1.8.18_mpt netcdf/4.4.1.1_mpt
+
+rm -f *.o
+rm -f *.f
+make CLEAN
+rm Makefile
+
+#
+# Non Divided adjoint case
+#
+../../../tools/genmake2 "-mpi" "-mods" "../code_ad_obsfit" "-optfile" "../../pleiades_build_options/linux_amd64_ifort+mpi_ice_nas" "-adof" "../../../tools/adjoint_options/adjoint_default" -mpi
+
+#
+# Divided adjoint case
+#
+#../../../tools/genmake2 "-mpi" "-mods" "../code_ad" "-optfile" "../../pleiades_build_options/linux_amd64_ifort+mpi_ice_nas" "-adof" "../../../tools/adjoint_options/adjoint_diva"
+
+#####################
+MPI_HOME="/nasa/sgi/mpt/2.14r19/include"
+mkdir mpi_headers
+cd mpi_headers/
+cp $MPI_HOME/* .
+cd ../
+cp mpi_headers/* .
+cp -p Makefile Makefile.orig
+sed -i "s/LOCAL_MPI_HEADERS    =/LOCAL_MPI_HEADERS    = 'mpi_headers'/" Makefile
+#######################
+
+make depend
+make adtaf
+make adall
+
+
