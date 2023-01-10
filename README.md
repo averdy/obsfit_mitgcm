@@ -14,17 +14,17 @@ on pleiades (or modify build options and build scripts for other machines).
 #obtain MITgcm checkpoint 68i  <br />
 git clone https://github.com/MITgcm/MITgcm.git <br />
 cd MITgcm <br />
-git checkout checkpoint68i <br />
+git checkout checkpoint68i <br /><br />
 #obtain obsfit package code and example <br />
 git clone https://github.com/averdy/obsfit_mitgcm.git <br />
 cd obsfit_mitgcm <br />
 mv obsfit ../pkg <br />
 mv global_oce_biogeo_bling/* ../verification/global_oce_biogeo_bling/ <br />
-cd ../verification/global_oce_biogeo_bling/ <br />
+cd ../verification/global_oce_biogeo_bling/ <br /><br />
 #compile executable <br />
 cd build_fwd_obsfit <br />
 mv pleiades_build_options ../../ <br />
-./makescript_pleiades_fwd <br />
+./makescript_pleiades_fwd <br /><br />
 #compile adjoint <br />
 cd ../build_ad_obsfit <br />
 ./makescript_pleiades_adj
