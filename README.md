@@ -11,10 +11,10 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 Follow the steps below to run an example (1-day run with obsfit test files that mimic a profiles Argo dataset and a gencost SST dataset)
 on pleiades (or modify build options and build scripts for other machines).
 
-#obtain MITgcm checkpoint 68i  <br />
+#obtain MITgcm checkpoint 68o  <br />
 git clone https://github.com/MITgcm/MITgcm.git <br />
 cd MITgcm <br />
-git checkout checkpoint68i <br /><br />
+git checkout checkpoint68o <br /><br />
 #obtain obsfit package code and example <br />
 git clone https://github.com/averdy/obsfit_mitgcm.git <br />
 cd obsfit_mitgcm <br />
@@ -24,6 +24,7 @@ cd ../verification/global_oce_biogeo_bling/ <br /><br />
 #compile executable <br />
 cd build_fwd_obsfit <br />
 mv pleiades_build_options ../../ <br />
+chmod u+x makescript_pleiades_fwd <br />
 ./makescript_pleiades_fwd <br /><br />
 #compile adjoint <br />
 cd ../build_ad_obsfit <br />
