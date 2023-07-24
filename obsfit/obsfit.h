@@ -1,5 +1,6 @@
 C     ==================================================================
 
+      integer sample_type(NFILESMAX_OBS,NSAMPLESMAX,nsx,nsy)
       _RL sample_timeS(NFILESMAX_OBS,NSAMPLESMAX,nsx,nsy),
      & sample_timeE(NFILESMAX_OBS,NSAMPLESMAX,nsx,nsy),
      & sample_lon(NFILESMAX_OBS,NSAMPLESMAX,nsx,nsy),
@@ -13,7 +14,7 @@ C     ==================================================================
       _RL m_UE(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nsx,nsy)
       _RL m_VN(1-OLx:sNx+OLx,1-OLy:sNy+OLy,Nr,nsx,nsy)
 #endif
-      COMMON /obsfit_r/ sample_timeS, sample_timeE,
+      COMMON /obsfit_r/ sample_type, sample_timeS, sample_timeE,
      & sample_lon, sample_lat,
      & sample_depth, sample_weight, sample_modmask,
      & obs_modmask, obs_delT

@@ -66,6 +66,7 @@ C !LOCAL VARIABLES:
       _RL  samples_mask_glob(NSAMPLESMAX)
       _RL  tmpgs
       INTEGER tmpgsi
+      INTEGER ObsNo2,fid,dimid
  
 C !FUNCTIONS
       INTEGER  ILNBLNK
@@ -116,7 +117,6 @@ c
 
 c Loop over variables
        DO num_var=1,NVARMAX_OBS
-        IF (var_in_obsfile(num_file,num_var).EQV..TRUE.) THEN
 
 c Loop over samples
          DO ii=1,NSAMPLESMAX
@@ -205,21 +205,10 @@ C Spatial averaging
            ENDIF
 
 c Write to global netcdf file
-cc           IF ( myProcId .eq. 0 ) THEN
-c            irec = obs_ind_glob(num_file,obs_num)
-c            err = NF_INQ_VARID(fidglobal(num_file), obsfit_names(
-c     &       num_file,num_var), varid1)
-c            err = NF_PUT_VARA_DOUBLE(fidglobal(num_file), varid1, 
-c     &       irec, 1, obs_modval)
-c            err = NF_INQ_VARID(fidglobal(num_file), obsfit_namesmask(
-c     &       num_file,num_var), varid1)
-c            err = NF_PUT_VARA_DOUBLE(fidglobal(num_file), varid1, 
-c     &       irec, 1, obs_modmask)
               CALL active_write_obsequi(num_file,
      &         obs_modval,num_var,
      &         obs_num,optimcycle,myThid,
      &         obsfit_globaldummy(num_file,num_var))
-cc           ENDIF
 
           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
          ENDDO !do obs_num=..
@@ -278,7 +267,6 @@ cc           ENDIF
 
          ENDIF !if myprocid = 0
 
-        ENDIF !if (var_in_obsfile.EQV..TRUE.) then
        ENDDO !do num_var...
       ENDDO !do num_file=1,NFILESMAX_OBS
   

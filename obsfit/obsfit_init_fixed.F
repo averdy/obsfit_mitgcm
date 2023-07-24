@@ -38,12 +38,13 @@ C !LOCAL VARIABLES:
       INTEGER i,j,k,l,m,bi,bj,iG,jG,num_file,sampleNo_tile
       INTEGER stopObsfit
       INTEGER fid, dimid, varid0, varid1, varid1a, varid1b, varid1c
-      INTEGER varid2, varid3, varid4, varid5
+      INTEGER varid2, varid3a, varid3b, varid4, varid5
       _RL tmpyymmdd(1000),tmphhmmss(1000),diffsecs
       _RL yymmddMin,yymmddMax
       _RL hhmmssMin,hhmmssMax
       INTEGER tmpdate(4),tmpdiff(4),obsIsInRunTime,sampleIsInTile
       INTEGER loopThroughSamples, weighSamples, readDelT
+      INTEGER tmp_type, tmp_type2(1000), type_cur
       _RL tmpnp(1000), tmpdelT(1000)
       _RL tmp_lon, tmp_lon2(1000), tmp_lat2(1000), lon_cur, lat_cur
       _RL tmp_depth2(1000), depth_cur, delT_cur
@@ -255,8 +256,9 @@ c time interval (if missing, assume instanteneous):
         ENDIF
                 
 c Read the info for samples:
-        err = NF_INQ_VARID(fid,'sample_x', varid2 )
-        err = err + NF_INQ_VARID(fid,'sample_y', varid3 )
+        err = NF_INQ_VARID(fid,'sample_type',varid2)
+        err = err + NF_INQ_VARID(fid,'sample_x', varid3a )
+        err = err + NF_INQ_VARID(fid,'sample_y', varid3b )
         err = err + NF_INQ_VARID(fid,'sample_z', varid4 )
         IF (err.NE.NF_NOERR) THEN
          IL  = ILNBLNK( obsfitFile )
@@ -304,39 +306,17 @@ c Available variables in the data set
         DO k=1,NVARMAX_OBS
          obs_num_var_cur(num_file,k)=0
         ENDDO
-        obs_num_var_tot(num_file)=0
 
-        DO k=1,NVARMAX_OBS
-         JL  = ILNBLNK( obsfit_names(num_file,k) )
-         err = NF_INQ_VARID(fid,obsfit_names(num_file,k)(1:JL), varid1)
-         IF (err.EQ.NF_NOERR) THEN
-          var_in_obsfile(num_file,k) = .TRUE.
-          obs_num_var_tot(num_file) = obs_num_var_tot(num_file)+1
-          obs_num_var_cur(num_file,k) = obs_num_var_tot(num_file)
-         ELSE
-          var_in_obsfile(num_file,k)=.FALSE.
-         ENDIF
-        ENDDO
+CAV(
+         obs_num_var_tot(num_file) = 1
+         obs_num_var_cur(num_file,1) = 1
+         obsfit_namesequi(num_file,1) = 'mod_val'
+         obsfit_namesmask(num_file,1) = 'mod_mask'
+         obsfit_names(num_file,1) = 'obs_val'
+         obsfit_namesweight(num_file,1) = 'obs_weight'
+CAV)
 
-        DO k=1,NVARMAX_OBS
-         IF (var_in_obsfile(num_file,k)) THEN
-          KL  = ILNBLNK( obsfit_names(num_file,k) )
-          JL  = ILNBLNK( obsfit_namesvar(num_file,k) )
-          IF (obsfit_namesvar(num_file,k).EQ.'pTracer') THEN
-           WRITE(msgbuf,'(a,I3,5a,I3)') '  variable #',k,' is ' ,
-     &       obsfit_names(num_file,k)(1:KL),' and ',
-     &       obsfit_namesvar(num_file,k)(1:JL),' #',
-     &       obsfit_itracer(num_file,k)
-          ELSE
-           WRITE(msgbuf,'(a,I3,4a)') '  variable #',k,
-     &       ' is            ' ,
-     &       obsfit_names(num_file,k)(1:KL),' and ',
-     &       obsfit_namesvar(num_file,k)(1:JL)
-          ENDIF
-          CALL print_message(msgbuf,
-     &       standardmessageunit, SQUEEZE_RIGHT, myThid)
-         ENDIF
-        ENDDO
+
 
 C create new netcdf global file for obs-equivalent 
         IF ( myProcId .eq. 0 ) THEN
@@ -355,26 +335,25 @@ C create new netcdf global file for obs-equivalent
           err = NF_DEF_DIM(fidglobal(num_file),'iOBS',ObsNo(num_file),
      &           dimid)
 
-          DO k=1,NVARMAX_OBS
-           IF (var_in_obsfile(num_file,k)) THEN
+c          DO k=1,NVARMAX_OBS
+          DO k=1,1
 
             err = NF_DEF_VAR(fidglobal(num_file),
-     &         obsfit_namesequi(num_file,k),NF_DOUBLE,
+     &         'mod_val',NF_DOUBLE,
      &         1,dimid,varid(1+(k-1)*2))
 
             err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
      &         varid(1+(k-1)*2),'_FillValue',
-     &         NF_DOUBLE,1, 0. _d 0 )
+     &         NF_DOUBLE,1, -9999. _d 0 )
 
             err = NF_DEF_VAR(fidglobal(num_file),
-     &         obsfit_namesmask(num_file,k),NF_DOUBLE,
+     &         'mod_mask',NF_DOUBLE,
      &         1,dimid,varid(1+(k-1)*2))
 
             err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
      &         varid(1+(k-1)*2),'_FillValue',
-     &         NF_DOUBLE,1, 0. _d 0 )
+     &         NF_DOUBLE,1, -9999. _d 0 )
 
-           ENDIF
           ENDDO
        
           err = NF_ENDDEF(fidglobal(num_file))
@@ -395,10 +374,9 @@ C create new netcdf global file for obs-equivalent
      &           ObsNo(num_file),dimid)
 
           DO k=1,NVARMAX_OBS
-           IF (var_in_obsfile(num_file,k)) THEN
 
             err = NF_DEF_VAR(fidadglobal(num_file),
-     &         obsfit_namesequi(num_file,k),NF_DOUBLE,
+     &         'mod_val',NF_DOUBLE,
      &         1,dimid,varid(1+(k-1)*2))
 
             err = NF_PUT_ATT_DOUBLE(fidadglobal(num_file),
@@ -406,14 +384,13 @@ C create new netcdf global file for obs-equivalent
      &         NF_DOUBLE,1, 0. _d 0 )
 
              err = NF_DEF_VAR(fidglobal(num_file),
-     &         obsfit_namesmask(num_file,k),NF_DOUBLE,
+     &         'mod_mask',NF_DOUBLE,
      &         1,dimid,varid(1+(k-1)*2))
 
              err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
      &         varid(1+(k-1)*2),'_FillValue',
      &         NF_DOUBLE,1, 0. _d 0 )
 
-           ENDIF
           ENDDO
        
           err = NF_ENDDEF(fidadglobal(num_file))
@@ -686,8 +663,10 @@ c read a chunk
             ENDIF
 
             err = NF_GET_VARA_DOUBLE(fid,varid2,vec_start,
+     &       vec_count, tmp_type2)
+            err = NF_GET_VARA_DOUBLE(fid,varid3a,vec_start,
      &       vec_count, tmp_lon2)
-            err = NF_GET_VARA_DOUBLE(fid,varid3,vec_start,
+            err = NF_GET_VARA_DOUBLE(fid,varid3b,vec_start,
      &       vec_count, tmp_lat2)
             err = NF_GET_VARA_DOUBLE(fid,varid4,vec_start,
      &       vec_count, tmp_depth2)
@@ -710,10 +689,20 @@ c loop through this chunk
       
               sampleIsInTile=1
       
-              IF (tmp_sample_time(m+1000*(kk-1)).LT.0. _d 0) then
+              IF (tmp_sample_time(m+1000*(kk-1)).LT.0. _d 0) THEN
                sampleIsInTile=0
               ENDIF
 
+              IF (tmp_sample_time(m+1000*(kk-1)).GT.
+     &                        modelend-modelstart) THEN
+               sampleIsInTile=0
+              ENDIF
+              IF (tmp_sample_time(m+1000*(kk-1)).LT.0) THEN
+               sampleIsInTile=0
+              ENDIF
+
+              type_cur=tmp_type2(m)
+              type_cur=5
               lon_cur=tmp_lon2(m)
               lat_cur=tmp_lat2(m)
               depth_cur=tmp_depth2(m)
@@ -850,7 +839,8 @@ cav when time averaging
                  sample_weight(num_file,SampleNo_tile,bi,bj)=
      &            tmp_weight2(m)
                 ENDIF
-                
+
+                sample_type(num_file,SampleNo_tile,bi,bj)=type_cur
 c then store interpolation coeffs and indices
                 lon_fac=(lon_cur-lon_1)/(lon_2-lon_1)
                 lat_fac=(lat_cur-lat_1)/(lat_2-lat_1)
@@ -980,7 +970,6 @@ c interpolation information consistent (self and with grid)
               ENDIF   !if (.NOT.obsfitDoGenGrid) then
 
 c ==============================================================================
-    
  
 c check that maximum size was not reached:
               IF (SampleNo_tile.GE.NSAMPLESMAX) then
@@ -1115,7 +1104,6 @@ C===========================================================
           SampleNo(num_file,bi,bj)=0
           DO k=1,NVARMAX_OBS
            obs_num_var_cur(num_file,k)=0
-           var_in_obsfile(num_file,k)=.FALSE.
           ENDDO
           obs_num_var_tot(num_file)=0
           DO k=1,NOBSMAX_OBS

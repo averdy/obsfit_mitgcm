@@ -82,7 +82,6 @@ c implies that a forward loop is calling
        vec_count=obsfit_maxind_buff-obsfit_minind_buff+1
 
        DO kkk=1,NVARMAX_OBS
-        IF (var_in_obsfile(fNb,kkk).EQV..TRUE.) THEN
          err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_names(fNb,kkk),
      &    varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
@@ -101,7 +100,6 @@ c implies that a forward loop is calling
           obsfit_data_buff(kk,kkk)=vec_tmp1(kk)
           obsfit_weight_buff(kk,kkk)=vec_tmp2(kk)
          ENDDO
-        ENDIF
        ENDDO
 
        obsfit_curfile_buff=fNb

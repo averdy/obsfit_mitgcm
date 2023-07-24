@@ -14,7 +14,7 @@ C     !INTERFACE:
      I                          k_cur,
      I                          weights_cur,
      I                          var_cur,
-     I                          itr_cur,
+c     I                          itr_cur,
      I                          file_cur,
      I                          mytime,
      I                          bi,
@@ -56,8 +56,7 @@ C !USES:
 C !INPUT PARAMETERS:
       _RL      mytime
       INTEGER  myThid
-      INTEGER  file_cur, itr_cur
-      CHARACTER*(8) var_cur
+      INTEGER  file_cur, var_cur
 #ifndef ALLOW_OBSFIT
       _RL      modval_cur_out, weights_cur
       INTEGER  i_cur, j_cur, k_cur
@@ -73,10 +72,11 @@ CEOP
 C !LOCAL VARIABLES:
       _RL      tab_coeffs1(NUM_INTERP_PTS_OBS)
       _RL      tab_coeffs3(NUM_INTERP_PTS_OBS)
-      _RL      ponderations(NUM_INTERP_PTS_OBS),pondsSUM
+      _RL      weighing_pts(NUM_INTERP_PTS_OBS),weighingSUM
       INTEGER  q,k,kk,kcur,bi,bj
       _RL      modval_cur,mask_cur
       _RL      tmp_coeff
+      character*(MAX_LEN_MBUF) msgBuf
 
 C !FUNCTIONS:
       INTEGER  ILNBLNK
@@ -85,55 +85,34 @@ C !FUNCTIONS:
 C     ==================================================================
 
 c horizontal interpolation:
-        pondsSUM=0. _d 0
+        weighingSUM=0. _d 0
 
         DO q=1,NUM_INTERP_PTS_OBS
-         IF (var_cur.EQ.'theta') THEN
+         IF (var_cur.EQ.1) THEN
                tab_coeffs1(q)=theta(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.'salt') THEN
+         ELSEIF (var_cur.EQ.2) THEN
                tab_coeffs1(q)=salt(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.'pTracer') THEN
-#ifdef ALLOW_PTRACERS
-               tab_coeffs1(q)=pTracer(i_cur(q),j_cur(q),k_cur(q),bi,bj,
-     &            itr_cur)
-#else
-               tab_coeffs1(q)=0. _d 0
-#endif
-#ifdef ALLOW_BLING
-         ELSEIF (var_cur.EQ.'PCO') THEN
-               tab_coeffs1(q)=pCO2(i_cur(q),j_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.'PH') THEN
-               tab_coeffs1(q)=pH(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.'CHL') THEN
-               tab_coeffs1(q)=CHL(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.'POC') THEN
-               tab_coeffs1(q)=POC(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-#endif
-#ifdef ALLOW_ECCO
-         ELSEIF (var_cur.EQ.'eta') THEN
-               tab_coeffs1(q)=m_eta(i_cur(q),j_cur(q),bi,bj)
-#endif
-         ELSEIF (var_cur.EQ.'UE') THEN
-               tab_coeffs1(q)=m_UE(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.'VN') THEN
-               tab_coeffs1(q)=m_VN(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-cav         ELSEIF (var_cur.EQ.'CS') THEN
-cav               tab_coeffs1(q)=cSound(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+         ELSEIF (var_cur.EQ.3) THEN
+               tab_coeffs1(q)=uvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+         ELSEIF (var_cur.EQ.4) THEN
+               tab_coeffs1(q)=vvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+         ELSEIF (var_cur.EQ.5) THEN
+                 tab_coeffs1(q)=etan(i_cur(q),j_cur(q),bi,bj)
          ELSE
                tab_coeffs1(q)=0. _d 0
          ENDIF
          tab_coeffs3(q)=maskC(i_cur(q),j_cur(q),k_cur(q),bi,bj)
 
-         ponderations(q)=tab_coeffs3(q)*weights_cur(q)
-         pondsSUM=pondsSUM+ponderations(q)
+         weighing_pts(q)=tab_coeffs3(q)*weights_cur(q)
+         weighingSUM=weighingSUM+weighing_pts(q)
         ENDDO
 
-        IF (pondsSUM.GT.0) THEN
+        IF (weighingSUM.GT.0) THEN
          modval_cur=0. _d 0
          mask_cur=1. _d 0
          DO q=1,NUM_INTERP_PTS_OBS
            modval_cur=modval_cur
-     &     +tab_coeffs1(q)*ponderations(q)/pondsSUM
+     &     +tab_coeffs1(q)*weighing_pts(q)/weighingSUM
          ENDDO
         ELSE
          modval_cur=0. _d 0

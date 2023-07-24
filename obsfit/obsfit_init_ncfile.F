@@ -53,7 +53,7 @@ c create a netcdf file
        err = NF_DEF_DIM(fid2,'iSAMPLE',length,dimid)
        err = NF_DEF_VAR(fid2,'sample_ind_glob',NF_INT,1,dimid,
      &  varid(1))
-       err = NF_PUT_ATT_INT(fid2,varid(1),'_FillValue',NF_INT,1,0)
+       err = NF_PUT_ATT_INT(fid2,varid(1),'_FillValue',NF_INT,1,-9999)
 
        DO num_var=1,NVARMAX_OBS
         err = NF_INQ_VARID(fid1,obsfit_namesequi(num_file,num_var),
@@ -63,11 +63,11 @@ c create a netcdf file
          err = NF_DEF_VAR(fid2,obsfit_namesequi(num_file,num_var),
      &    NF_DOUBLE,1,dimid,varid(2+(num_var-1)*2))
          err = NF_PUT_ATT_DOUBLE(fid2,varid(2+(num_var-1)*2),
-     &    '_FillValue',NF_DOUBLE,1,0. _d 0)
+     &    '_FillValue',NF_DOUBLE,1,-9999. _d 0)
          err = NF_DEF_VAR(fid2,obsfit_namesmask(num_file,num_var),
      &    NF_DOUBLE,1,dimid,varid(3+(num_var-1)*2))
          err = NF_PUT_ATT_DOUBLE(fid2,varid(3+(num_var-1)*2),
-     &    '_FillValue',NF_DOUBLE,1,0. _d 0)
+     &    '_FillValue',NF_DOUBLE,1,-9999. _d 0)
 
         ENDIF
        ENDDO
@@ -89,13 +89,12 @@ c create a binary file
 #ifdef _BYTESWAPIO
        CALL MDS_BYTESWAPR8(2,tmp_vec)
 #endif
+       num_var=1
        DO irec=length,1,-1
-        DO num_var=obs_num_var_tot(num_file),1,-1
-         WRITE(fid2,rec=((irec-1)*obs_num_var_tot(num_file)
-     &    +num_var-1)*2 +1) tmp_vec
-         WRITE(fid2,rec=((irec-1)*obs_num_var_tot(num_file)
-     &    +num_var-1)*2 +2) tmp_vec
-        ENDDO
+         WRITE(fid2,rec=((irec-1)
+     &     tmp_vec
+         WRITE(fid2,rec=((irec-1)
+     &      tmp_vec
        ENDDO
 
       ENDIF

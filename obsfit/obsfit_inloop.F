@@ -65,6 +65,7 @@ C !LOCAL VARIABLES:
       INTEGER max1, max2, max3
       INTEGER ikey, itdkey
 #endif
+      character*(MAX_LEN_MBUF) msgBuf
       
 C     ==================================================================
 
@@ -122,7 +123,6 @@ CADJ STORE sample_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
 
              sample_modval=0
              saved_modval=0
-             IF (var_in_obsfile(num_file,num_var).EQV..TRUE.) THEN
 
 C If averaging or integrating in time, read previously 
 C recorded value and add to it
@@ -135,9 +135,11 @@ C recorded value and add to it
 
               CALL obsfit_interp(sample_modval,
      &         sample_i,sample_j,sample_k,sample_w,
-     &         obsfit_namesvar(num_file,num_var),
-     &         obsfit_itracer(num_file,num_var),
+     &         sample_type(num_file,sample_num,bi,bj),
+c     &         obsfit_namesvar(num_file,num_var),
+c     &         obsfit_itracer(num_file,num_var),
      &         num_file,myTime,bi,bj,myThid)
+
               sample_modval=sample_modval*
      &                   obsfit_facmod(num_file,num_var)
 
@@ -152,7 +154,6 @@ C recorded value and add to it
      &         sample_modval,num_var,
      &         sample_num,optimcycle,bi,bj,myThid,
      &         obsfit_dummy(num_file,num_var,bi,bj))
-             ENDIF
             ENDDO
 
            ENDIF !if ((sample_time...
