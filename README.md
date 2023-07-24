@@ -11,10 +11,10 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 Follow the steps below to run an example (1-day run with obsfit test files that mimic a profiles Argo dataset and a gencost SST dataset)
 on pleiades (or modify build options and build scripts for other machines).
 
-#obtain MITgcm checkpoint 68o  <br />
+#obtain MITgcm checkpoint 68q  <br />
 git clone https://github.com/MITgcm/MITgcm.git <br />
 cd MITgcm <br />
-git checkout checkpoint68o <br /><br />
+git checkout checkpoint68q <br /><br />
 #obtain obsfit package code and example <br />
 git clone https://github.com/averdy/obsfit_mitgcm.git <br />
 cd obsfit_mitgcm <br />
