@@ -91,10 +91,8 @@ c create a binary file
 #endif
        num_var=1
        DO irec=length,1,-1
-         WRITE(fid2,rec=((irec-1)
-     &     tmp_vec
-         WRITE(fid2,rec=((irec-1)
-     &      tmp_vec
+         WRITE(fid2,rec=(irec)) tmp_vec
+         WRITE(fid2,rec=(irec+1)) tmp_vec
        ENDDO
 
       ENDIF
