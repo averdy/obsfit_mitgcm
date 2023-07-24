@@ -57,11 +57,11 @@ C run  87630 time steps
 C 16 usually runs OK
 C
       integer    nchklev_1
-      parameter( nchklev_1      =   2 )
+      parameter( nchklev_1      =   5 )
       integer    nchklev_2
-      parameter( nchklev_2      =   10 )
+      parameter( nchklev_2      =   15 )
       integer    nchklev_3
-      parameter( nchklev_3      =   10 )
+      parameter( nchklev_3      =   15 )
       integer    nchklev_4
       parameter( nchklev_4      =   1 )
 

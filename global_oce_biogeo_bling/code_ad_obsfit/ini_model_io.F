@@ -228,11 +228,9 @@ C       belonging to the core dynamical model
       IF ( usePROFILES ) CALL PROFILES_INI_IO( myThid )
 #endif
 
-cav(
 #ifdef ALLOW_OBSFIT
       IF ( useOBSFIT ) CALL OBSFIT_INI_IO( myThid )
 #endif
-cav)
 
 #ifdef ALLOW_DIAGNOSTICS
       IF ( useDiagnostics ) CALL DIAGNOSTICS_INI_IO( myThid )
