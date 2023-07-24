@@ -8,7 +8,7 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 
 # How to use:
 
-Follow the steps below to run an example (1-day run with obsfit test files that mimic a profiles Argo dataset and a gencost SST dataset)
+Follow the steps below to run an example (1-day run with obsfit test file)
 on pleiades (or modify build options and build scripts for other machines).
 
 #obtain MITgcm checkpoint 68q  <br />
