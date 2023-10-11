@@ -662,7 +662,7 @@ c read a chunk
              stopObsfit=1
             ENDIF
 
-            err = NF_GET_VARA_DOUBLE(fid,varid2,vec_start,
+            err = NF_GET_VARA_INT(fid,varid2,vec_start,
      &       vec_count, tmp_type2)
             err = NF_GET_VARA_DOUBLE(fid,varid3a,vec_start,
      &       vec_count, tmp_lon2)
@@ -702,7 +702,6 @@ c loop through this chunk
               ENDIF
 
               type_cur=tmp_type2(m)
-              type_cur=5
               lon_cur=tmp_lon2(m)
               lat_cur=tmp_lat2(m)
               depth_cur=tmp_depth2(m)
