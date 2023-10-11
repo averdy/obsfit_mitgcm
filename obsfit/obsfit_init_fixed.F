@@ -897,6 +897,7 @@ c then store interpolation coeffs and indices
 CAV ignore points that are in not "wet"
 
              IF (tmp_type.EQ.3) THEN
+c zonal velocity
                mask1=maskW(sample_i,sample_j,sample_k1,bi,bj)
                mask2=maskW(sample_i+1,sample_j,sample_k1,bi,bj)
                mask3=maskW(sample_i,sample_j+1,sample_k1,bi,bj)
@@ -906,6 +907,7 @@ CAV ignore points that are in not "wet"
                mask7=maskW(sample_i,sample_j+1,sample_k2,bi,bj)
                mask8=maskW(sample_i+1,sample_j+1,sample_k2,bi,bj)
              ELSEIF (tmp_type.EQ.4) THEN
+c meridional velocity
                mask1=maskS(sample_i,sample_j,sample_k1,bi,bj)
                mask2=maskS(sample_i+1,sample_j,sample_k1,bi,bj)
                mask3=maskS(sample_i,sample_j+1,sample_k1,bi,bj)
