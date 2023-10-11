@@ -53,8 +53,10 @@ C !LOCAL VARIABLES:
       _RL tmp_sample_delT(NSAMPLESMAX)
       _RL lon_1, lon_2, lat_1, lat_2
       _RL depth_1, depth_2
-      _RL lon_tmp1, lon_tmp2
+      _RL lon_tmp1, lon_tmp2, lat_tmp1, lat_tmp2
       _RL lat_fac, lon_fac, depth_fac
+      _RL mask1,mask2,mask3,mask4,mask5,mask6,mask7,mask8
+      _RL w1,w2,w3,w4,w5,w6,w7,w8,wtot
       INTEGER sample_i, sample_j, sample_k1, sample_k2
       INTEGER np_cur, np_valid
       INTEGER vec_start, vec_count, sampleno_div1000, kk
@@ -773,25 +775,40 @@ c case 3: between two depth levels
         
                 DO j=1,sNy+1
                  DO i=1,sNx+1
+
+                  IF (type_cur.EQ.3) THEN
+c zonal velocity
+                    lon_tmp1=xG(i,j,bi,bj)
+                    lon_tmp2=xG(i+1,j,bi,bj)
+                    lat_tmp1=yC(i,j,bi,bj)
+                    lat_tmp2=yC(i,j+1,bi,bj)
+                  ELSEIF (type_cur.EQ.4) THEN
+c meridional velocity
+                    lon_tmp1=xC(i,j,bi,bj)
+                    lon_tmp2=xC(i+1,j,bi,bj)
+                    lat_tmp1=yG(i,j,bi,bj)
+                    lat_tmp2=yG(i,j+1,bi,bj)
+                  ELSE
+                    lon_tmp1=xC(i,j,bi,bj)
+                    lon_tmp2=xC(i+1,j,bi,bj)
+                    lat_tmp1=yC(i,j,bi,bj)
+                    lat_tmp2=yC(i,j+1,bi,bj)
+                  ENDIF
           
 c value of j, south of the data point:
-                  IF ((yC(i,j,bi,bj).LE.lat_cur).AND.
-     &             (yC(i,j+1,bi,bj).GT.lat_cur)) THEN
+                  IF ((lat_tmp1.LE.lat_cur).AND.
+     &             (lat_tmp2.GT.lat_cur)) THEN
                    sample_j=j
-                   lat_1=yC(i,j,bi,bj)
-                   lat_2=yC(i,j+1,bi,bj)
+                   lat_1=lat_tmp1
+                   lat_2=lat_tmp2
                   ENDIF
 
 c value of i, west of the data point:
                   IF (xC(i+1,j,bi,bj).LT.xC(1,j,bi,bj)) THEN
-                   lon_tmp2=xC(i+1,j,bi,bj)+360
-                  ELSE
-                   lon_tmp2=xC(i+1,j,bi,bj)
+                   lon_tmp2=lon_tmp2+360
                   ENDIF
                   IF (xC(i,j,bi,bj).LT.xC(1,j,bi,bj)) THEN
-                   lon_tmp1=xC(i,j,bi,bj)+360
-                  ELSE
-                   lon_tmp1=xC(i,j,bi,bj)
+                   lon_tmp1=lon_tmp1+360
                   ENDIF
 
                   IF ((lon_tmp1.LE.lon_cur).AND.
@@ -844,48 +861,98 @@ c then store interpolation coeffs and indices
                 lon_fac=(lon_cur-lon_1)/(lon_2-lon_1)
                 lat_fac=(lat_cur-lat_1)/(lat_2-lat_1)
                 
-             sample_interp_w(num_file,SampleNo_tile,1,bi,bj)=
-     &          (1-lon_fac)*(1-lat_fac)*(1-depth_fac)
+             w1=(1-lon_fac)*(1-lat_fac)*(1-depth_fac)
              sample_interp_i(num_file,SampleNo_tile,1,bi,bj)=sample_i
              sample_interp_j(num_file,SampleNo_tile,1,bi,bj)=sample_j
              sample_interp_k(num_file,SampleNo_tile,1,bi,bj)=sample_k1
-             sample_interp_w(num_file,SampleNo_tile,2,bi,bj)=
-     &          lon_fac*(1-lat_fac)*(1-depth_fac)
+             w2=lon_fac*(1-lat_fac)*(1-depth_fac)
              sample_interp_i(num_file,SampleNo_tile,2,bi,bj)=sample_i+1
              sample_interp_j(num_file,SampleNo_tile,2,bi,bj)=sample_j
              sample_interp_k(num_file,SampleNo_tile,2,bi,bj)=sample_k1
-             sample_interp_w(num_file,SampleNo_tile,3,bi,bj)=
-     &          (1-lon_fac)*lat_fac*(1-depth_fac)
+             w3=(1-lon_fac)*lat_fac*(1-depth_fac)
              sample_interp_i(num_file,SampleNo_tile,3,bi,bj)=sample_i
              sample_interp_j(num_file,SampleNo_tile,3,bi,bj)=sample_j+1
              sample_interp_k(num_file,SampleNo_tile,3,bi,bj)=sample_k1
-             sample_interp_w(num_file,SampleNo_tile,4,bi,bj)=
-     &          lon_fac*lat_fac*(1-depth_fac)
+             w4=lon_fac*lat_fac*(1-depth_fac)
              sample_interp_i(num_file,SampleNo_tile,4,bi,bj)=sample_i+1
              sample_interp_j(num_file,SampleNo_tile,4,bi,bj)=sample_j+1
              sample_interp_k(num_file,SampleNo_tile,4,bi,bj)=sample_k1
-             sample_interp_w(num_file,SampleNo_tile,5,bi,bj)=
-     &          (1-lon_fac)*(1-lat_fac)*depth_fac
+             w5=(1-lon_fac)*(1-lat_fac)*depth_fac
              sample_interp_i(num_file,SampleNo_tile,5,bi,bj)=sample_i
              sample_interp_j(num_file,SampleNo_tile,5,bi,bj)=sample_j
              sample_interp_k(num_file,SampleNo_tile,5,bi,bj)=sample_k2
-             sample_interp_w(num_file,SampleNo_tile,6,bi,bj)=
-     &          lon_fac*(1-lat_fac)*depth_fac
+             w6=lon_fac*(1-lat_fac)*depth_fac
              sample_interp_i(num_file,SampleNo_tile,6,bi,bj)=sample_i+1
              sample_interp_j(num_file,SampleNo_tile,6,bi,bj)=sample_j
              sample_interp_k(num_file,SampleNo_tile,6,bi,bj)=sample_k2
-             sample_interp_w(num_file,SampleNo_tile,7,bi,bj)=
-     &          (1-lon_fac)*lat_fac*depth_fac
+             w7=(1-lon_fac)*lat_fac*depth_fac
              sample_interp_i(num_file,SampleNo_tile,7,bi,bj)=sample_i
              sample_interp_j(num_file,SampleNo_tile,7,bi,bj)=sample_j+1
              sample_interp_k(num_file,SampleNo_tile,7,bi,bj)=sample_k2
-             sample_interp_w(num_file,SampleNo_tile,8,bi,bj)=
-     &          lon_fac*lat_fac*depth_fac
+             w8=lon_fac*lat_fac*depth_fac
              sample_interp_i(num_file,SampleNo_tile,8,bi,bj)=sample_i+1
              sample_interp_j(num_file,SampleNo_tile,8,bi,bj)=sample_j+1
              sample_interp_k(num_file,SampleNo_tile,8,bi,bj)=sample_k2
       
+CAV ignore points that are in not "wet"
+
+             IF (tmp_type.EQ.3) THEN
+               mask1=maskW(sample_i,sample_j,sample_k1,bi,bj)
+               mask2=maskW(sample_i+1,sample_j,sample_k1,bi,bj)
+               mask3=maskW(sample_i,sample_j+1,sample_k1,bi,bj)
+               mask4=maskW(sample_i+1,sample_j+1,sample_k1,bi,bj)
+               mask5=maskW(sample_i,sample_j,sample_k2,bi,bj)
+               mask6=maskW(sample_i+1,sample_j,sample_k2,bi,bj)
+               mask7=maskW(sample_i,sample_j+1,sample_k2,bi,bj)
+               mask8=maskW(sample_i+1,sample_j+1,sample_k2,bi,bj)
+             ELSEIF (tmp_type.EQ.4) THEN
+               mask1=maskS(sample_i,sample_j,sample_k1,bi,bj)
+               mask2=maskS(sample_i+1,sample_j,sample_k1,bi,bj)
+               mask3=maskS(sample_i,sample_j+1,sample_k1,bi,bj)
+               mask4=maskS(sample_i+1,sample_j+1,sample_k1,bi,bj)
+               mask5=maskS(sample_i,sample_j,sample_k2,bi,bj)
+               mask6=maskS(sample_i+1,sample_j,sample_k2,bi,bj)
+               mask7=maskS(sample_i,sample_j+1,sample_k2,bi,bj)
+               mask8=maskS(sample_i+1,sample_j+1,sample_k2,bi,bj)
+             ELSE
+               mask1=maskC(sample_i,sample_j,sample_k1,bi,bj)
+               mask2=maskC(sample_i+1,sample_j,sample_k1,bi,bj)
+               mask3=maskC(sample_i,sample_j+1,sample_k1,bi,bj)
+               mask4=maskC(sample_i+1,sample_j+1,sample_k1,bi,bj)
+               mask5=maskC(sample_i,sample_j,sample_k2,bi,bj)
+               mask6=maskC(sample_i+1,sample_j,sample_k2,bi,bj)
+               mask7=maskC(sample_i,sample_j+1,sample_k2,bi,bj)
+               mask8=maskC(sample_i+1,sample_j+1,sample_k2,bi,bj)
+             ENDIF
+             IF (mask1.EQ.0) w1=0
+             IF (mask2.EQ.0) w2=0
+             IF (mask3.EQ.0) w3=0
+             IF (mask4.EQ.0) w4=0
+             IF (mask5.EQ.0) w5=0
+             IF (mask6.EQ.0) w6=0
+             IF (mask7.EQ.0) w7=0
+             IF (mask8.EQ.0) w8=0 
+             wtot = w1+w2+w3+w4+w5+w6+w7+w8
+             w1 = w1/wtot
+             w2 = w2/wtot
+             w3 = w3/wtot
+             w4 = w4/wtot
+             w5 = w5/wtot
+             w6 = w6/wtot
+             w7 = w7/wtot
+             w8 = w8/wtot
+
+             sample_interp_w(num_file,SampleNo_tile,1,bi,bj) = w1
+             sample_interp_w(num_file,SampleNo_tile,2,bi,bj) = w2
+             sample_interp_w(num_file,SampleNo_tile,3,bi,bj) = w3
+             sample_interp_w(num_file,SampleNo_tile,4,bi,bj) = w4
+             sample_interp_w(num_file,SampleNo_tile,5,bi,bj) = w5
+             sample_interp_w(num_file,SampleNo_tile,6,bi,bj) = w6
+             sample_interp_w(num_file,SampleNo_tile,7,bi,bj) = w7
+             sample_interp_w(num_file,SampleNo_tile,8,bi,bj) = w8
+
                ENDIF
+
        
 c determine whether sample is in current tile domain (generic grid case)
                ELSEIF (sampleIsInTile.EQ.1) THEN
@@ -1076,6 +1143,7 @@ C===========================================================
             CALL OBSFIT_FINDUNIT( fidadj_obs(num_file,bi,bj), myThid )
 #endif
             IF (.NOT.exst) THEN
+
              CALL obsfit_init_ncfile(num_file,fiddata_obs(num_file),
      &         adfnameequinc, fidadj_obs(num_file,bi,bj),
      &         SampleNo(num_file,bi,bj),
