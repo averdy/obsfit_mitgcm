@@ -1,3 +1,15 @@
+CBOP
+C    !ROUTINE: OBSFIT_SIZE.h
+C    !INTERFACE:
+C #include OBSFIT_SIZE.h
+
+C    !DESCRIPTION: \bv
+C     ==================================================================
+C     OBSFIT_SIZE.h
+C     ==================================================================
+C     Contains OBSFIT sizes
+C     \ev
+CEOP
 #ifdef ALLOW_OBSFIT
 
 C ======================================================================
@@ -31,3 +43,4 @@ CAV Keeping this in for now...
       PARAMETER ( NUM_INTERP_PTS_OBS=8 )
 
 #endif /* ALLOW_OBSFIT */
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
