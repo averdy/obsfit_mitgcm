@@ -1,3 +1,16 @@
+CBOP
+C    !ROUTINE: OBSFIT_SIZE.h
+C    !INTERFACE:
+C #include OBSFIT_SIZE.h
+
+C    !DESCRIPTION: \bv
+C     ==================================================================
+C     OBSFIT_SIZE.h
+C     ==================================================================
+C     Contains OBSFIT sizes
+C     \ev
+CEOP
+
 #ifdef ALLOW_OBSFIT
 
 C ======================================================================
