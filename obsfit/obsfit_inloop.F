@@ -127,7 +127,7 @@ CADJ STORE sample_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
 C If averaging or integrating in time, read previously 
 C recorded value and add to it
               IF (obsfitOperation(num_file).gt.0) THEN
-               CALL active_read_obsfit(num_file,
+               CALL active_read_obsfit_loc(num_file,
      &          saved_modval,num_var,
      &          sample_num,.false.,optimcycle,bi,bj,myThid,
      &          obsfit_dummy(num_file,num_var,bi,bj))
@@ -146,11 +146,26 @@ c     &         obsfit_itracer(num_file,num_var),
               IF (obsfitOperation(num_file).gt.0) THEN
                sample_modval = saved_modval+sample_modval*deltaTclock
               ENDIF
+
+              write(msgBuf,'(A,D22.15)')
+     &     ' --- CAV1 modmask = ',sample_modmask(bi,bj)
+         call print_message( msgBuf, standardmessageunit,
+     &                       SQUEEZE_RIGHT , mythid)
               
               sample_modmask(bi,bj)=sample_modmask(bi,bj)*
      &                   sample_weight(num_file,sample_num,bi,bj)
 
-              CALL active_write_obsfit(num_file,
+              write(msgBuf,'(A,D22.15)')
+     &     ' --- CAV2 wt = ',sample_weight(num_file,sample_num,bi,bj)
+         call print_message( msgBuf, standardmessageunit,
+     &                       SQUEEZE_RIGHT , mythid)
+
+              write(msgBuf,'(A,D22.15)')
+     &     ' --- CAV3 modmask = ',sample_modmask(bi,bj)
+         call print_message( msgBuf, standardmessageunit,
+     &                       SQUEEZE_RIGHT , mythid)
+
+              CALL active_write_obsfit_loc(num_file,
      &         sample_modval,num_var,
      &         sample_num,optimcycle,bi,bj,myThid,
      &         obsfit_dummy(num_file,num_var,bi,bj))

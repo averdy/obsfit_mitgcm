@@ -707,7 +707,7 @@ c loop through this chunk
               lon_cur=tmp_lon2(m)
               lat_cur=tmp_lat2(m)
               depth_cur=tmp_depth2(m)
-              
+
 c determine whether sample is in current tile domain (lat-lon grid case)
               IF ((.NOT.obsfitDoGenGrid).AND.
      &          (sampleIsInTile.EQ.1)) THEN

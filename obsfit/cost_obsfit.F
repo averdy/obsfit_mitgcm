@@ -133,7 +133,7 @@ C Open tiled files and read to buffer
 
              sample_modvaltmp=0.
 
-             CALL active_read_obsfit(num_file,
+             CALL active_read_obsfit_loc(num_file,
      &           sample_modvaltmp,num_var,
      &           sample_num,.false.,optimcycle,bi,bj,myThid,
      &           obsfit_dummy(num_file,num_var,bi,bj))
@@ -204,8 +204,14 @@ C Spatial averaging
              obs_modmask = 0
            ENDIF
 
+           write(msgBuf,'(A,D22.15)')
+     &     ' --- CMASK obs_modmask = ',obs_modmask
+         call print_message( msgBuf, standardmessageunit,
+     &                       SQUEEZE_RIGHT , mythid)
+
+
 c Write to global netcdf file
-              CALL active_write_obsequi(num_file,
+              CALL active_write_obsfit_glo(num_file,
      &         obs_modval,num_var,
      &         obs_num,optimcycle,myThid,
      &         obsfit_globaldummy(num_file,num_var))
@@ -244,11 +250,16 @@ C Read observation and uncertainty (weight)
 
 C Read model equivalent from global file
 cc           IF ( myProcId .eq. 0 ) THEN
-              CALL active_read_obsequi(num_file,
+              CALL active_read_obsfit_glo(num_file,
      &         obs_modval,num_var,
      &         obs_num,.false.,optimcycle,myThid,
      &         obsfit_globaldummy(num_file,num_var))
 cc           ENDIF
+
+              write(msgBuf,'(A,D22.15)')
+     &     ' --- CMASK obs_modmask = ',obs_modmask
+         call print_message( msgBuf, standardmessageunit,
+     &                       SQUEEZE_RIGHT , mythid)
 
            IF (obs_weight.GT.0.
      &            ) THEN

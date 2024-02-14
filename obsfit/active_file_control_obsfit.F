@@ -1,16 +1,16 @@
 #include "OBSFIT_OPTIONS.h"
 
-C--  File active_file_control_obsfit_rl.F:
+C--  File active_file_control_obsfit_loc.F:
 C--   Contents
-C--   o active_read_obsfit_samples_rl
-C--   o active_write_obsfit_samples_rl
-C--   o active_read_obsfit_global_rl
-C--   o active_write_obsfit_global_rl
+C--   o active_read_obsfit_loc_rl
+C--   o active_write_obsfit_loc_rl
+C--   o active_read_obsfit_glo_rl
+C--   o active_write_obsfit_glo_rl
 
 CBOP 0
-C     !ROUTINE: ACTIVE_READ_OBSFIT_RL
+C     !ROUTINE: ACTIVE_READ_OBSFIT_LOC_RL
 C     !INTERFACE:
-      SUBROUTINE ACTIVE_READ_OBSFIT_RL(
+      SUBROUTINE ACTIVE_READ_OBSFIT_LOC_RL(
      I                                  fid,
      I                                  active_num_file,
      O                                  active_var,
@@ -26,9 +26,9 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==================================================================
-C     | SUBROUTINE ACTIVE_READ_OBSFIT_RL
+C     | SUBROUTINE ACTIVE_READ_OBSFIT_LOC_RL
 C     | Read an active record from an obsfit .equi. tiled file
-C     | (can be netcdf or binary)  
+C     | (can be netcdf or binary) during model run 
 C     ==================================================================
 
 C !USES:
@@ -213,9 +213,9 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 C     =================================================================
 
 CBOP 0
-C     !ROUTINE: ACTIVE_WRITE_OBSFIT_RL
+C     !ROUTINE: ACTIVE_WRITE_OBSFIT_LOC_RL
 C     !INTERFACE:
-      SUBROUTINE ACTIVE_WRITE_OBSFIT_RL(
+      SUBROUTINE ACTIVE_WRITE_OBSFIT_LOC_RL(
      I                                 fid,
      I                                 active_num_file,
      I                                 active_var,
@@ -230,9 +230,9 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==========================================================
-C     | SUBROUTINE ACTIVE_WRITE_OBSFIT_RL
+C     | SUBROUTINE ACTIVE_WRITE_OBSFIT_LOC_RL
 C     | Write an active record to an obsfit .equi. tiled file
-C     | (can be netcdf or binary)  
+C     | (can be netcdf or binary) during model run 
 C     ==========================================================
 
 C !USES:
@@ -415,9 +415,9 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       END
 
 CBOP 0
-C     !ROUTINE: ACTIVE_READ_OBSEQUI_RL
+C     !ROUTINE: ACTIVE_READ_OBSFIT_GLO_RL
 C     !INTERFACE:
-      SUBROUTINE ACTIVE_READ_OBSEQUI_RL(
+      SUBROUTINE ACTIVE_READ_OBSFIT_GLO_RL(
      I                                  fid,
      I                                  active_num_file,
      O                                  active_var,
@@ -431,8 +431,9 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==================================================================
-C     | SUBROUTINE ACTIVE_READ_OBSEQUI_RL
+C     | SUBROUTINE ACTIVE_READ_OBSFIT_GLO_RL
 C     | Read an active record from an obsfit .equi. global file
+C     | during cost calculation
 C     ==================================================================
 
 C !USES:
@@ -553,9 +554,9 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 C     =================================================================
 
 CBOP 0
-C     !ROUTINE: ACTIVE_WRITE_OBSEQUI_RL
+C     !ROUTINE: ACTIVE_WRITE_OBSFIT_GLO_RL
 C     !INTERFACE:
-      SUBROUTINE ACTIVE_WRITE_OBSEQUI_RL(
+      SUBROUTINE ACTIVE_WRITE_OBSFIT_GLO_RL(
      I                                 fid,
      I                                 active_num_file,
      I                                 active_var,
@@ -568,8 +569,9 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==========================================================
-C     | SUBROUTINE ACTIVE_WRITE_OBSEQUI_RL
+C     | SUBROUTINE ACTIVE_WRITE_OBSFIT_GLO_RL
 C     | Write an active record to an obsfit .equi. global file
+C     | during cost calculation
 C     ==========================================================
 
 C !USES:
