@@ -143,23 +143,8 @@ C recorded value and add to it
                sample_modval = saved_modval+sample_modval*deltaTclock
               ENDIF
 
-              write(msgBuf,'(A,D22.15)')
-     &     ' --- CAV1 modmask = ',sample_modmask(bi,bj)
-         call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
-              
               sample_modmask(bi,bj)=sample_modmask(bi,bj)*
      &                   sample_weight(num_file,sample_num,bi,bj)
-
-              write(msgBuf,'(A,D22.15)')
-     &     ' --- CAV2 wt = ',sample_weight(num_file,sample_num,bi,bj)
-         call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
-
-              write(msgBuf,'(A,D22.15)')
-     &     ' --- CAV3 modmask = ',sample_modmask(bi,bj)
-         call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
 
               CALL active_write_obsfit_loc(num_file,
      &         sample_modval,

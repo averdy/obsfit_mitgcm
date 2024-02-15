@@ -202,12 +202,6 @@ C Spatial averaging
              obs_modmask = 0
            ENDIF
 
-           write(msgBuf,'(A,D22.15)')
-     &     ' --- CMASK obs_modmask = ',obs_modmask
-         call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
-
-
 c Write to global netcdf file
               CALL active_write_obsfit_glo(num_file,
      &         obs_modval,
@@ -253,11 +247,6 @@ cc           IF ( myProcId .eq. 0 ) THEN
      &         obs_num,.false.,optimcycle,myThid,
      &         obsfit_globaldummy(num_file))
 cc           ENDIF
-
-              write(msgBuf,'(A,D22.15)')
-     &     ' --- CMASK obs_modmask = ',obs_modmask
-         call print_message( msgBuf, standardmessageunit,
-     &                       SQUEEZE_RIGHT , mythid)
 
            IF (obs_weight.GT.0.
      &            ) THEN
