@@ -28,7 +28,7 @@ C !LOCAL VARIABLES:
 C     msgBuf     :: Informational/error message buffer
 C     iUnit      :: Work variable for IO unit number
       CHARACTER*(MAX_LEN_MBUF) msgBuf
-      INTEGER   iUnit, num_file, num_var, IL
+      INTEGER   iUnit, num_file, IL
       LOGICAL   exst, specifiedNames
       CHARACTER*(128) fname
 
@@ -41,9 +41,6 @@ C !FUNCTIONS
      &                   obsfitFiles,
      &                   mult_obsfit,
      &                   obsfit_facmod,
-     &                   obsfit_names,
-     &                   obsfit_namesvar,
-     &                   obsfit_itracer,
      &                   obsfitDoNcOutput,
      &                   obsfitDoGenGrid
 
@@ -69,10 +66,8 @@ C     Set default values
       ENDDO
 
       DO num_file=1,NFILESMAX_OBS
-       DO num_var=1,NVARMAX_OBS
-        mult_obsfit(num_file,num_var) = 1. _d 0
-        obsfit_facmod(num_file,num_var) = 1. _d 0
-       ENDDO
+        mult_obsfit(num_file) = 1. _d 0
+        obsfit_facmod(num_file) = 1. _d 0
       ENDDO
 
       obsfitDoNcOutput=.false.

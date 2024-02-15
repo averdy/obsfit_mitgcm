@@ -13,7 +13,6 @@ C     !INTERFACE:
       SUBROUTINE ADACTIVE_READ_OBSFIT(
      I                              active_num_file,
      I                              adactive_var,
-     I                              active_varnum,
      I                              irec,
      I                              lAdInit,
      I                              myIter,
@@ -45,7 +44,7 @@ C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       integer active_num_file
       _RL     adactive_var
-      integer irec, active_varnum
+      integer irec
       integer myIter
       integer bi, bj, myThid
       logical lAdInit
@@ -55,7 +54,7 @@ CEOP
 
       call active_read_obsfit_loc_rl(fidadj_obs(active_num_file,bi,bj),
      &     active_num_file,
-     &     adactive_var, active_varnum, lAdInit,
+     &     adactive_var, lAdInit,
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
      &     REVERSE_SIMULATION, myIter, bi, bj, myThid)
 
@@ -71,7 +70,6 @@ C     !INTERFACE:
       SUBROUTINE ADACTIVE_WRITE_OBSFIT(
      I                                  active_num_file,
      I                                  adactive_var,
-     I                                  active_varnum,
      I                                  irec,
      I                                  myIter,
      I                                  bi,
@@ -103,7 +101,7 @@ C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       integer active_num_file
       _RL     adactive_var
-      integer irec, active_varnum
+      integer irec
       integer myIter
       integer bi, bj, myThid
       _RL     dummy
@@ -113,7 +111,7 @@ CEOP
 
       call active_write_obsfit_loc_rl(fidadj_obs(active_num_file,bi,bj),
      &     active_num_file,
-     &     adactive_var, active_varnum,
+     &     adactive_var,
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
      &     REVERSE_SIMULATION, myIter, bi, bj, myThid)
 
@@ -127,7 +125,6 @@ C     !INTERFACE:
       SUBROUTINE ADACTIVE_READ_OBSFIT_GLO(
      I                              active_num_file,
      I                              adactive_var,
-     I                              active_varnum,
      I                              irec,
      I                              lAdInit,
      I                              myIter,
@@ -158,7 +155,7 @@ C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       integer active_num_file
       _RL     adactive_var
-      integer irec, active_varnum
+      integer irec
       integer myIter
       integer myThid
       logical lAdInit
@@ -168,7 +165,7 @@ CEOP
 
       call active_read_obsfit_glo_rl(fidadglobal(active_num_file),
      &     active_num_file,
-     &     adactive_var, active_varnum, lAdInit,
+     &     adactive_var, lAdInit,
      &     irec, obs_ind_glob(active_num_file,irec),
      &     REVERSE_SIMULATION, myIter, myThid)
 
@@ -184,7 +181,6 @@ C     !INTERFACE:
       SUBROUTINE ADACTIVE_WRITE_OBSFIT_GLO(
      I                                  active_num_file,
      I                                  adactive_var,
-     I                                  active_varnum,
      I                                  irec,
      I                                  myIter,
      I                                  myThid,
@@ -215,7 +211,7 @@ C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       integer active_num_file
       _RL     adactive_var
-      integer irec, active_varnum
+      integer irec
       integer myIter
       integer myThid
       _RL     dummy
@@ -225,7 +221,7 @@ CEOP
 
       call active_write_obsfit_glo_rl(fidadglobal(active_num_file),
      &     active_num_file,
-     &     adactive_var, active_varnum,
+     &     adactive_var,
      &     irec, obs_ind_glob(active_num_file,irec),
      &     REVERSE_SIMULATION, myIter,myThid)
 

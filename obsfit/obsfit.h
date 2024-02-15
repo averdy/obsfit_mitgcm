@@ -35,16 +35,12 @@ C     ==================================================================
       integer fidglobal(NFILESMAX_OBS)
       integer fidadglobal(NFILESMAX_OBS)
       integer fidtangglobal(NFILESMAX_OBS)
-      integer obs_num_var_tot(NFILESMAX_OBS)
-      integer obs_num_var_cur(NFILESMAX_OBS,NVARMAX_OBS)
-      integer obsfit_itracer(NFILESMAX_OBS,NVARMAX_OBS)
       integer obs_sample1_ind(NFILESMAX_OBS,NOBSMAX_OBS)
       COMMON /obsfit_i/ obs_ind_glob, obs_np, 
      & obsfitOperation,
      & sample_ind_glob, ObsNo, sampleNo,
      & fidfwd_obs, fidadj_obs, fidtan_obs, fiddata_obs, 
      & fidglobal, fidadglobal, fidtangglobal,
-     & obs_num_var_tot, obs_num_var_cur, obsfit_itracer,
      & obs_sample1_ind
 
 
@@ -71,25 +67,22 @@ c)
 
 
 C-  Logical
-      logical var_in_obsfile(NFILESMAX_OBS,NVARMAX_OBS)
       logical obsfitDoNcOutput, obsfitDoGenGrid
-      COMMON /obsfit_l/ var_in_obsfile, obsfitDoNcOutput, 
-     & obsfitDoGenGrid
+      COMMON /obsfit_l/ obsfitDoNcOutput, obsfitDoGenGrid
 
 
 C-  Characters
-      character*(8) obsfit_names(NFILESMAX_OBS,NVARMAX_OBS)
-      character*(12) obsfit_namesmask(NFILESMAX_OBS,NVARMAX_OBS)
-      character*(14) obsfit_namesweight(NFILESMAX_OBS,NVARMAX_OBS)
-      character*(8) obsfit_namesvar(NFILESMAX_OBS,NVARMAX_OBS)
-      character*(8) obsfit_namesequi(NFILESMAX_OBS,NVARMAX_OBS)
+      character*(8) obsfit_names
+      character*(12) obsfit_namesmask
+      character*(14) obsfit_namesweight
+      character*(8) obsfit_namesequi
       COMMON /obsfit_c/ obsfit_names, obsfit_namesmask,
-     & obsfit_namesweight, obsfit_namesvar, obsfit_namesequi
+     & obsfit_namesweight, obsfit_namesequi
 
 
 C-  Buffers
-      _RL obsfit_data_buff(1000,NVARMAX_OBS)
-      _RL obsfit_weight_buff(1000,NVARMAX_OBS)
+      _RL obsfit_data_buff(1000)
+      _RL obsfit_weight_buff(1000)
       integer obsfit_minind_buff
       integer obsfit_maxind_buff
       integer obsfit_curfile_buff
@@ -99,10 +92,10 @@ C-  Buffers
 
 
 C-  Cost
-      _RL  objf_obsfit(NFILESMAX_OBS,NVARMAX_OBS)
-      _RL  num_obsfit(NFILESMAX_OBS,NVARMAX_OBS)
-      _RL  mult_obsfit(NFILESMAX_OBS,NVARMAX_OBS)
-      _RL  obsfit_facmod(NFILESMAX_OBS,NVARMAX_OBS)
+      _RL  objf_obsfit(NFILESMAX_OBS)
+      _RL  num_obsfit(NFILESMAX_OBS)
+      _RL  mult_obsfit(NFILESMAX_OBS)
+      _RL  obsfit_facmod(NFILESMAX_OBS)
       COMMON /obsfit_cost_r/
      &                objf_obsfit,
      &                num_obsfit,
@@ -114,8 +107,8 @@ C-  Cost
       COMMON /obsfit_cost_c/
      &        obsfitDir, obsfitFiles
      
-      _RL obsfit_dummy(NFILESMAX_OBS,NVARMAX_OBS,nsx,nsy)
-      _RL obsfit_globaldummy(NFILESMAX_OBS,NVARMAX_OBS)
+      _RL obsfit_dummy(NFILESMAX_OBS,nsx,nsy)
+      _RL obsfit_globaldummy(NFILESMAX_OBS)
       COMMON /obsfit_ctrl_dummy/
      &                obsfit_dummy,
      &                obsfit_globaldummy

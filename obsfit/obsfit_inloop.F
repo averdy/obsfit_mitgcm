@@ -48,7 +48,7 @@ CEOP
 #ifdef ALLOW_OBSFIT
 
 C !LOCAL VARIABLES:
-      integer k,bi,bj,sample_num,num_file,num_var
+      integer k,bi,bj,sample_num,num_file
       _RL     sample_modval, saved_modval
       integer sample_i(NUM_INTERP_PTS_OBS)
       integer sample_j(NUM_INTERP_PTS_OBS)
@@ -115,8 +115,6 @@ C     ==================================================================
              sample_w(k)= sample_interp_w(num_file,sample_num,k,bi,bj)
             ENDDO
 
-            DO num_var=1,NVARMAX_OBS
-
 CADJ STORE sample_modval  = comlev1_bibj, key=itdkey, kind=isbyte
 CADJ STORE saved_modval  = comlev1_bibj, key=itdkey, kind=isbyte
 CADJ STORE sample_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
@@ -128,20 +126,18 @@ C If averaging or integrating in time, read previously
 C recorded value and add to it
               IF (obsfitOperation(num_file).gt.0) THEN
                CALL active_read_obsfit_loc(num_file,
-     &          saved_modval,num_var,
+     &          saved_modval,
      &          sample_num,.false.,optimcycle,bi,bj,myThid,
-     &          obsfit_dummy(num_file,num_var,bi,bj))
+     &          obsfit_dummy(num_file,bi,bj))
               ENDIF
 
               CALL obsfit_interp(sample_modval,
      &         sample_i,sample_j,sample_k,sample_w,
      &         sample_type(num_file,sample_num,bi,bj),
-c     &         obsfit_namesvar(num_file,num_var),
-c     &         obsfit_itracer(num_file,num_var),
      &         num_file,myTime,bi,bj,myThid)
 
               sample_modval=sample_modval*
-     &                   obsfit_facmod(num_file,num_var)
+     &                   obsfit_facmod(num_file)
 
               IF (obsfitOperation(num_file).gt.0) THEN
                sample_modval = saved_modval+sample_modval*deltaTclock
@@ -166,10 +162,9 @@ c     &         obsfit_itracer(num_file,num_var),
      &                       SQUEEZE_RIGHT , mythid)
 
               CALL active_write_obsfit_loc(num_file,
-     &         sample_modval,num_var,
+     &         sample_modval,
      &         sample_num,optimcycle,bi,bj,myThid,
-     &         obsfit_dummy(num_file,num_var,bi,bj))
-            ENDDO
+     &         obsfit_dummy(num_file,bi,bj))
 
            ENDIF !if ((sample_time...
           ENDIF !if (sampleNo(num_file,bi,bj).NE.0) then

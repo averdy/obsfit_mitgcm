@@ -40,7 +40,7 @@ CEOP
 
 C !LOCAL VARIABLES:
 c     tmpObsNo :: number of obs in the file
-      INTEGER k, kk, kkk, err, varid1, tmpObsNo
+      INTEGER k, kk, err, varid1, tmpObsNo
       INTEGER vec_start,vec_count
       _RL     vec_tmp1(1000),vec_tmp2(1000)
       CHARACTER*(max_len_mbuf) msgbuf
@@ -81,26 +81,24 @@ c implies that a forward loop is calling
        vec_start=obsfit_minind_buff
        vec_count=obsfit_maxind_buff-obsfit_minind_buff+1
 
-       DO kkk=1,NVARMAX_OBS
-         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_names(fNb,kkk),
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_names,
      &    varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp1)
-         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_namesweight(fNb,kkk)
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_namesweight
      &    , varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp2)
 
-         IF (err.NE.NF_NOERR) THEN
+       IF (err.NE.NF_NOERR) THEN
           WRITE(errorMessageUnit,'(A)')
      &     'WARNING in obsfit_read_obs: record not found!!'
-         ENDIF
+       ENDIF
 
-         DO kk=1,vec_count
-          obsfit_data_buff(kk,kkk)=vec_tmp1(kk)
-          obsfit_weight_buff(kk,kkk)=vec_tmp2(kk)
-         ENDDO
-       ENDDO
+        DO kk=1,vec_count
+          obsfit_data_buff(kk)=vec_tmp1(kk)
+          obsfit_weight_buff(kk)=vec_tmp2(kk)
+        ENDDO
 
        obsfit_curfile_buff=fNb
       ENDIF
@@ -108,11 +106,11 @@ c implies that a forward loop is calling
 cgf ...now, get vec_loc from the buffer
       IF (vNb.LT.0) THEN
        vec_loc=obsfit_weight_buff
-     &   (irec-obsfit_minind_buff+1,-vNb)
+     &   (irec-obsfit_minind_buff+1)
 
       ELSE
        vec_loc=obsfit_data_buff
-     &   (irec-obsfit_minind_buff+1,vNb)
+     &   (irec-obsfit_minind_buff+1)
       ENDIF
 
 #endif

@@ -165,10 +165,8 @@ C     ==================================================================
 c Initialize global variables for obsfit_readvector.F
       obsfit_curfile_buff=0
       DO l=1,1000
-       DO k=1,NVARMAX_OBS
-        obsfit_data_buff(l,k)=0. _d 0
-        obsfit_weight_buff(l,k)=0. _d 0
-       ENDDO
+        obsfit_data_buff(l)=0. _d 0
+        obsfit_weight_buff(l)=0. _d 0
       ENDDO
 
       yymmddMin=modelstartdate(1)
@@ -304,18 +302,12 @@ c Read interpolation information (grid points, coeffs, etc.)
          ENDIF
         ENDIF
 
-c Available variables in the data set
-        DO k=1,NVARMAX_OBS
-         obs_num_var_cur(num_file,k)=0
-        ENDDO
-
 CAV(
-         obs_num_var_tot(num_file) = 1
-         obs_num_var_cur(num_file,1) = 1
-         obsfit_namesequi(num_file,1) = 'mod_val'
-         obsfit_namesmask(num_file,1) = 'mod_mask'
-         obsfit_names(num_file,1) = 'obs_val'
-         obsfit_namesweight(num_file,1) = 'obs_weight'
+c to do: move out of loop
+         obsfit_namesequi = 'mod_val'
+         obsfit_namesmask = 'mod_mask'
+         obsfit_names = 'obs_val'
+         obsfit_namesweight = 'obs_weight'
 CAV)
 
 
@@ -337,12 +329,9 @@ C create new netcdf global file for obs-equivalent
           err = NF_DEF_DIM(fidglobal(num_file),'iOBS',ObsNo(num_file),
      &           dimid)
 
-c          DO k=1,NVARMAX_OBS
-          DO k=1,1
-
             err = NF_DEF_VAR(fidglobal(num_file),
      &         'mod_val',NF_DOUBLE,
-     &         1,dimid,varid(1+(k-1)*2))
+     &         1,dimid,varid(1))
 
             err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
      &         varid(1+(k-1)*2),'_FillValue',
@@ -350,14 +339,12 @@ c          DO k=1,NVARMAX_OBS
 
             err = NF_DEF_VAR(fidglobal(num_file),
      &         'mod_mask',NF_DOUBLE,
-     &         1,dimid,varid(1+(k-1)*2))
+     &         1,dimid,varid(1))
 
             err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
      &         varid(1+(k-1)*2),'_FillValue',
      &         NF_DOUBLE,1, -9999. _d 0 )
 
-          ENDDO
-       
           err = NF_ENDDEF(fidglobal(num_file))
           err = NF_CLOSE(fidglobal(num_file))
           err = NF_OPEN(fnameequinc, NF_WRITE, fidglobal(num_file))
@@ -375,11 +362,9 @@ c          DO k=1,NVARMAX_OBS
           err = NF_DEF_DIM(fidadglobal(num_file),'iOBS',
      &           ObsNo(num_file),dimid)
 
-          DO k=1,NVARMAX_OBS
-
             err = NF_DEF_VAR(fidadglobal(num_file),
      &         'mod_val',NF_DOUBLE,
-     &         1,dimid,varid(1+(k-1)*2))
+     &         1,dimid,varid(1))
 
             err = NF_PUT_ATT_DOUBLE(fidadglobal(num_file),
      &         varid(1+(k-1)*2),'_FillValue',
@@ -387,14 +372,12 @@ c          DO k=1,NVARMAX_OBS
 
              err = NF_DEF_VAR(fidglobal(num_file),
      &         'mod_mask',NF_DOUBLE,
-     &         1,dimid,varid(1+(k-1)*2))
+     &         1,dimid,varid(1))
 
              err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
      &         varid(1+(k-1)*2),'_FillValue',
      &         NF_DOUBLE,1, 0. _d 0 )
 
-          ENDDO
-       
           err = NF_ENDDEF(fidadglobal(num_file))
           err = NF_CLOSE(fidadglobal(num_file))
           err = NF_OPEN(adfnameequinc, NF_WRITE, fidadglobal(num_file))
@@ -1070,7 +1053,7 @@ c number of valid samples in the file
 
 
 C===========================================================
-c create files for model counterparts to observations
+c create files for model counterparts to samples
 C===========================================================
 
           IF (SampleNo(num_file,bi,bj).GT.0) THEN
@@ -1171,10 +1154,6 @@ C===========================================================
          DO bi=1,nSx
           ObsNo(num_file)=0
           SampleNo(num_file,bi,bj)=0
-          DO k=1,NVARMAX_OBS
-           obs_num_var_cur(num_file,k)=0
-          ENDDO
-          obs_num_var_tot(num_file)=0
           DO k=1,NOBSMAX_OBS
            obs_np(num_file,k)=-999. _d 0
           ENDDO

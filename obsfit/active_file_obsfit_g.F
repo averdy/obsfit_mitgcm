@@ -11,7 +11,6 @@ C     !INTERFACE:
       SUBROUTINE G_ACTIVE_READ_OBSFIT(
      I                                 active_num_file,
      O                                 active_var,
-     I                                 active_varnum,
      I                                 irec,
      I                                 lAdInit,
      I                                 myOptimIter,
@@ -47,7 +46,7 @@ C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       _RL     active_var
       _RL     g_active_var
-      integer irec, active_varnum, active_num_file
+      integer irec, active_num_file
       integer myOptimIter
       integer bi, bj, myThid
       logical lAdInit
@@ -58,13 +57,13 @@ CEOP
 
       call active_read_obsfit_loc_rl(fidfwd_obs(active_num_file,bi,bj),
      &     active_num_file,
-     &     active_var, active_varnum, lAdInit,
+     &     active_var, lAdInit,
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
      &     TANGENT_SIMULATION, myOptimIter, bi, bj, myThid)
 
       call active_read_obsfit_loc_rl(fidtan_obs(active_num_file,bi,bj),
      &     active_num_file,
-     &     g_active_var,active_varnum, lAdInit,
+     &     g_active_var, lAdInit,
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
      &     TANGENT_SIMULATION, myOptimIter, bi, bj, myThid)
 
@@ -82,7 +81,6 @@ C     !INTERFACE:
       SUBROUTINE G_ACTIVE_WRITE_OBSFIT(
      I                           active_num_file,
      I                           active_var,
-     I                           active_varnum,
      I                           irec,
      I                           myOptimIter,
      I                           bi,
@@ -117,7 +115,7 @@ C     myThid:          thread number for this instance
       integer active_num_file
       _RL     active_var
       _RL     g_active_var
-      integer irec, active_varnum
+      integer irec
       integer myOptimIter
       integer bi, bj, myThid
       _RL     dummy
@@ -128,13 +126,13 @@ CEOP
 
       call active_write_obsfit_loc_rl(fidfwd_obs(active_num_file,bi,bj),
      &     active_num_file,
-     &     active_var, active_varnum,
+     &     active_var, 
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
      &     TANGENT_SIMULATION, myOptimIter, bi, bj, myThid)
 
       call active_write_obsfit_loc_rl(fidtan_obs(active_num_file,bi,bj),
      &     active_num_file,
-     &     g_active_var, active_varnum,
+     &     g_active_var, 
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
      &     TANGENT_SIMULATION, myOptimIter, bi, bj, myThid)
 
@@ -149,7 +147,6 @@ C     !INTERFACE:
       SUBROUTINE G_ACTIVE_READ_OBSFIT_GLO(
      I                                 active_num_file,
      O                                 active_var,
-     I                                 active_varnum,
      I                                 irec,
      I                                 lAdInit,
      I                                 myOptimIter,
@@ -183,7 +180,7 @@ C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       _RL     active_var
       _RL     g_active_var
-      integer irec, active_varnum, active_num_file
+      integer irec, active_num_file
       integer myOptimIter
       integer myThid
       logical lAdInit
@@ -194,13 +191,13 @@ CEOP
 
       call active_read_obsfit_glo_rl( fidglobal(active_num_file),
      &     active_num_file,
-     &     active_var, active_varnum, lAdInit,
+     &     active_var, lAdInit,
      &     irec, obs_ind_glob(active_num_file,irec),
      &     TANGENT_SIMULATION, myOptimIter, myThid)
 
       call active_read_obsfit_glo_rl( fidtangglobal(active_num_file),
      &     active_num_file,
-     &     g_active_var,active_varnum, lAdInit,
+     &     g_active_var, lAdInit,
      &     irec, obs_ind_glob(active_num_file,irec),
      &     TANGENT_SIMULATION, myOptimIter, myThid)
 
@@ -218,7 +215,6 @@ C     !INTERFACE:
       SUBROUTINE G_ACTIVE_WRITE_OBSFIT_GLO(
      I                           active_num_file,
      I                           active_var,
-     I                           active_varnum,
      I                           irec,
      I                           myOptimIter,
      I                           myThid,
@@ -251,7 +247,7 @@ C     myThid:          thread number for this instance
       integer active_num_file
       _RL     active_var
       _RL     g_active_var
-      integer irec, active_varnum
+      integer irec
       integer myOptimIter
       integer myThid
       _RL     dummy
@@ -262,13 +258,13 @@ CEOP
 
       call active_write_obsfit_glo_rl( fidglobal(active_num_file),
      &     active_num_file,
-     &     active_var, active_varnum,
+     &     active_var, 
      &     irec, obs_ind_glob(active_num_file,irec),
      &     TANGENT_SIMULATION, myOptimIter, myThid)
 
       call active_write_obsfit_glo_rl( fidtangglobal(active_num_file),
      &     active_num_file,
-     &     g_active_var, active_varnum,
+     &     g_active_var,
      &     irec, obs_ind_glob(active_num_file,irec),
      &     TANGENT_SIMULATION, myOptimIter, myThid)
 

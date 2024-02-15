@@ -30,7 +30,7 @@ C !LOCAL VARIABLES:
       INTEGER bi,bj
       INTEGER itlo,ithi
       INTEGER jtlo,jthi
-      INTEGER num_file,num_var
+      INTEGER num_file
 
 C     ==================================================================
 
@@ -43,19 +43,15 @@ c--   Initialize the tiled cost function contributions.
       DO bj = jtlo,jthi
         DO bi = itlo,ithi
           DO num_file=1,NFILESMAX_OBS
-           DO num_var=1,NVARMAX_OBS
-            obsfit_dummy(num_file,num_var,bi,bj)=0. _d 0
-           ENDDO
+           obsfit_dummy(num_file,bi,bj)=0. _d 0
           ENDDO
         ENDDO
       ENDDO
 
       DO num_file=1,NFILESMAX_OBS
-        DO num_var=1,NVARMAX_OBS
-          objf_obsfit(num_file,num_var)= 0. _d 0
-          num_obsfit(num_file,num_var) = 0. _d 0
-          obsfit_globaldummy(num_file,num_var) = 0. _d 0
-        ENDDO
+        objf_obsfit(num_file)= 0. _d 0
+        num_obsfit(num_file) = 0. _d 0
+        obsfit_globaldummy(num_file) = 0. _d 0
       ENDDO
 
       _BARRIER

@@ -43,7 +43,7 @@ CEOP
 #ifdef ALLOW_OBSFIT
 
 C !LOCAL VARIABLES:
-      integer K,num_file,num_var,sample_num
+      integer K,num_file,sample_num
       integer bi,bj,iG,jG
       _RL sample_modval, sample_modvaltmp
       _RL obs_modval
@@ -115,8 +115,6 @@ c
         ENDDO
        ENDDO
 
-c Loop over variables
-       DO num_var=1,NVARMAX_OBS
 
 c Loop over samples
          DO ii=1,NSAMPLESMAX
@@ -134,9 +132,9 @@ C Open tiled files and read to buffer
              sample_modvaltmp=0.
 
              CALL active_read_obsfit_loc(num_file,
-     &           sample_modvaltmp,num_var,
+     &           sample_modvaltmp,
      &           sample_num,.false.,optimcycle,bi,bj,myThid,
-     &           obsfit_dummy(num_file,num_var,bi,bj))
+     &           obsfit_dummy(num_file,bi,bj))
 
 C Save model equi (of samples) and masks in buffer
 C Combine all threads here
@@ -212,9 +210,9 @@ C Spatial averaging
 
 c Write to global netcdf file
               CALL active_write_obsfit_glo(num_file,
-     &         obs_modval,num_var,
+     &         obs_modval,
      &         obs_num,optimcycle,myThid,
-     &         obsfit_globaldummy(num_file,num_var))
+     &         obsfit_globaldummy(num_file))
 
           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
          ENDDO !do obs_num=..
@@ -240,20 +238,20 @@ C Loop over obs
            obs_weight=0.
 
 C Read observation and uncertainty (weight)
-           CALL obsfit_read_obs(num_file,num_var,
+           CALL obsfit_read_obs(num_file,1,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_data,myThid)
 
-           CALL obsfit_read_obs(num_file,-num_var,
+           CALL obsfit_read_obs(num_file,-1,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_weight,myThid)
 
 C Read model equivalent from global file
 cc           IF ( myProcId .eq. 0 ) THEN
               CALL active_read_obsfit_glo(num_file,
-     &         obs_modval,num_var,
+     &         obs_modval,
      &         obs_num,.false.,optimcycle,myThid,
-     &         obsfit_globaldummy(num_file,num_var))
+     &         obsfit_globaldummy(num_file))
 cc           ENDIF
 
               write(msgBuf,'(A,D22.15)')
@@ -263,13 +261,13 @@ cc           ENDIF
 
            IF (obs_weight.GT.0.
      &            ) THEN
-                 objf_obsfit(num_file,num_var)=
-     &             objf_obsfit(num_file,num_var)
+                 objf_obsfit(num_file)=
+     &             objf_obsfit(num_file)
      &             +obs_weight*obs_modmask
      &             *(obs_modval-obs_data)
      &             *(obs_modval-obs_data)
-                 num_obsfit(num_file,num_var)=
-     &               num_obsfit(num_file,num_var)
+                 num_obsfit(num_file)=
+     &               num_obsfit(num_file)
      &               +obs_modmask
            ENDIF
 
@@ -278,28 +276,25 @@ cc           ENDIF
 
          ENDIF !if myprocid = 0
 
-       ENDDO !do num_var...
       ENDDO !do num_file=1,NFILESMAX_OBS
   
         _END_MASTER( myThid )
 
 c Print cost function values
       DO num_file=1,NFILESMAX_OBS
-       DO num_var=1,NVARMAX_OBS
 c
           objf_obsfit_glo =
-     &             objf_obsfit(num_file,num_var)
+     &             objf_obsfit(num_file)
           num_obsfit_glo =
-     &             num_obsfit(num_file,num_var)
+     &             num_obsfit(num_file)
 c
       write(msgbuf,'(a,I2,a,I2,a,2D12.5)')
-     &  ' cost_obsfit(',num_file,',',num_var,')= ',
+     &  ' cost_obsfit(',num_file,')= ',
      &  objf_obsfit_glo,num_obsfit_glo
 
       IF ( num_obsfit_glo .GT. 0. ) CALL print_message( msgbuf,
      &  standardmessageunit,SQUEEZE_RIGHT, myThid)
 c
-       ENDDO
       ENDDO
 
       write(msgbuf,'(a)') '== cost_obsfit: end   =='

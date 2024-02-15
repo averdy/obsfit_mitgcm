@@ -1,10 +1,10 @@
 #include "OBSFIT_OPTIONS.h"
 
 CBOP 0
-C     !ROUTINE: OBSFIT_INIT_NCFILE
+C     !ROUTINE: OBSFIT_INIT_EQUIFILES
 
 C     !INTERFACE:
-      SUBROUTINE OBSFIT_INIT_NCFILE( 
+      SUBROUTINE OBSFIT_INIT_EQUIFILES( 
      I                               num_file,
      I                               fid1,
      I                               file2,
@@ -43,7 +43,7 @@ C     ==================================================================
 #ifdef ALLOW_OBSFIT
 C !LOCAL VARIABLES:
       INTEGER dimid,varid(10),varid0,err
-      INTEGER irec, num_var
+      INTEGER irec
       Real*8  tmp_vec(2)
 
       IF (obsfitDoNcOutput) THEN
@@ -55,22 +55,20 @@ c create a netcdf file
      &  varid(1))
        err = NF_PUT_ATT_INT(fid2,varid(1),'_FillValue',NF_INT,1,-9999)
 
-       DO num_var=1,NVARMAX_OBS
-        err = NF_INQ_VARID(fid1,obsfit_namesequi(num_file,num_var),
+        err = NF_INQ_VARID(fid1,obsfit_namesequi,
      &                      varid0)
-        IF (err.EQ.NF_NOERR) THEN
+       IF (err.EQ.NF_NOERR) THEN
 
-         err = NF_DEF_VAR(fid2,obsfit_namesequi(num_file,num_var),
-     &    NF_DOUBLE,1,dimid,varid(2+(num_var-1)*2))
-         err = NF_PUT_ATT_DOUBLE(fid2,varid(2+(num_var-1)*2),
+         err = NF_DEF_VAR(fid2,obsfit_namesequi,
+     &    NF_DOUBLE,1,dimid,varid(2))
+         err = NF_PUT_ATT_DOUBLE(fid2,varid(2),
      &    '_FillValue',NF_DOUBLE,1,-9999. _d 0)
-         err = NF_DEF_VAR(fid2,obsfit_namesmask(num_file,num_var),
-     &    NF_DOUBLE,1,dimid,varid(3+(num_var-1)*2))
-         err = NF_PUT_ATT_DOUBLE(fid2,varid(3+(num_var-1)*2),
+         err = NF_DEF_VAR(fid2,obsfit_namesmask,
+     &    NF_DOUBLE,1,dimid,varid(3))
+         err = NF_PUT_ATT_DOUBLE(fid2,varid(3),
      &    '_FillValue',NF_DOUBLE,1,-9999. _d 0)
 
-        ENDIF
-       ENDDO
+       ENDIF
 
        err=NF_ENDDEF(fid2)
        err=NF_CLOSE(fid2)
@@ -89,7 +87,7 @@ c create a binary file
 #ifdef _BYTESWAPIO
        CALL MDS_BYTESWAPR8(2,tmp_vec)
 #endif
-       num_var=1
+
        DO irec=length,1,-1
          WRITE(fid2,rec=(irec*2-1)) tmp_vec
          WRITE(fid2,rec=(irec*2)) tmp_vec
