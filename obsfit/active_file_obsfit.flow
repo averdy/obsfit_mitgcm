@@ -1,40 +1,40 @@
 C----------------------------------------
-C subroutine active_read_obsfit_samples
+C subroutine active_read_obsfit_loc
 C----------------------------------------
-cadj SUBROUTINE active_read_obsfit_samples FTLNAME = g_active_read_obsfit_samples
-cadj SUBROUTINE active_read_obsfit_samples ADNAME  = adactive_read_obsfit_samples
-cadj SUBROUTINE active_read_obsfit_samples INPUT   = 1, 3,4,5,6,7,8,9,10
-cadj SUBROUTINE active_read_obsfit_samples OUTPUT  =   2
-cadj SUBROUTINE active_read_obsfit_samples ACTIVE  =   2
-cadj SUBROUTINE active_read_obsfit_samples DEPEND  = 1, 3,4,5,6,7,8,9
+cadj SUBROUTINE active_read_obsfit_loc FTLNAME = g_active_read_obsfit_loc
+cadj SUBROUTINE active_read_obsfit_loc ADNAME  = adactive_read_obsfit_loc
+cadj SUBROUTINE active_read_obsfit_loc INPUT   = 1, 3,4,5,6,7,8,9,10
+cadj SUBROUTINE active_read_obsfit_loc OUTPUT  =   2
+cadj SUBROUTINE active_read_obsfit_loc ACTIVE  =   2
+cadj SUBROUTINE active_read_obsfit_loc DEPEND  = 1, 3,4,5,6,7,8,9
 
 C----------------------------------------
-C subroutine active_write_obsfit_samples
+C subroutine active_write_obsfit_loc
 C----------------------------------------
-cadj SUBROUTINE active_write_obsfit_samples FTLNAME = g_active_write_obsfit_samples
-cadj SUBROUTINE active_write_obsfit_samples ADNAME  = adactive_write_obsfit_samples
-cadj SUBROUTINE active_write_obsfit_samples INPUT   = 1,2,3,4,5,6,7,8,9
-cadj SUBROUTINE active_write_obsfit_samples OUTPUT  =                 9
-cadj SUBROUTINE active_write_obsfit_samples ACTIVE  =   2,            9
-cadj SUBROUTINE active_write_obsfit_samples DEPEND  = 1,  3,4,5,6,7,8
+cadj SUBROUTINE active_write_obsfit_loc FTLNAME = g_active_write_obsfit_loc
+cadj SUBROUTINE active_write_obsfit_loc ADNAME  = adactive_write_obsfit_loc
+cadj SUBROUTINE active_write_obsfit_loc INPUT   = 1,2,3,4,5,6,7,8,9
+cadj SUBROUTINE active_write_obsfit_loc OUTPUT  =                 9
+cadj SUBROUTINE active_write_obsfit_loc ACTIVE  =   2,            9
+cadj SUBROUTINE active_write_obsfit_loc DEPEND  = 1,  3,4,5,6,7,8
 
 C----------------------------------------
-C subroutine active_read_obsfit_global
+C subroutine active_read_obsfit_glo
 C----------------------------------------
-cadj SUBROUTINE active_read_obsfit_global FTLNAME = g_active_read_obsfit_global
-cadj SUBROUTINE active_read_obsfit_global ADNAME  = adactive_read_obsfit_global
-cadj SUBROUTINE active_read_obsfit_global INPUT   = 1, 3,4,5,6,7,8,9,10
-cadj SUBROUTINE active_read_obsfit_global OUTPUT  =   2
-cadj SUBROUTINE active_read_obsfit_global ACTIVE  =   2
-cadj SUBROUTINE active_read_obsfit_global DEPEND  = 1, 3,4,5,6,7,8,9
+cadj SUBROUTINE active_read_obsfit_glo FTLNAME = g_active_read_obsfit_glo
+cadj SUBROUTINE active_read_obsfit_glo ADNAME  = adactive_read_obsfit_glo
+cadj SUBROUTINE active_read_obsfit_glo INPUT   = 1, 3,4,5,6,7,8,9,10
+cadj SUBROUTINE active_read_obsfit_glo OUTPUT  =   2
+cadj SUBROUTINE active_read_obsfit_glo ACTIVE  =   2
+cadj SUBROUTINE active_read_obsfit_glo DEPEND  = 1, 3,4,5,6,7,8,9
 
 C----------------------------------------
-C subroutine active_write_obsfit_global
+C subroutine active_write_obsfit_glo
 C----------------------------------------
-cadj SUBROUTINE active_write_obsfit_global FTLNAME = g_active_write_obsfit_global
-cadj SUBROUTINE active_write_obsfit_global ADNAME  = adactive_write_obsfit_global
-cadj SUBROUTINE active_write_obsfit_global INPUT   = 1,2,3,4,5,6,7,8,9
-cadj SUBROUTINE active_write_obsfit_global OUTPUT  =                 9
-cadj SUBROUTINE active_write_obsfit_global ACTIVE  =   2,            9
-cadj SUBROUTINE active_write_obsfit_global DEPEND  = 1,  3,4,5,6,7,8
+cadj SUBROUTINE active_write_obsfit_glo FTLNAME = g_active_write_obsfit_glo
+cadj SUBROUTINE active_write_obsfit_glo ADNAME  = adactive_write_obsfit_glo
+cadj SUBROUTINE active_write_obsfit_glo INPUT   = 1,2,3,4,5,6,7,8,9
+cadj SUBROUTINE active_write_obsfit_glo OUTPUT  =                 9
+cadj SUBROUTINE active_write_obsfit_glo ACTIVE  =   2,            9
+cadj SUBROUTINE active_write_obsfit_glo DEPEND  = 1,  3,4,5,6,7,8
 

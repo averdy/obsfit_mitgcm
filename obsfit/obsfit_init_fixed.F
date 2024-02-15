@@ -1073,7 +1073,7 @@ C===========================================================
             inquire( file=fnameequinc, exist=exst )
             IF (.NOT.exst) THEN
       
-             CALL obsfit_init_ncfile(num_file,
+             CALL obsfit_init_equifiles(num_file,
      &        fiddata_obs(num_file),fnameequinc,
      &        fidfwd_obs(num_file,bi,bj),SampleNo(num_file,bi,bj),
      &        myThid)
