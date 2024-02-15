@@ -1086,7 +1086,7 @@ C===========================================================
 #ifdef ALLOW_ADJOINT_RUN
             inquire( file=adfnameequinc, exist=exst )
             IF (.NOT.exst) THEN
-             CALL obsfit_init_ncfile(num_file,fiddata_obs(num_file),
+             CALL obsfit_init_equifiles(num_file,fiddata_obs(num_file),
      &        adfnameequinc, fidadj_obs(num_file,bi,bj),
      &        SampleNo(num_file,bi,bj),
      &        myThid)
@@ -1111,7 +1111,7 @@ C===========================================================
             CALL OBSFIT_FINDUNIT( fidfwd_obs(num_file,bi,bj), myThid )
 #endif
             IF (.NOT.exst) THEN
-             CALL obsfit_init_ncfile(num_file,fiddata_obs(num_file),
+             CALL obsfit_init_equifiles(num_file,fiddata_obs(num_file),
      &        fnameequinc,fidfwd_obs(num_file,bi,bj),
      &        SampleNo(num_file,bi,bj),
      &        myThid)
@@ -1129,7 +1129,7 @@ C===========================================================
 #endif
             IF (.NOT.exst) THEN
 
-             CALL obsfit_init_ncfile(num_file,fiddata_obs(num_file),
+             CALL obsfit_init_equifiles(num_file,fiddata_obs(num_file),
      &         adfnameequinc, fidadj_obs(num_file,bi,bj),
      &         SampleNo(num_file,bi,bj),
      &         myThid)
