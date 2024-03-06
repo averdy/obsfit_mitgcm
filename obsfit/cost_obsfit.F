@@ -208,6 +208,13 @@ c Write to global netcdf file
      &         obs_num,optimcycle,myThid,
      &         obsfit_globaldummy(num_file))
 
+          ELSE
+              obs_modmask=0
+              CALL active_write_obsfit_glo(num_file,
+     &         -9999,
+     &         obs_num,optimcycle,myThid,
+     &         obsfit_globaldummy(num_file))
+
           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
          ENDDO !do obs_num=..
 

@@ -334,15 +334,15 @@ C create new netcdf global file for obs-equivalent
      &         1,dimid,varid(1))
 
             err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
-     &         varid(1+(k-1)*2),'_FillValue',
+     &         varid(1),'_FillValue',
      &         NF_DOUBLE,1, -9999. _d 0 )
 
             err = NF_DEF_VAR(fidglobal(num_file),
      &         'mod_mask',NF_DOUBLE,
-     &         1,dimid,varid(1))
+     &         1,dimid,varid(2))
 
             err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
-     &         varid(1+(k-1)*2),'_FillValue',
+     &         varid(2),'_FillValue',
      &         NF_DOUBLE,1, -9999. _d 0 )
 
           err = NF_ENDDEF(fidglobal(num_file))
@@ -367,15 +367,15 @@ C create new netcdf global file for obs-equivalent
      &         1,dimid,varid(1))
 
             err = NF_PUT_ATT_DOUBLE(fidadglobal(num_file),
-     &         varid(1+(k-1)*2),'_FillValue',
+     &         varid(1),'_FillValue',
      &         NF_DOUBLE,1, 0. _d 0 )
 
              err = NF_DEF_VAR(fidglobal(num_file),
      &         'mod_mask',NF_DOUBLE,
-     &         1,dimid,varid(1))
+     &         1,dimid,varid(2))
 
              err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
-     &         varid(1+(k-1)*2),'_FillValue',
+     &         varid(2),'_FillValue',
      &         NF_DOUBLE,1, 0. _d 0 )
 
           err = NF_ENDDEF(fidadglobal(num_file))
