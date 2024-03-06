@@ -72,12 +72,12 @@ C-  Logical
 
 
 C-  Characters
-      character*(8) obsfit_names
-      character*(12) obsfit_namesmask
-      character*(14) obsfit_namesweight
-      character*(8) obsfit_namesequi
-      COMMON /obsfit_c/ obsfit_names, obsfit_namesmask,
-     & obsfit_namesweight, obsfit_namesequi
+      character*(8) obsfit_nameval
+      character*(12) obsfit_namemask
+      character*(14) obsfit_nameweight
+      character*(8) obsfit_nameequi
+      COMMON /obsfit_c/ obsfit_nameval, obsfit_namemask,
+     & obsfit_nameweight, obsfit_nameequi
 
 
 C-  Buffers

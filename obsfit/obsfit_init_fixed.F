@@ -162,7 +162,7 @@ C     ==================================================================
 
       _BEGIN_MASTER( myThid )
 
-c Initialize global variables for obsfit_readvector.F
+c Initialize global variables for obsfit_read_obs.F
       obsfit_curfile_buff=0
       DO l=1,1000
         obsfit_data_buff(l)=0. _d 0
@@ -302,15 +302,12 @@ c Read interpolation information (grid points, coeffs, etc.)
          ENDIF
         ENDIF
 
-CAV(
-c to do: move out of loop
-         obsfit_namesequi = 'mod_val'
-         obsfit_namesmask = 'mod_mask'
-         obsfit_names = 'obs_val'
-         obsfit_namesweight = 'obs_weight'
-CAV)
 
-
+c Variables names for equi files
+      obsfit_nameequi = 'mod_val'
+      obsfit_namemask = 'mod_mask'
+      obsfit_nameval = 'obs_val'
+      obsfit_nameweight = 'obs_weight'
 
 C create new netcdf global file for obs-equivalent 
         IF ( myProcId .eq. 0 ) THEN

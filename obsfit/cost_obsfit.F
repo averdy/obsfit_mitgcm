@@ -202,16 +202,13 @@ C Spatial averaging
              obs_modmask = 0
            ENDIF
 
+           if (obs_modval.eq.-9999) then
+             obs_modmask = 0
+           endif
+
 c Write to global netcdf file
               CALL active_write_obsfit_glo(num_file,
      &         obs_modval,
-     &         obs_num,optimcycle,myThid,
-     &         obsfit_globaldummy(num_file))
-
-          ELSE
-              obs_modmask=0
-              CALL active_write_obsfit_glo(num_file,
-     &         -9999,
      &         obs_num,optimcycle,myThid,
      &         obsfit_globaldummy(num_file))
 
@@ -246,6 +243,10 @@ C Read observation and uncertainty (weight)
            CALL obsfit_read_obs(num_file,-1,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_weight,myThid)
+
+           IF (obs_data.eq.-9999) THEN
+             obs_weight=0
+           ENDIF
 
 C Read model equivalent from global file
 cc           IF ( myProcId .eq. 0 ) THEN

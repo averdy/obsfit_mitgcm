@@ -81,11 +81,11 @@ c implies that a forward loop is calling
        vec_start=obsfit_minind_buff
        vec_count=obsfit_maxind_buff-obsfit_minind_buff+1
 
-         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_names,
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_nameval,
      &    varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp1)
-         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_namesweight
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_nameweight
      &    , varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp2)
