@@ -130,13 +130,13 @@ C     ==================================================================
         STOP 'ABNORMAL END: S/R OBSFIT_INIT_FIXED'
       ENDIF
 
-      IF ( obsfitDoGenGrid ) THEN
-        WRITE(msgBuf,'(2A)') 'OBSFIT_INIT_FIXED: ',
-     &  'obsfitDoGenGrid has not been tested yet'
-        CALL PRINT_ERROR( msgBuf, myThid )
-        CALL ALL_PROC_DIE( myThid )
-        STOP 'ABNORMAL END: S/R OBSFIT_INIT_FIXED'
-      ENDIF
+c      IF ( obsfitDoGenGrid ) THEN
+c        WRITE(msgBuf,'(2A)') 'OBSFIT_INIT_FIXED: ',
+c     &  'obsfitDoGenGrid has not been tested yet'
+c        CALL PRINT_ERROR( msgBuf, myThid )
+c        CALL ALL_PROC_DIE( myThid )
+c        STOP 'ABNORMAL END: S/R OBSFIT_INIT_FIXED'
+c      ENDIF
 
       WRITE(msgbuf,'(a)') ' '
       CALL print_message( msgbuf, standardmessageunit,
@@ -302,12 +302,11 @@ c Read interpolation information (grid points, coeffs, etc.)
          ENDIF
         ENDIF
 
-
 c Variables names for equi files
-      obsfit_nameequi = 'mod_val'
-      obsfit_namemask = 'mod_mask'
-      obsfit_nameval = 'obs_val'
-      obsfit_nameweight = 'obs_weight'
+        obsfit_nameequi = 'mod_val'
+        obsfit_namemask = 'mod_mask'
+        obsfit_nameval = 'obs_val'
+        obsfit_nameweight = 'obs_weight'
 
 C create new netcdf global file for obs-equivalent 
         IF ( myProcId .eq. 0 ) THEN
@@ -668,7 +667,7 @@ c read a chunk
 c loop through this chunk
             DO m=1,min(1000,SampleNo(num_file,bi,bj)-1000*(kk-1))
              IF ( stopObsfit .EQ. 0) THEN
-      
+     
               sampleIsInTile=1
       
               IF (tmp_sample_time(m+1000*(kk-1)).LT.0. _d 0) THEN
@@ -687,7 +686,7 @@ c loop through this chunk
               lon_cur=tmp_lon2(m)
               lat_cur=tmp_lat2(m)
               depth_cur=tmp_depth2(m)
-
+              
 c determine whether sample is in current tile domain (lat-lon grid case)
               IF ((.NOT.obsfitDoGenGrid).AND.
      &          (sampleIsInTile.EQ.1)) THEN
@@ -938,7 +937,7 @@ c meridional velocity
        
 c determine whether sample is in current tile domain (generic grid case)
                ELSEIF (sampleIsInTile.EQ.1) THEN
-
+                
                 IF (stopGenericGrid.EQ.0) THEN
 
              IF ( ( abs( tmp_xC11(m) - xC(1,1,bi,bj) ).LT.0.0001 _d 0 )
@@ -947,15 +946,57 @@ c determine whether sample is in current tile domain (generic grid case)
      & .AND.( abs( tmp_yCNINJ(m) - yC(sNx,sNy,bi,bj) ).LT.0.0001 _d 0 )
      & .AND.(sampleIsInTile.EQ.1)) THEN
 
+c determine value of k down of data point
+                sample_k1 = -10
+                sample_k2 = -10
+                depth_1 = -10
+                depth_2 = -10
+c case 1: above first depth level
+                IF (-rC(1).GT.depth_cur) THEN
+                 sample_k1=1
+                 sample_k2=1
+                 depth_fac=1. _d 0
+                ENDIF
+c case 2: below last depth level
+                IF (-rC(Nr).LE.depth_cur) THEN
+                 sample_k1=Nr
+                 sample_k2=Nr
+                 depth_fac=1. _d 0
+                ENDIF
+c case 3: between two depth levels
+                DO k=1,Nr-1
+                IF ((-rC(k).LE.depth_cur).AND.
+     &             (-rC(k+1).GT.depth_cur)) THEN
+                 sample_k1=k
+                 sample_k2=k+1
+                 depth_1=-rC(k)
+                 depth_2=-rC(k+1)
+                 depth_fac=(depth_cur-depth_1)/(depth_2-depth_1)
+                ENDIF
+                ENDDO
 c if yes then store sample_time and interpolation coeffs and indices:
        SampleNo_tile=SampleNo_tile+1
-       sample_timeS(num_file,SampleNo_tile,bi,bj)=diffsecs
+       sample_type(num_file,SampleNo_tile,bi,bj)=type_cur
+       sample_timeS(num_file,SampleNo_tile,bi,bj)=
+     &           tmp_sample_time(m+1000*(kk-1))
+cav "-1" to avoid counting in an extra time step 
+cav when time averaging
+       IF (obsfitOperation(num_file).eq.0) THEN
+          sample_timeE(num_file,SampleNo_tile,bi,bj)=
+     &     sample_timeS(num_file,SampleNo_tile,bi,bj)
+     &     +tmp_sample_delT(m+1000*(kk-1))
+       ELSE
+          sample_timeE(num_file,SampleNo_tile,bi,bj)=
+     &     sample_timeS(num_file,SampleNo_tile,bi,bj)
+     &     +tmp_sample_delT(m+1000*(kk-1))-1
+       ENDIF
+
        sample_interp_xC11(num_file,SampleNo_tile,bi,bj)=tmp_xC11(m)
        sample_interp_yC11(num_file,SampleNo_tile,bi,bj)=tmp_yC11(m)
        sample_interp_xCNINJ(num_file,SampleNo_tile,bi,bj)=tmp_xCNINJ(m)
        sample_interp_yCNINJ(num_file,SampleNo_tile,bi,bj)=tmp_yCNINJ(m)
        tmp_sum_weights=0. _d 0
-            DO q = 1,iINTERP
+            DO q = 1,NUM_INTERP_PTS_OBS
              sample_interp_w(num_file,SampleNo_tile,q,bi,bj)
      &       =tmp_weights(m,q)
              sample_interp_i(num_file,SampleNo_tile,q,bi,bj)
@@ -963,6 +1004,7 @@ c if yes then store sample_time and interpolation coeffs and indices:
              sample_interp_j(num_file,SampleNo_tile,q,bi,bj)
      &       =tmp_j(m,q)
              tmp_sum_weights=tmp_sum_weights+tmp_weights(m,q)
+
 c more test of the inputs: is the offline-computed
 c interpolation information consistent (self and with grid)
               IF ( (tmp_i(m,q).LT.0).OR.(tmp_j(m,q).LT.0)
@@ -1011,7 +1053,7 @@ c interpolation information consistent (self and with grid)
              ENDIF
 
              sample_ind_glob(num_file,SampleNo_tile,bi,bj)
-     &        =k+1000*(kk-1)
+     &        =m+1000*(kk-1)
 
                 ENDIF
                ENDIF
