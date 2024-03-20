@@ -285,7 +285,7 @@ c
           num_obsfit_glo =
      &             num_obsfit(num_file)
 c
-      write(msgbuf,'(a,I2,a,I2,a,2D12.5)')
+      write(msgbuf,'(a,I2,a,2D12.5)')
      &  ' cost_obsfit(',num_file,')= ',
      &  objf_obsfit_glo,num_obsfit_glo
 

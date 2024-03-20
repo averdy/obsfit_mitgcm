@@ -30,7 +30,7 @@ sample_weight = repmat([.33 .67],[1 100]);
 sample_x = repmat(linspace(220,230,100),[2 1]);
 sample_x = sample_x(:)';
 sample_y = 0*sample_x;
-sample_z = repmat(-50,[1 200]);
+sample_z = repmat(50,[1 200]);
 
 
 % create netcdf
