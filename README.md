@@ -20,11 +20,11 @@ git clone https://github.com/averdy/obsfit_mitgcm.git <br />
 cd obsfit_mitgcm <br />
 mv obsfit ../pkg <br />
 mv global_oce_biogeo_bling/* ../verification/global_oce_biogeo_bling/ <br />
+cp code_folder/* ../verification/global_oce_biogeo_bling/code_ad_obsfit/
 cd ../verification/global_oce_biogeo_bling/ <br /><br />
 #compile executable <br />
 cd build_fwd_obsfit <br />
 mv pleiades_build_options ../../ <br />
-chmod u+x makescript_pleiades_fwd <br />
 ./makescript_pleiades_fwd <br /><br />
 #compile adjoint <br />
 cd ../build_ad_obsfit <br />
