@@ -20,7 +20,7 @@ git clone https://github.com/averdy/obsfit_mitgcm.git <br />
 cd obsfit_mitgcm <br />
 mv obsfit ../pkg <br />
 mv global_oce_biogeo_bling/* ../verification/global_oce_biogeo_bling/ <br />
-cp code_folder/* ../verification/global_oce_biogeo_bling/code_ad_obsfit/
+cp code_folder/* ../verification/global_oce_biogeo_bling/code_ad_obsfit/ <br />
 cd ../verification/global_oce_biogeo_bling/ <br /><br />
 #compile executable <br />
 cd build_fwd_obsfit <br />
