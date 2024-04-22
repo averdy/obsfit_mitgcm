@@ -1,9 +1,0 @@
-C----------------------------------------
-C subroutine obsfit_read_obs
-C----------------------------------------
-CADJ SUBROUTINE  obsfit_read_obs   INPUT  =  1,2,3, 5
-CADJ SUBROUTINE  obsfit_read_obs   DEPEND =  1,2,3 
-CADJ SUBROUTINE  obsfit_read_obs   OUTPUT =        4 
-
-CADJ SUBROUTINE  NF_OPEN              INPUT = 
-CADJ SUBROUTINE  NF_CLOSE             INPUT =
