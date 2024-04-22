@@ -31,9 +31,8 @@ c     == global variables ==
 # include "ECCO.h"
 #endif
 #ifdef ALLOW_CTRL
-# include "ctrl.h"
-# include "optim.h"
 # include "CTRL_SIZE.h"
+# include "CTRL.h"
 # include "CTRL_GENARR.h"
 # ifdef ALLOW_OBCS
 #  include "CTRL_OBCS.h"
@@ -46,7 +45,7 @@ c     == global variables ==
 cav(
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 cav)
 
@@ -66,7 +65,7 @@ c     == local variables ==
       integer ifc
       integer num_var
 cav(
-      integer num_var_obs
+c      integer num_var_obs
 cav)
 
 #ifndef ALLOW_PROFILES
@@ -79,8 +78,8 @@ cav(
 #ifndef ALLOW_OBSFIT
       integer NFILESMAX_OBS
       parameter (NFILESMAX_OBS=1)
-      integer NVARMAX_OBS
-      parameter (NVARMAX_OBS=1)
+c      integer NVARMAX_OBS
+c      parameter (NVARMAX_OBS=1)
 #endif
 cav)
 
@@ -101,7 +100,7 @@ c the adjoint, pkg/autodiff most likely require cost though.
 #endif
 cav(
 #ifdef ALLOW_OBSFIT
-      _RL f_obsfit(NFILESMAX_OBS,NVARMAX_OBS)
+      _RL f_obsfit(NFILESMAX_OBS)
 #endif
 cav)
 #ifdef ALLOW_GENTIM2D_CONTROL
@@ -125,7 +124,7 @@ cav)
 cav(
 #ifdef ALLOW_OBSFIT
       integer num_file_obs
-      _RL no_obsfit(NFILESMAX_OBS,NVARMAX_OBS)
+      _RL no_obsfit(NFILESMAX_OBS)
 #endif
 cav)
 #ifdef ALLOW_GENTIM2D_CONTROL
@@ -169,12 +168,12 @@ c     == end of interface ==
 cav(
 #ifdef ALLOW_OBSFIT
       do num_file_obs=1,NFILESMAX_OBS
-       do num_var_obs=1,NVARMAX_OBS
+c       do num_var_obs=1,NVARMAX_OBS
 c        f_obsfit(num_file,num_var)= 0. _d 0
 cav this is already global sum
-        f_obsfit(num_file_obs,num_var_obs)= 
-     &          objf_obsfit(num_file_obs,num_var_obs)
-       enddo
+        f_obsfit(num_file_obs)= 
+     &          objf_obsfit(num_file_obs)
+c       enddo
       enddo
 #endif
 cav)
@@ -219,12 +218,12 @@ cav)
 cav(
 #ifdef ALLOW_OBSFIT
       do num_file_obs=1,NFILESMAX_OBS
-       do num_var_obs=1,NVARMAX_OBS
+c       do num_var_obs=1,NVARMAX_OBS
 c        no_obsfit(num_file,num_var)= 0. _d 0
 cav this is already global sum
-        no_obsfit(num_file_obs,num_var_obs)= 
-     &           num_obsfit(num_file_obs,num_var_obs)
-       enddo
+        no_obsfit(num_file_obs)= 
+     &           num_obsfit(num_file_obs)
+c       enddo
       enddo
 #endif
 cav)
@@ -587,15 +586,15 @@ cav(
 #ifdef ALLOW_OBSFIT
       if (useOBSFIT) then
       do num_file_obs=1,NFILESMAX_OBS
-       do num_var_obs=1,NVARMAX_OBS
-        if ( no_obsfit(num_file_obs,num_var_obs).GT.zeroRL ) then
-         write(msgBuf,'(A,D22.15,i2.0,i2.0)')
-     &     ' --> f_obsfit =',f_obsfit(num_file_obs,num_var_obs),
-     &      num_file_obs, num_var_obs
+c       do num_var_obs=1,NVARMAX_OBS
+        if ( no_obsfit(num_file_obs).GT.zeroRL ) then
+         write(msgBuf,'(A,D22.15,i2.0)')
+     &     ' --> f_obsfit =',f_obsfit(num_file_obs),
+     &      num_file_obs
          call print_message( msgBuf, standardmessageunit,
      &                       SQUEEZE_RIGHT , mythid)
         endif
-       enddo
+c       enddo
       enddo
       endif
 #endif
@@ -656,11 +655,11 @@ cav(
 cost.h:c     glofc      - contributions from global mean constraints
 #ifdef ALLOW_OBSFIT
       do num_file_obs=1,NFILESMAX_OBS
-       do num_var_obs=1,NVARMAX_OBS
+c       do num_var_obs=1,NVARMAX_OBS
         glofc = glofc
-     &          +  mult_obsfit(num_file_obs,num_var_obs)
-     &            *objf_obsfit(num_file_obs,num_var_obs)
-       enddo
+     &          +  mult_obsfit(num_file_obs)
+     &            *objf_obsfit(num_file_obs)
+c       enddo
       enddo
 #endif
 cav)
@@ -728,17 +727,17 @@ cav(
 #ifdef ALLOW_OBSFIT
       if (useOBSFIT) then
       do num_file_obs=1,NFILESMAX_OBS
-       do num_var_obs=1,NVARMAX_OBS
-        if ( no_obsfit(num_file_obs,num_var_obs).GT.zeroRL ) then
+c       do num_var_obs=1,NVARMAX_OBS
+        if ( no_obsfit(num_file_obs).GT.zeroRL ) then
          IL  = ILNBLNK( obsfitfiles(num_file_obs) )
          IL  = max (IL,30)
          write(ifc,'(4A,2D22.15)')
      &    obsfitfiles(num_file_obs)(1:IL),' ',
-     &    obsfit_names(num_file_obs,num_var_obs), ' = ',
-     &    f_obsfit(num_file_obs,num_var_obs),
-     &    no_obsfit(num_file_obs,num_var_obs)
+     &    obsfit_names, ' = ',
+     &    f_obsfit(num_file_obs),
+     &    no_obsfit(num_file_obs)
         endif
-       enddo
+c       enddo
       enddo
       endif
 #endif

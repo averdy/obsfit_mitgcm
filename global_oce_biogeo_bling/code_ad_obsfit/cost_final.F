@@ -24,7 +24,8 @@ c     == global variables ==
 
 #include "cost.h"
 #ifdef ALLOW_CTRL
-# include "ctrl.h"
+# include "CTRL_SIZE.h"
+# include "CTRL.h"
 #endif
 #ifdef ALLOW_DIC
 # include "DIC_COST.h"
@@ -40,7 +41,7 @@ c     == global variables ==
 
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 c     == routine arguments ==
