@@ -6,22 +6,20 @@
 # include "AUTODIFF_OPTIONS.h"
 #endif
 
-CBOP 0
-C     !ROUTINE: OBSFIT_INLOOP
+CBOP
+C !ROUTINE: OBSFIT_INLOOP
 
-C     !INTERFACE:
+C !INTERFACE: ==========================================================
       SUBROUTINE OBSFIT_INLOOP( myTime, myThid )
 
-C     !DESCRIPTION: 
-C     ==================================================================
-C     | Computes and writes model counterparts                 
-C     | for obsfit data  
-C     ==================================================================
+C !DESCRIPTION:
+C Computes and writes model counterparts for obsfit data  
 
-C !USES:
+C !USES: ===============================================================
       IMPLICIT NONE
-#include "EEPARAMS.h"
+C     == Global variables ===
 #include "SIZE.h"
+#include "EEPARAMS.h"
 #include "GRID.h"
 #include "DYNVARS.h"
 #include "PARAMS.h"
@@ -29,45 +27,44 @@ C !USES:
 # include "cal.h"
 #endif
 #ifdef ALLOW_CTRL
-# include "optim.h"
+# include "OPTIMCYCLE.h"
 #endif
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 # include "netcdf.inc"
 #endif
 #ifdef ALLOW_AUTODIFF
 # include "tamc.h"
 #endif
 
-C !INPUT PARAMETERS:
+C !INPUT PARAMETERS: 
+C myTime    :: Current time in simulation
+C myThid    :: my Thread Id number
       _RL     myTime
       INTEGER myThid
 CEOP
 
 #ifdef ALLOW_OBSFIT
-
-C !LOCAL VARIABLES:
-      integer k,bi,bj,sample_num,num_file
+C !LOCAL VARIABLES: 
+      INTEGER k,bi,bj,sample_num,num_file
+      INTEGER sample_i(NUM_INTERP_PTS_OBS)
+      INTEGER sample_j(NUM_INTERP_PTS_OBS)
+      INTEGER sample_k(NUM_INTERP_PTS_OBS)
       _RL     sample_modval, saved_modval
-      integer sample_i(NUM_INTERP_PTS_OBS)
-      integer sample_j(NUM_INTERP_PTS_OBS)
-      integer sample_k(NUM_INTERP_PTS_OBS)
       _RL     sample_w(NUM_INTERP_PTS_OBS)
 #ifndef ALLOW_CTRL
-      integer optimcycle
+      INTEGER optimcycle
 #endif
 #ifndef ALLOW_ECCO
-      integer i,j
+      INTEGER i,j
 #endif
 #ifdef ALLOW_AUTODIFF_TAMC
       INTEGER act1, act2, act3, act4
       INTEGER max1, max2, max3
       INTEGER ikey, itdkey
 #endif
-      character*(MAX_LEN_MBUF) msgBuf
-      
-C     ==================================================================
+      CHARACTER*(MAX_LEN_MBUF) msgBuf
 
 #ifndef ALLOW_CTRL
       optimcycle = 0
@@ -78,36 +75,26 @@ C     ==================================================================
 
         _BEGIN_MASTER( myThid )
 
-#ifndef ALLOW_ECCO
-      DO bj=myByLo(myThid),myByHi(myThid)
-       DO bi=myBxLo(myThid),myBxHi(myThid)
-          DO k = 1,nr
-            DO j = 1,sNy
-              DO i =  1,sNx
-                m_UE(i,j,k,bi,bj)=0. _d 0
-                m_VN(i,j,k,bi,bj)=0. _d 0
-              enddo
-            enddo
-          enddo
-        enddo
-      enddo
-
-      CALL ROTATE_UV2EN_RL(
-     U          uVel, vVel, m_UE, m_VN,
-     I          .TRUE., .TRUE., .FALSE., Nr, myThid )
-#endif /* ALLOW_ECCO */
-
       DO bj=1,nSy
        DO bi=1,nSx
 
         DO num_file=1,NFILESMAX_OBS
 
          DO sample_num=1,NSAMPLESMAX
-          IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
-           IF ((sample_timeE(num_file,sample_num,bi,bj).GE.myTime)
+         IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
+
+                 print*,'CAV samplenum',sample_num,
+     &   sampleNo(num_file,bi,bj), num_file
+                 print*,'CAV======== time ',
+     &   sample_timeE(num_file,sample_num,bi,bj),
+     &   sample_timeS(num_file,sample_num,bi,bj),mytime,deltaTclock
+
+                 IF ((sample_timeE(num_file,sample_num,bi,bj).GE.myTime)
      &      .AND.(sample_timeS(num_file,sample_num,bi,bj).LT. 
      &      (myTime+deltaTclock))) THEN
 
+                 print*,'CAVCAV samplenum222',sample_num,
+     &   sample_timeS(num_file,sample_num,bi,bj),mytime,deltaTclock
             DO k=1,NUM_INTERP_PTS_OBS
              sample_i(k)= sample_interp_i(num_file,sample_num,k,bi,bj)
              sample_j(k)= sample_interp_j(num_file,sample_num,k,bi,bj)
@@ -125,7 +112,7 @@ CADJ STORE sample_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
 C If averaging or integrating in time, read previously 
 C recorded value and add to it
               IF (obsfitOperation(num_file).gt.0) THEN
-               CALL active_read_obsfit_loc(num_file,
+               CALL active_read_obs_tile(num_file,
      &          saved_modval,
      &          sample_num,.false.,optimcycle,bi,bj,myThid,
      &          obsfit_dummy(num_file,bi,bj))
@@ -146,10 +133,12 @@ C recorded value and add to it
               sample_modmask(bi,bj)=sample_modmask(bi,bj)*
      &                   sample_weight(num_file,sample_num,bi,bj)
 
-              CALL active_write_obsfit_loc(num_file,
+              CALL active_write_obs_tile(num_file,
      &         sample_modval,
      &         sample_num,optimcycle,bi,bj,myThid,
      &         obsfit_dummy(num_file,bi,bj))
+
+              print*,'CAV sample_modval',sample_modval
 
            ENDIF !if ((sample_time...
           ENDIF !if (sampleNo(num_file,bi,bj).NE.0) then
@@ -163,7 +152,5 @@ C recorded value and add to it
 
 #endif
 
-C     ==================================================================
-
-       END
-
+      RETURN
+      END

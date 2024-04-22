@@ -3,10 +3,10 @@
 # include "ECCO_OPTIONS.h"
 #endif
 
-CBOP 0
-C     !ROUTINE: OBSFIT_INTERP
+CBOP
+C !ROUTINE: OBSFIT_INTERP
 
-C     !INTERFACE:
+C !INTERFACE: 
       SUBROUTINE OBSFIT_INTERP(
      O                          modval_cur_out,
      I                          i_cur,
@@ -14,23 +14,20 @@ C     !INTERFACE:
      I                          k_cur,
      I                          weights_cur,
      I                          var_cur,
-c     I                          itr_cur,
      I                          file_cur,
      I                          mytime,
      I                          bi,
      I                          bj,
      I                          myThid )
 
-C     !DESCRIPTION: 
-C     ==================================================================
-C     | 3D interpolation of model counterparts                 
-C     | for obsfit data   
-C     ==================================================================
+C !DESCRIPTION:
+C 3D interpolation of model counterparts for obsfit data   
 
-C !USES:
+C !USES: 
       IMPLICIT NONE
-#include "EEPARAMS.h"
+C     == Global variables ===
 #include "SIZE.h"
+#include "EEPARAMS.h"
 #include "GRID.h"
 #include "DYNVARS.h"
 #include "PARAMS.h"
@@ -43,7 +40,7 @@ C !USES:
 #endif
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 #ifdef ALLOW_PTRACERS
 #include "PTRACERS_SIZE.h"
@@ -53,7 +50,9 @@ C !USES:
 #include "BLING_VARS.h"
 #endif
 
-C !INPUT PARAMETERS:
+C !INPUT PARAMETERS: 
+C myTime    :: Current time in simulation
+C myThid    :: my Thread Id number
       _RL      mytime
       INTEGER  myThid
       INTEGER  file_cur, var_cur
@@ -69,6 +68,8 @@ C !INPUT PARAMETERS:
 #endif
 CEOP
 
+#ifdef ALLOW_OBSFIT
+
 C !LOCAL VARIABLES:
       _RL      tab_coeffs1(NUM_INTERP_PTS_OBS)
       _RL      tab_coeffs3(NUM_INTERP_PTS_OBS)
@@ -82,25 +83,25 @@ C !FUNCTIONS:
       INTEGER  ILNBLNK
       EXTERNAL ILNBLNK
 
-C     ==================================================================
+      print*,'CAV var cur',var_cur
 
-c horizontal interpolation:
+C Horizontal interpolation:
         weighingSUM=0. _d 0
 
         DO q=1,NUM_INTERP_PTS_OBS
-         IF (var_cur.EQ.1) THEN
-               tab_coeffs1(q)=theta(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.2) THEN
-               tab_coeffs1(q)=salt(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.3) THEN
-               tab_coeffs1(q)=uvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.4) THEN
-               tab_coeffs1(q)=vvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         ELSEIF (var_cur.EQ.5) THEN
+c         IF (var_cur.EQ.1) THEN
+c               tab_coeffs1(q)=theta(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+c         ELSEIF (var_cur.EQ.2) THEN
+c               tab_coeffs1(q)=salt(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+c         ELSEIF (var_cur.EQ.3) THEN
+c               tab_coeffs1(q)=uvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+c         ELSEIF (var_cur.EQ.4) THEN
+c               tab_coeffs1(q)=vvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+c         ELSEIF (var_cur.EQ.5) THEN
                  tab_coeffs1(q)=etan(i_cur(q),j_cur(q),bi,bj)
-         ELSE
-               tab_coeffs1(q)=0. _d 0
-         ENDIF
+c         ELSE
+c               tab_coeffs1(q)=0. _d 0
+c         ENDIF
          tab_coeffs3(q)=maskC(i_cur(q),j_cur(q),k_cur(q),bi,bj)
 
          weighing_pts(q)=tab_coeffs3(q)*weights_cur(q)
@@ -122,7 +123,7 @@ c horizontal interpolation:
         modval_cur_out = modval_cur
         sample_modmask(bi,bj) = mask_cur
 
-C     ==================================================================
+#endif /* ALLOW_OBSFIT */
 
       RETURN
       END

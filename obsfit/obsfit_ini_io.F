@@ -1,41 +1,40 @@
 #include "OBSFIT_OPTIONS.h"
 
-CBOP 0
-C     !ROUTINE: OBSFIT_INI_IO
+CBOP
+C !ROUTINE: OBSFIT_INI_IO
 
-C     !INTERFACE:
+C !INTERFACE: 
       SUBROUTINE OBSFIT_INI_IO( myThid )
 
-C     !DESCRIPTION: 
-C     ==================================================================
-C     | Create directory for obsfit output if needed
-C     ==================================================================
+C !DESCRIPTION:
+C Create directory for obsfit output if needed
 
-C !USES:
+C !USES: 
       IMPLICIT NONE
+C     == Global variables ===
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "EESUPPORT.h"
 #include "PARAMS.h"
 #include "OBSFIT_SIZE.h"
-#include "obsfit.h"
+#include "OBSFIT.h"
 
-C !INPUT/OUTPUT PARAMETERS:
+C !INPUT PARAMETERS: 
+C myThid    :: my Thread Id number
       INTEGER myThid
 
 C !FUNCTIONS
       INTEGER  ILNBLNK
       EXTERNAL ILNBLNK
+CEOP
 
-C !LOCAL VARIABLES:
+#ifdef ALLOW_OBSFIT
+C !LOCAL VARIABLES: 
 #ifndef HAVE_SYSTEM
       CHARACTER*(MAX_LEN_MBUF) msgBuf
 #endif
       CHARACTER*(MAX_LEN_FNAM) namBuf
       INTEGER iL, pIL
-CEOP
-
-C     ==================================================================
 
       _BEGIN_MASTER( myThid )
 
@@ -64,7 +63,7 @@ C      create directory
 
       _END_MASTER( myThid )
 
-C     ==================================================================
+#endif /* ALLOW_OBSFIT */
 
       RETURN
       END

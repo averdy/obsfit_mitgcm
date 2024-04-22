@@ -3,19 +3,20 @@
 # include "CTRL_OPTIONS.h"
 #endif
 
-CBOP
-C !ROUTINE: COST_OBSFIT
+CBOP 0
+C     !ROUTINE: COST_OBSFIT
 
-C !INTERFACE: 
+C     !INTERFACE:
       SUBROUTINE COST_OBSFIT(
-     I                     myTime, myIter, myThid )
+     I                        myIter, myTime, myThid )
 
-C !DESCRIPTION:
-C Computes the cost function for obsfit data
+C     !DESCRIPTION:
+C     ==================================================================
+C     | Computes the cost for obsfit data
+C     ==================================================================
 
-C !USES: 
+C !USES:
       IMPLICIT NONE
-C == Global variables ===
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
@@ -33,32 +34,30 @@ C == Global variables ===
 # include "OPTIMCYCLE.h"
 #endif
 
-C !INPUT PARAMETERS: 
-C myTime    :: Current time in simulation
-C myIter    :: Current time-step number
-C myThid    :: my Thread Id number
+C !INPUT PARAMETERS:
+      INTEGER myIter
       _RL     myTime
-      INTEGER myIter, myThid
+      INTEGER myThid
 CEOP
 
 #ifdef ALLOW_OBSFIT
-C !LOCAL VARIABLES: 
-C bi,bj     :: Tile indices
-      INTEGER K,num_file,sample_num
-      INTEGER bi,bj,iG,jG
+
+C !LOCAL VARIABLES:
+      integer K,num_file,num_var,sample_num
+      integer bi,bj,iG,jG
       _RL sample_modval, sample_modvaltmp
       _RL obs_modval
       _RL obs_data, obs_weight
 #ifndef ALLOW_CTRL
-      INTEGER optimcycle
+      integer optimcycle
 #endif
-      CHARACTER*(max_len_mbuf) msgbuf
-      CHARACTER*(80) obsfitfile, fnameequinc
-      INTEGER IL, JL, err
-      INTEGER irec, ii, varid1
-      INTEGER samples_cnt, obs_num, num_valid_samples
+      character*(max_len_mbuf) msgbuf
+      character*(80) obsfitfile, fnameequinc
+      integer IL, JL, err
+      integer irec, ii, varid1
+      integer samples_cnt, obs_num, num_valid_samples
       _RL sample_mask_sum
-      LOGICAL exst
+      logical exst
       _RL  objf_obsfit_glo
       _RL  num_obsfit_glo
       _RL  samples_buff(NSAMPLESMAX)
@@ -72,6 +71,8 @@ C bi,bj     :: Tile indices
 C !FUNCTIONS
       INTEGER  ILNBLNK
       EXTERNAL ILNBLNK
+
+C     ==================================================================
 
 #ifndef ALLOW_CTRL
       optimcycle = 0
@@ -114,6 +115,9 @@ c
         ENDDO
        ENDDO
 
+c Loop over variables
+cx       DO num_var=1,NVARMAX_OBS
+       num_var=1
 
 c Loop over samples
          DO ii=1,NSAMPLESMAX
@@ -201,10 +205,6 @@ C Spatial averaging
              obs_modmask = 0
            ENDIF
 
-           if (obs_modval.eq.-9999) then
-             obs_modmask = 0
-           endif
-
 c Write to global netcdf file
               CALL active_write_obs_glob(num_file,
      &         obs_modval,
@@ -235,17 +235,13 @@ C Loop over obs
            obs_weight=0.
 
 C Read observation and uncertainty (weight)
-           CALL obsfit_read_obs(num_file,1,
+           CALL obsfit_read_obs(num_file,num_var,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_data,myThid)
 
-           CALL obsfit_read_obs(num_file,-1,
+           CALL obsfit_read_obs(num_file,-num_var,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_weight,myThid)
-
-           IF (obs_data.eq.-9999) THEN
-             obs_weight=0
-           ENDIF
 
 C Read model equivalent from global file
 cc           IF ( myProcId .eq. 0 ) THEN
@@ -272,25 +268,28 @@ cc           ENDIF
 
          ENDIF !if myprocid = 0
 
+cx       ENDDO !do num_var...
       ENDDO !do num_file=1,NFILESMAX_OBS
   
         _END_MASTER( myThid )
 
 c Print cost function values
       DO num_file=1,NFILESMAX_OBS
-c
+cx       DO num_var=1,NVARMAX_OBS
+         num_var=1
           objf_obsfit_glo =
      &             objf_obsfit(num_file)
           num_obsfit_glo =
      &             num_obsfit(num_file)
 c
-      write(msgbuf,'(a,I2,a,2D12.5)')
+      write(msgbuf,'(a,I2,a,I2,a,D12.5)')
      &  ' cost_obsfit(',num_file,')= ',
      &  objf_obsfit_glo,num_obsfit_glo
 
       IF ( num_obsfit_glo .GT. 0. ) CALL print_message( msgbuf,
      &  standardmessageunit,SQUEEZE_RIGHT, myThid)
 c
+cx       ENDDO
       ENDDO
 
       write(msgbuf,'(a)') '== cost_obsfit: end   =='
@@ -300,7 +299,9 @@ c
       CALL print_message( msgbuf,
      &  standardmessageunit,SQUEEZE_RIGHT, myThid)
 
-#endif /* ALLOW_OBSFIT */
+#endif
+
+C     ==================================================================
 
       RETURN
       END

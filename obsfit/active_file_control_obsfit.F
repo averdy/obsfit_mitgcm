@@ -1,16 +1,14 @@
 #include "OBSFIT_OPTIONS.h"
 
-C--  File active_file_control_obsfit_rl.F:
+C--  File active_file_control_obs_tile_rl.F:
 C--   Contents
-C--   o active_read_obsfit_loc_rl
-C--   o active_write_obsfit_loc_rl
-C--   o active_read_obsfit_glo_rl
-C--   o active_write_obsfit_glo_rl
+C--   o active_read_obs_tile_rl
+C--   o active_write_obs_tile_rl
 
 CBOP 0
-C     !ROUTINE: ACTIVE_READ_OBSFIT_LOC_RL
+C     !ROUTINE: ACTIVE_READ_OBS_TILE_RL
 C     !INTERFACE:
-      SUBROUTINE ACTIVE_READ_OBSFIT_LOC_RL(
+      SUBROUTINE ACTIVE_READ_OBS_TILE_RL(
      I                                  fid,
      I                                  active_num_file,
      O                                  active_var,
@@ -25,9 +23,9 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==================================================================
-C     | SUBROUTINE ACTIVE_READ_OBSFIT_LOC_RL
+C     | SUBROUTINE ACTIVE_READ_OBS_TILE_RL
 C     | Read an active record from an obsfit .equi. tiled file
-C     | (can be netcdf or binary) during model run 
+C     | (can be netcdf or binary)  
 C     ==================================================================
 
 C !USES:
@@ -38,7 +36,7 @@ C !USES:
 #ifdef ALLOW_OBSFIT
 # include "netcdf.inc"
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 C !INPUT PARAMETERS:
@@ -69,17 +67,16 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 
         _BEGIN_MASTER( myThid )
 
-
       if (obsfitDoNcOutput) then
       
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_names, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
-      err = NF_INQ_VARID(fid, obsfit_namemask, varid1)
+      err = NF_INQ_VARID(fid, obsfit_namesmask, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & sample_modmask(bi,bj))
 
@@ -117,7 +114,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_names, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -127,7 +124,7 @@ c     Store the result on disk.
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_names, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -176,7 +173,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_nameval, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_names, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
@@ -203,9 +200,9 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 C     =================================================================
 
 CBOP 0
-C     !ROUTINE: ACTIVE_WRITE_OBSFIT_LOC_RL
+C     !ROUTINE: ACTIVE_WRITE_OBS_TILE_RL
 C     !INTERFACE:
-      SUBROUTINE ACTIVE_WRITE_OBSFIT_LOC_RL(
+      SUBROUTINE ACTIVE_WRITE_OBS_TILE_RL(
      I                                 fid,
      I                                 active_num_file,
      I                                 active_var,
@@ -219,9 +216,9 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==========================================================
-C     | SUBROUTINE ACTIVE_WRITE_OBSFIT_LOC_RL
+C     | SUBROUTINE ACTIVE_WRITE_OBS_TILE_RL
 C     | Write an active record to an obsfit .equi. tiled file
-C     | (can be netcdf or binary) during model run
+C     | (can be netcdf or binary)  
 C     ==========================================================
 
 C !USES:
@@ -232,7 +229,7 @@ C !USES:
 #ifdef ALLOW_OBSFIT
 # include "netcdf.inc"
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 C !INPUT PARAMETERS:
@@ -266,11 +263,11 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_nameval, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_names, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
-      err = NF_INQ_VARID(fid,obsfit_namemask, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesmask, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & sample_modmask(bi,bj))
 
@@ -313,7 +310,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 
       vec_start=irec
       vec_count=1
-      err = NF_INQ_VARID(fid,obsfit_nameval, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_names, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -324,7 +321,7 @@ c     Add active_var to data.
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_nameval, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_names, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -368,7 +365,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_names, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
@@ -393,10 +390,13 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       RETURN
       END
 
+C     ==================================================================
+
+
 CBOP 0
-C     !ROUTINE: ACTIVE_READ_OBSFIT_GLO_RL
+C     !ROUTINE: ACTIVE_READ_OBS_GLOB_RL
 C     !INTERFACE:
-      SUBROUTINE ACTIVE_READ_OBSFIT_GLO_RL(
+      SUBROUTINE ACTIVE_READ_OBS_GLOB_RL(
      I                                  fid,
      I                                  active_num_file,
      O                                  active_var,
@@ -409,7 +409,7 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==================================================================
-C     | SUBROUTINE ACTIVE_READ_OBSFIT_GLO_RL
+C     | SUBROUTINE ACTIVE_READ_OBS_GLOB_RL
 C     | Read an active record from an obsfit .equi. global file
 C     ==================================================================
 
@@ -421,7 +421,7 @@ C !USES:
 #ifdef ALLOW_OBSFIT
 # include "netcdf.inc"
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 C !INPUT PARAMETERS:
@@ -455,11 +455,11 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesequi, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
-      err = NF_INQ_VARID(fid, obsfit_namemask, varid1)
+      err = NF_INQ_VARID(fid, obsfit_namesmask, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & obs_modmask)
 
@@ -478,7 +478,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesequi, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -488,7 +488,7 @@ c     Store the result on disk.
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesequi, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -510,7 +510,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_nameequi, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesequi, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
@@ -526,9 +526,9 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 C     =================================================================
 
 CBOP 0
-C     !ROUTINE: ACTIVE_WRITE_OBSFIT_GLO_RL
+C     !ROUTINE: ACTIVE_WRITE_OBS_GLOB_RL
 C     !INTERFACE:
-      SUBROUTINE ACTIVE_WRITE_OBSFIT_GLO_RL(
+      SUBROUTINE ACTIVE_WRITE_OBS_GLOB_RL(
      I                                 fid,
      I                                 active_num_file,
      I                                 active_var,
@@ -540,7 +540,7 @@ C     !INTERFACE:
 
 C     !DESCRIPTION: 
 C     ==========================================================
-C     | SUBROUTINE ACTIVE_WRITE_OBSFIT_GLO_RL
+C     | SUBROUTINE ACTIVE_WRITE_OBS_GLOB_RL
 C     | Write an active record to an obsfit .equi. global file
 C     ==========================================================
 
@@ -552,7 +552,7 @@ C !USES:
 #ifdef ALLOW_OBSFIT
 # include "netcdf.inc"
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 C !INPUT PARAMETERS:
@@ -584,11 +584,13 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_nameequi, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesequi, varid1)
+      err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
+     & active_var)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
-      err = NF_INQ_VARID(fid,obsfit_namemask, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesmask, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & obs_modmask)
 
@@ -606,7 +608,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 
       vec_start=irec
       vec_count=1
-      err = NF_INQ_VARID(fid,obsfit_nameequi, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesequi, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -617,7 +619,7 @@ c     Add active_var to data.
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid,obsfit_nameequi, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesequi, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -636,7 +638,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irecglob
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1 )
+      err = NF_INQ_VARID(fid, obsfit_namesequi, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
@@ -650,3 +652,4 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       END
 
 C     ==================================================================
+

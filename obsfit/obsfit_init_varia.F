@@ -1,28 +1,28 @@
 #include "OBSFIT_OPTIONS.h"
 
-CBOP 0
-C     !ROUTINE: OBSFIT_INIT_VARIA
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+CBOP
+C !ROUTINE: OBSFIT_INIT_VARIA
 
-C     !INTERFACE:
+C !INTERFACE:
       SUBROUTINE OBSFIT_INIT_VARIA( myThid )
 
-C     !DESCRIPTION: 
-C     ==================================================================
-C     | Initialization of the variable cost function part.
-C     ==================================================================
+C !DESCRIPTION:
+C Initialize OBSFIT variables (cost function part)
 
 C !USES:
       IMPLICIT NONE
+C == Global variables ===
 #include "EEPARAMS.h"
 #include "SIZE.h"
 #include "GRID.h"
-
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
-C !INPUT PARAMETERS:
+C !INPUT/OUTPUT PARAMETERS:
+C myThid ::  my Thread Id number
       INTEGER myThid
 CEOP
 
@@ -32,14 +32,12 @@ C !LOCAL VARIABLES:
       INTEGER jtlo,jthi
       INTEGER num_file
 
-C     ==================================================================
-
       jtlo = mybylo(myThid)
       jthi = mybyhi(myThid)
       itlo = mybxlo(myThid)
       ithi = mybxhi(myThid)
 
-c--   Initialize the tiled cost function contributions.
+C Initialize tiled cost function variables
       DO bj = jtlo,jthi
         DO bi = itlo,ithi
           DO num_file=1,NFILESMAX_OBS
@@ -48,6 +46,7 @@ c--   Initialize the tiled cost function contributions.
         ENDDO
       ENDDO
 
+C Initialize global cost function variables
       DO num_file=1,NFILESMAX_OBS
         objf_obsfit(num_file)= 0. _d 0
         num_obsfit(num_file) = 0. _d 0
@@ -55,8 +54,6 @@ c--   Initialize the tiled cost function contributions.
       ENDDO
 
       _BARRIER
-
-C     ==================================================================
 
       RETURN
       END

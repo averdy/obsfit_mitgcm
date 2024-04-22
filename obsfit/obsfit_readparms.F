@@ -1,30 +1,30 @@
 #include "OBSFIT_OPTIONS.h"
 
-CBOP 0
-C     !ROUTINE: OBSFIT_READPARMS
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+CBOP
+C !ROUTINE: OBSFIT_READPARMS
 
-C     !INTERFACE:
+C !INTERFACE:
       SUBROUTINE OBSFIT_READPARMS( myThid )
 
 C     !DESCRIPTION:
-C     ==================================================================
-C     | Initialize obsfit variables and constants
-C     ==================================================================
+C     Initialize OBSFIT variables and constants.
 
-C !USES:
+C     !USES:
       IMPLICIT NONE
-#include "EEPARAMS.h"
+C     == Global variables ===
 #include "SIZE.h"
-#include "GRID.h"
+#include "EEPARAMS.h"
 #include "PARAMS.h"
+#include "GRID.h"
 #include "OBSFIT_SIZE.h"
-#include "obsfit.h"
+#include "OBSFIT.h"
 
-C !INPUT PARAMETERS:
+C     !INPUT PARAMETERS:
       INTEGER myThid
 CEOP
 
-C !LOCAL VARIABLES:
+C     !LOCAL VARIABLES:
 C     msgBuf     :: Informational/error message buffer
 C     iUnit      :: Work variable for IO unit number
       CHARACTER*(MAX_LEN_MBUF) msgBuf
@@ -32,19 +32,17 @@ C     iUnit      :: Work variable for IO unit number
       LOGICAL   exst, specifiedNames
       CHARACTER*(128) fname
 
-C !FUNCTIONS
+C     !FUNCTIONS:
       INTEGER  ILNBLNK
       EXTERNAL ILNBLNK
 
-      namelist /obsfit_nml/
+      NAMELIST /obsfit_nml/
      &                   obsfitDir,
      &                   obsfitFiles,
      &                   mult_obsfit,
      &                   obsfit_facmod,
      &                   obsfitDoNcOutput,
      &                   obsfitDoGenGrid
-
-C     ==================================================================
 
       IF ( .NOT.useOBSFIT ) THEN
 C     pkg OBSFIT is not used
@@ -56,9 +54,9 @@ C     print a (weak) warning if data.obsfit is found
         RETURN
       ENDIF
 
-      _BEGIN_MASTER( myThid )
+      _BEGIN_MASTER(myThid)
 
-C     Set default values
+C     Default values for OBSFIT
       obsfitDir=' '
 
       DO num_file=1,NFILESMAX_OBS
@@ -77,8 +75,8 @@ C     Set default values
       ELSE
        obsfitDoGenGrid=.false.
       ENDIF
-
-C       Next, read the cost data file
+      
+C     Read OBSFIT cost data file
       WRITE(msgBuf,'(A)') 'OBSFIT_READPARMS: opening data.obsfit'
       CALL PRINT_MESSAGE( msgBuf, standardMessageUnit,
      &                    SQUEEZE_RIGHT, 1)
@@ -120,11 +118,10 @@ C     Switch off this file (and potential cost function term)
           ENDIF
         ENDDO
 
-      _END_MASTER( myThid )
+      _END_MASTER(myThid)
 
+C--   Everyone else must wait for the parameters to be loaded
       _BARRIER
-
-C     ==================================================================
 
       RETURN
       END

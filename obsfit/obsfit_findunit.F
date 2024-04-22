@@ -1,41 +1,39 @@
 #include "CPP_EEOPTIONS.h"
 
-CBOP 0
-C     !ROUTINE: OBSFIT_FINDUNIT
+CBOP
+C !ROUTINE: OBSFIT_FINDUNIT
 
-C     !INTERFACE:
+C !INTERFACE: 
       SUBROUTINE OBSFIT_FINDUNIT( ioUnit, myThid )
 
-C     !DESCRIPTION:
-C     ==================================================================
-C     Returns a valid, unused unit number for f77 I/O
-C     The routine stops the program is an error occurs in the process
-C     of searching the I/O channels.
-C     ==================================================================
+C !DESCRIPTION:
+C Returns a valid, unused unit number for f77 I/O
+C The routine stops the program is an error occurs in the process
+C of searching the I/O channels.
 
 C !USES:
       IMPLICIT NONE
+C     == Global variables ===
 #include "EEPARAMS.h"
 
 C !INPUT PARAMETERS:
-C     ioUnit  :: unit number
+C ioUnit    :: unit number
+C myThid    :: my Thread Id number
       INTEGER ioUnit
       INTEGER myThid
-CEOP
 
 C !LOCAL VARIABLES:
       INTEGER ii
       LOGICAL op
       INTEGER ios
       CHARACTER*(MAX_LEN_MBUF) msgBuf
-
-C     ==================================================================
+CEOP
 
 C Sweep through a valid range of unit numbers
       ioUnit=-1
       DO ii=2000,9999
        IF ( ioUnit.EQ.-1 ) THEN
-C- skip reserved unit numbers
+C Skip reserved unit numbers
         IF (       ii.NE.errorMessageUnit
      &       .AND. ii.NE.standardMessageUnit
      &       .AND. ii.NE.scrUnit1   .AND. ii.NE.scrUnit2
@@ -68,8 +66,6 @@ C Was there an available unit number
         CALL ALL_PROC_DIE( myThid )
         STOP 'ABNORMAL END: S/R OBSFIT_FINDUNIT'
       ENDIF
-
-C     ==================================================================
 
       RETURN
       END

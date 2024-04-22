@@ -2,15 +2,15 @@
 
 C--  File active_file_obsfit_ad.F:
 C--   Contents
-C--   o adactive_read_global
-C--   o adactive_write_global
-C--   o adactive_read_samples
-C--   o adactive_write_samples
+C--   o adactive_read_obs_tile
+C--   o adactive_write_obs_tile
+C--   o adactive_read_obs_glob
+C--   o adactive_write_obs_glob
 
-CBOP 0
-C     !ROUTINE: ADACTIVE_READ_OBSFIT
+CBOP
+C     !ROUTINE: ADACTIVE_READ_OBS_TILE
 C     !INTERFACE:
-      SUBROUTINE ADACTIVE_READ_OBSFIT(
+      SUBROUTINE ADACTIVE_READ_OBS_TILE(
      I                              active_num_file,
      I                              adactive_var,
      I                              irec,
@@ -22,7 +22,7 @@ C     !INTERFACE:
 
 C     !DESCRIPTION:
 C     ==================================================================
-C     | Adjoint of active_read_obsfit
+C     | Adjoint of active_read_obs_tile
 C     ==================================================================
 
 C !USES:
@@ -31,7 +31,7 @@ C !USES:
 #include "SIZE.h"
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 C !INPUT PARAMETERS:
@@ -42,17 +42,17 @@ C     myIter:          number of optimization iteration (default: 0)
 C     myThid:          thread number for this instance
 C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
-      integer active_num_file
+      INTEGER active_num_file
       _RL     adactive_var
-      integer irec
-      integer myIter
-      integer bi, bj, myThid
-      logical lAdInit
+      INTEGER irec
+      INTEGER myIter
+      INTEGER bi, bj, myThid
+      LOGICAL lAdInit
 CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_read_obsfit_loc_rl(fidadj_obs(active_num_file,bi,bj),
+      CALL active_read_obs_tile_rl( fidadj_obs(active_num_file,bi,bj),
      &     active_num_file,
      &     adactive_var, lAdInit,
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
@@ -64,10 +64,10 @@ CEOP
 
 C     ==================================================================
 
-CBOP 0
-C     !ROUTINE: ADACTIVE_WRITE_OBSFIT
+CBOP
+C     !ROUTINE: ADACTIVE_WRITE_OBS_TILE
 C     !INTERFACE:
-      SUBROUTINE ADACTIVE_WRITE_OBSFIT(
+      SUBROUTINE ADACTIVE_WRITE_OBS_TILE(
      I                                  active_num_file,
      I                                  adactive_var,
      I                                  irec,
@@ -79,7 +79,7 @@ C     !INTERFACE:
 
 C     !DESCRIPTION:
 C     ==================================================================
-C     | Adjoint of active_write_obsfit
+C     | Adjoint of active_write_obs_tile
 C     ==================================================================
 
 C !USES:
@@ -88,7 +88,7 @@ C !USES:
 #include "SIZE.h"
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 C !INPUT PARAMETERS:
@@ -99,19 +99,19 @@ C     myIter:          number of optimization iteration (default: 0)
 C     myThid:          thread number for this instance
 C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
-      integer active_num_file
+      INTEGER active_num_file
       _RL     adactive_var
-      integer irec
-      integer myIter
-      integer bi, bj, myThid
+      INTEGER irec
+      INTEGER myIter
+      INTEGER bi, bj, myThid
       _RL     dummy
 CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_write_obsfit_loc_rl(fidadj_obs(active_num_file,bi,bj),
+      CALL active_write_obs_tile_rl( fidadj_obs(active_num_file,bi,bj),
      &     active_num_file,
-     &     adactive_var,
+     &     adactive_var, 
      &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
      &     REVERSE_SIMULATION, myIter, bi, bj, myThid)
 
@@ -119,10 +119,13 @@ CEOP
 
       END
 
-CBOP 0
-C     !ROUTINE: ADACTIVE_READ_OBSFIT_GLO
+C     ==================================================================
+
+
+CBOP
+C     !ROUTINE: ADACTIVE_READ_OBS_GLOB
 C     !INTERFACE:
-      SUBROUTINE ADACTIVE_READ_OBSFIT_GLO(
+      SUBROUTINE ADACTIVE_READ_OBS_GLOB(
      I                              active_num_file,
      I                              adactive_var,
      I                              irec,
@@ -132,8 +135,8 @@ C     !INTERFACE:
 
 C     !DESCRIPTION:
 C     ==================================================================
-C     | SUBROUTINE ADACTIVE_READ_OBSFIT_GLO
-C     | Adjoint of ACTIVE_READ_OBSFIT_GLO.F
+C     | SUBROUTINE ADACTIVE_READ_OBS_GLOB
+C     | Adjoint of ACTIVE_READ_OBS_GLOB.F
 C     ==================================================================
 
 C !USES:
@@ -142,7 +145,7 @@ C !USES:
 #include "SIZE.h"
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 C !INPUT PARAMETERS:
@@ -153,17 +156,17 @@ C     myIter:          number of optimization iteration (default: 0)
 C     myThid:          thread number for this instance
 C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
-      integer active_num_file
+      INTEGER active_num_file
       _RL     adactive_var
-      integer irec
-      integer myIter
-      integer myThid
-      logical lAdInit
+      INTEGER irec
+      INTEGER myIter
+      INTEGER myThid
+      LOGICAL lAdInit
 CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_read_obsfit_glo_rl(fidadglobal(active_num_file),
+      CALL active_read_obs_glob_rl( fidadglobal(active_num_file),
      &     active_num_file,
      &     adactive_var, lAdInit,
      &     irec, obs_ind_glob(active_num_file,irec),
@@ -175,10 +178,10 @@ CEOP
 
 C     ==================================================================
 
-CBOP 0
-C     !ROUTINE: ADACTIVE_WRITE_OBSFIT_GLO
+CBOP
+C     !ROUTINE: ADACTIVE_WRITE_OBS_GLOB
 C     !INTERFACE:
-      SUBROUTINE ADACTIVE_WRITE_OBSFIT_GLO(
+      SUBROUTINE ADACTIVE_WRITE_OBS_GLOB(
      I                                  active_num_file,
      I                                  adactive_var,
      I                                  irec,
@@ -188,8 +191,8 @@ C     !INTERFACE:
 
 C     !DESCRIPTION:
 C     ==================================================================
-C     | SUBROUTINE ADACTIVE_WRITE_OBSFIT_GLO
-C     | Adjoint of ACTIVE_WRITE_OBSFIT_GLO.F
+C     | SUBROUTINE ADACTIVE_WRITE_OBS_GLOB
+C     | Adjoint of ACTIVE_WRITE_OBS_GLOB.F
 C     ==================================================================
 
 C !USES:
@@ -198,7 +201,7 @@ C !USES:
 #include "SIZE.h"
 #ifdef ALLOW_OBSFIT
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
 C !INPUT PARAMETERS:
@@ -209,17 +212,17 @@ C     myIter:          number of optimization iteration (default: 0)
 C     myThid:          thread number for this instance
 C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
-      integer active_num_file
+      INTEGER active_num_file
       _RL     adactive_var
-      integer irec
-      integer myIter
-      integer myThid
+      INTEGER irec
+      INTEGER myIter
+      INTEGER myThid
       _RL     dummy
 CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      call active_write_obsfit_glo_rl(fidadglobal(active_num_file),
+      CALL active_write_obs_glob_rl( fidadglobal(active_num_file),
      &     active_num_file,
      &     adactive_var,
      &     irec, obs_ind_glob(active_num_file,irec),
@@ -230,3 +233,4 @@ CEOP
       END
 
 C     ==================================================================
+

@@ -1,24 +1,25 @@
 #include "OBSFIT_OPTIONS.h"
+C--  File obsfit_read_obs.F: Routines to read OBSFIT input files
 
-CBOP 0
-C     !ROUTINE: OBSFIT_READ_OBS
+C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
+CBOP
+C !ROUTINE: OBSFIT_READ_OBS
 
-C     !INTERFACE:
+C !INTERFACE:
       SUBROUTINE OBSFIT_READ_OBS(
-     O                               fNb, 
-     I                               vNb, 
-     I                               irec,
-     I                               vec_loc,
-     I                               myThid )
+     O                      fNb, 
+     I                      vNb, 
+     I                      irec,
+     I                      vec_loc,
+     I                      myThid )
 
-C     !DESCRIPTION: 
-C     ==================================================================
-C     | Reads an observation and its weight from a netcdf obsfit 
-C     | input file
-C     ==================================================================
+C !DESCRIPTION:
+C Reads an observation and its weight from a netcdf obsfit 
+C input file
 
 C !USES:
       IMPLICIT NONE
+C == Global variables ===
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
@@ -27,10 +28,14 @@ C !USES:
 #ifdef ALLOW_OBSFIT
 # include "netcdf.inc"
 # include "OBSFIT_SIZE.h"
-# include "obsfit.h"
+# include "OBSFIT.h"
 #endif
 
-C !INPUT PARAMETERS:
+C !INPUT/OUTPUT PARAMETERS:
+C fNb, vNb  :: 
+C irec      :: 
+C myThid    :: my Thread Id number
+C vec_loc   :: 
       INTEGER fNb, vNb
       INTEGER irec, myThid
       _RL     vec_loc
@@ -39,7 +44,7 @@ CEOP
 #ifdef ALLOW_OBSFIT
 
 C !LOCAL VARIABLES:
-c     tmpObsNo :: number of obs in the file
+c tmpObsNo :: number of obs in the file
       INTEGER k, kk, err, varid1, tmpObsNo
       INTEGER vec_start,vec_count
       _RL     vec_tmp1(1000),vec_tmp2(1000)
@@ -81,11 +86,11 @@ c implies that a forward loop is calling
        vec_start=obsfit_minind_buff
        vec_count=obsfit_maxind_buff-obsfit_minind_buff+1
 
-         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_nameval,
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_names,
      &    varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp1)
-         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_nameweight
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_namesweight
      &    , varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp2)
@@ -115,6 +120,5 @@ cgf ...now, get vec_loc from the buffer
 
 #endif
 
-C     ==================================================================
-
+      RETURN
       END
