@@ -763,10 +763,6 @@ c--   Compute all profiles cost function contributions.
 cav(
 #ifdef ALLOW_OBSFIT
       IF (useOBSFIT) THEN
-
-
-              print*,'CAV endtime'
-
 c--   Accumulate in-situ time averages of temperature, salinity, SSH.
         CALL TIMER_START('OBSFIT_INLOOP      [THE_MAIN_LOOP]', myThid)
         CALL OBSFIT_INLOOP( endtime, myThid )
