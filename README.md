@@ -38,6 +38,8 @@ cd ../build_ad_obsfit <br />
 - During the model run, model values at sampled locations are saved in tiled files.
 - After the run, sampled values are read and averaged to calculate the model-equivalent for each observation. The results are written in a global netcdf file (which is in the same format as the input file). The global file is then read during cost calculation (hopefully this will make the package compatible with multigrid).
 
+# Bugs:
+- The runtime option obsfitdoncoutput = .true. does not work properly
 
 # To do:
 - obsfit_init_fixed.F: update sample_interp_weights using triangular interpolation
