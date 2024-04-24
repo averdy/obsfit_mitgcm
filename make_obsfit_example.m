@@ -6,14 +6,17 @@ obs_val = rand(1,100);
 n_obs = length(obs_val);
 
 % Uncertainty
-obs_uncert = 0.02*ones(1,100);
+obs_uncert = ones(1,n_obs);
 
 % Time of observations
-obs_YYYYMMDD = repmat(20220101,[1 100]);
-obs_HHMMSS = linspace(0,23,100);
+obs_YYYYMMDD = repmat(20070101,[1 n_obs]);
+obs_HHMMSS = [repmat(021500,[1 n_obs/4]) ...
+ repmat(023000,[1 n_obs/4]) ...
+ repmat(024500,[1 n_obs/4]) ...
+ repmat(030000,[1 n_obs/4])];
 
 % Number of samples per obs
-obs_np = repmat(2,[1 100]);
+obs_np = repmat(1,[1 n_obs]);
 
 % Sample type: 
 % 1 for Theta
@@ -21,20 +24,19 @@ obs_np = repmat(2,[1 100]);
 % 3 for Uvel
 % 4 for Vvel
 % 5 for SSH
-sample_type = repmat([1 2],[1 100]);
+sample_type = repmat(5,[1 n_obs]);
 
 % Sample weights
-sample_weight = repmat([.33 .67],[1 100]);
+sample_weight = repmat(1,[1 n_obs]);
 
 % Location of samples
-sample_x = repmat(linspace(220,230,100),[2 1]);
-sample_x = sample_x(:)';
+sample_x = linspace(220,230,n_obs);
 sample_y = 0*sample_x;
-sample_z = repmat(50,[1 200]);
+sample_z = repmat(0,[1 n_obs]);
 
 
 % create netcdf
-ncid = netcdf.create('obsfit_UV.nc','NC_CLOBBER');
+ncid = netcdf.create('obsfit_ssh.nc','NC_CLOBBER');
 
 % define dimensions
 sampledim_id = netcdf.defDim(ncid,'iSAMPLE',length(sample_x));
@@ -70,4 +72,3 @@ netcdf.putVar(ncid,obsuncert_id,obs_uncert);
 
 % close output netcdf
 netcdf.close(ncid);
-
