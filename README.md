@@ -1,5 +1,5 @@
 # obsfit
-obsfit package for MITgcm 
+obsfit package for MITgcm [in development! Please reach out if bugs are found!]
 
 
 # Summary:
