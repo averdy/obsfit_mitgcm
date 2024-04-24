@@ -8,8 +8,9 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 
 # How to use:
 
-1) copy the folder "<b>obsfit</b>" into MITgcm/pkg
-2) copy the contents of "<b>code_folder</b>" into your local "code" or "code_ad" folder
+1) Copy the folder "<b>obsfit</b>" into MITgcm/pkg
+2) Copy the contents of "<b>code_folder</b>" into your local "code" or "code_ad" folder
+3) Make netcdf input files; see make_obsfit_example.m for a matlab example
 
 Follow the steps below to run an example on pleiades (or modify build options and build scripts for other machines):
 
@@ -35,7 +36,8 @@ cd ../build_ad_obsfit <br />
 
 # Notes:
 - Input files are netcdf; they contain the observation(s) start time and duration, observed value(s) and associated uncertainty. If observations are made of more than 1 sample, the number of samples must be provided (otherwise it is assumed to be 1). Each sample is assigned a property type (T, S, SSH, etc) as well as location (longitude, latitude, depth). An optional weight gives the relative importance of each sample in calculating the observed value.
-- Sample types are assigned as integers: 1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH
+- The contents of the input file are all vectors: obs_val, obs_uncert, obs_YYYYMMDD, obs_HHMMSS, obs_delt, obs_np have $`N`$ elements; sample_type, sample_x, sample_y, sample_z, sample_weight have $`\sum_N`$(obs_np) elements. 
+- Sample types are assigned as integers: <b>1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH</b>
 - Observations with a positive duration are averaged in time, whereas a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. 
 - If no sample weights are provided, it is assumed that all samples are weighed equally.  
 - During the model run, model values at sampled locations are saved in tiled files.
