@@ -57,13 +57,13 @@ C    OBSFIT integer parameters
      & obs_sample1_ind
 
 C    OBSFIT character strings
-      CHARACTER*(8)  obsfit_names
-      CHARACTER*(12) obsfit_namesmask
-      CHARACTER*(14) obsfit_namesweight
-      CHARACTER*(8)  obsfit_namesequi
+      CHARACTER*(8)  obsfit_nameval
+      CHARACTER*(12) obsfit_namemask
+      CHARACTER*(14) obsfit_nameuncert
+      CHARACTER*(8)  obsfit_nameequi
       
-      COMMON /OBSFIT_C/ obsfit_names, obsfit_namesmask,
-     & obsfit_namesweight, obsfit_namesequi
+      COMMON /OBSFIT_C/ obsfit_nameval, obsfit_namemask,
+     & obsfit_nameuncert, obsfit_nameequi
 
 C    Grid parameters
       INTEGER sample_interp_i(NFILESMAX_OBS,NSAMPLESMAX,
@@ -88,12 +88,12 @@ C     Generic grid
 
 C    OBSFIT buffers
       _RL obsfit_data_buff(1000)
-      _RL obsfit_weight_buff(1000)
+      _RL obsfit_uncert_buff(1000)
       INTEGER obsfit_minind_buff
       INTEGER obsfit_maxind_buff
       INTEGER obsfit_curfile_buff
       
-      COMMON /OBSFIT_BUFF_R/ obsfit_data_buff, obsfit_weight_buff
+      COMMON /OBSFIT_BUFF_R/ obsfit_data_buff, obsfit_uncert_buff
       COMMON /OBSFIT_BUFF_I/
      & obsfit_minind_buff, obsfit_maxind_buff, obsfit_curfile_buff
 

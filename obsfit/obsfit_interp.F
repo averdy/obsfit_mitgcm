@@ -83,27 +83,25 @@ C !FUNCTIONS:
       INTEGER  ILNBLNK
       EXTERNAL ILNBLNK
 
-      print*,'CAV var cur',var_cur
 
 C Horizontal interpolation:
         weighingSUM=0. _d 0
-
         DO q=1,NUM_INTERP_PTS_OBS
-c         IF (var_cur.EQ.1) THEN
-c               tab_coeffs1(q)=theta(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-c         ELSEIF (var_cur.EQ.2) THEN
-c               tab_coeffs1(q)=salt(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-c         ELSEIF (var_cur.EQ.3) THEN
-c               tab_coeffs1(q)=uvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-c         ELSEIF (var_cur.EQ.4) THEN
-c               tab_coeffs1(q)=vvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-c         ELSEIF (var_cur.EQ.5) THEN
-                 tab_coeffs1(q)=etan(i_cur(q),j_cur(q),bi,bj)
-c         ELSE
-c               tab_coeffs1(q)=0. _d 0
-c         ENDIF
+         IF (var_cur.EQ.1) THEN
+               tab_coeffs1(q)=theta(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+         ELSEIF (var_cur.EQ.2) THEN
+               tab_coeffs1(q)=salt(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+         ELSEIF (var_cur.EQ.3) THEN
+               tab_coeffs1(q)=uvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+         ELSEIF (var_cur.EQ.4) THEN
+               tab_coeffs1(q)=vvel(i_cur(q),j_cur(q),k_cur(q),bi,bj)
+         ELSEIF (var_cur.EQ.5) THEN
+               tab_coeffs1(q)=etan(i_cur(q),j_cur(q),bi,bj)
+         ELSE
+               tab_coeffs1(q)=0. _d 0
+         ENDIF
          tab_coeffs3(q)=maskC(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-
+         print*,'CAV w',tab_coeffs3(q),weights_cur(q)
          weighing_pts(q)=tab_coeffs3(q)*weights_cur(q)
          weighingSUM=weighingSUM+weighing_pts(q)
         ENDDO

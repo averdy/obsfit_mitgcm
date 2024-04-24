@@ -48,12 +48,12 @@ C bi,bj     :: Tile indices
       INTEGER bi,bj,iG,jG
       _RL sample_modval, sample_modvaltmp
       _RL obs_modval
-      _RL obs_data, obs_weight
+      _RL obs_data, obs_uncert, obs_weight
 #ifndef ALLOW_CTRL
       INTEGER optimcycle
 #endif
       CHARACTER*(max_len_mbuf) msgbuf
-      CHARACTER*(80) obsfitfile, fnameequinc
+      CHARACTER*(MAX_LEN_MBUF) obsfitfile, fnameequinc
       INTEGER IL, JL, err
       INTEGER irec, ii, varid1
       INTEGER samples_cnt, obs_num, num_valid_samples
@@ -232,19 +232,19 @@ C Loop over obs
 
            obs_modval=0.
            obs_data=0.
-           obs_weight=0.
+           obs_uncert=0.
 
-C Read observation and uncertainty (weight)
+C Read observation and uncertainty
            CALL obsfit_read_obs(num_file,1,
      &           obs_ind_glob(num_file,obs_num),
      &           obs_data,myThid)
 
            CALL obsfit_read_obs(num_file,-1,
      &           obs_ind_glob(num_file,obs_num),
-     &           obs_weight,myThid)
+     &           obs_uncert,myThid)
 
            IF (obs_data.eq.-9999) THEN
-             obs_weight=0
+             obs_uncert=0
            ENDIF
 
 C Read model equivalent from global file
@@ -255,8 +255,9 @@ cc           IF ( myProcId .eq. 0 ) THEN
      &         obsfit_globaldummy(num_file))
 cc           ENDIF
 
-           IF (obs_weight.GT.0.
+           IF (obs_uncert.GT.0.
      &            ) THEN
+                 obs_weight=1/(obs_uncert*obs_uncert)
                  objf_obsfit(num_file)=
      &             objf_obsfit(num_file)
      &             +obs_weight*obs_modmask

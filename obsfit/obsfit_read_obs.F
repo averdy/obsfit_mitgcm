@@ -14,7 +14,7 @@ C !INTERFACE:
      I                      myThid )
 
 C !DESCRIPTION:
-C Reads an observation and its weight from a netcdf obsfit 
+C Reads an observation and its uncertainty from a netcdf obsfit 
 C input file
 
 C !USES:
@@ -86,11 +86,11 @@ c implies that a forward loop is calling
        vec_start=obsfit_minind_buff
        vec_count=obsfit_maxind_buff-obsfit_minind_buff+1
 
-         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_names,
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_nameval,
      &    varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp1)
-         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_namesweight
+         err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_nameuncert
      &    , varid1 )
          err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &    vec_count, vec_tmp2)
@@ -102,7 +102,7 @@ c implies that a forward loop is calling
 
         DO kk=1,vec_count
           obsfit_data_buff(kk)=vec_tmp1(kk)
-          obsfit_weight_buff(kk)=vec_tmp2(kk)
+          obsfit_uncert_buff(kk)=vec_tmp2(kk)
         ENDDO
 
        obsfit_curfile_buff=fNb
@@ -110,7 +110,7 @@ c implies that a forward loop is calling
 
 cgf ...now, get vec_loc from the buffer
       IF (vNb.LT.0) THEN
-       vec_loc=obsfit_weight_buff
+       vec_loc=obsfit_uncert_buff
      &   (irec-obsfit_minind_buff+1)
 
       ELSE

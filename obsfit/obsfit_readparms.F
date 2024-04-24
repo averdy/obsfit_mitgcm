@@ -29,7 +29,7 @@ C     msgBuf     :: Informational/error message buffer
 C     iUnit      :: Work variable for IO unit number
       CHARACTER*(MAX_LEN_MBUF) msgBuf
       INTEGER   iUnit, num_file, IL
-      LOGICAL   exst, specifiedNames
+      LOGICAL   exst
       CHARACTER*(128) fname
 
 C     !FUNCTIONS:

@@ -38,7 +38,8 @@ C !LOCAL VARIABLES:
       INTEGER i,j,k,l,m,bi,bj,iG,jG,num_file,sampleNo_tile
       INTEGER stopObsfit
       INTEGER fid, dimid, varid0, varid1, varid1a, varid1b, varid1c
-      INTEGER varid2, varid3a, varid3b, varid4, varid5
+      INTEGER varid2, varid3a, varid3b, varid3c, varid4
+      INTEGER varid5a, varid5b
       _RL tmpyymmdd(1000),tmphhmmss(1000),diffsecs
       _RL yymmddMin,yymmddMax
       _RL hhmmssMin,hhmmssMax
@@ -63,8 +64,9 @@ C !LOCAL VARIABLES:
       INTEGER ObsNo_valid, ObsNo_div1000
       INTEGER sample_cnt, sample_valid_cnt, ns
       INTEGER vec_start3, vec_count3
-      CHARACTER*(80) obsfitfile, fnamedatanc
-      CHARACTER*(80) fnameequinc, adfnameequinc
+      CHARACTER*(MAX_LEN_MBUF) obsfitfile, fnamedatanc
+      CHARACTER*(MAX_LEN_MBUF) fnameequinc, adfnameequinc
+      CHARACTER*(MAX_LEN_MBUF) fnameequincglo, adfnameequincglo
       INTEGER IL, JL, KL, err, err_s
       INTEGER varid(10)
       INTEGER varid_intp1, varid_intp2, varid_intp11, varid_intp22
@@ -84,7 +86,7 @@ C !LOCAL VARIABLES:
       CHARACTER*8   diagName
       CHARACTER*16  diagCode
       CHARACTER*16  diagUnits
-      CHARACTER*(80) diagTitle
+      CHARACTER*(MAX_LEN_MBUF) diagTitle
 #endif
 
 C !FUNCTIONS:
@@ -164,7 +166,7 @@ C Initialize global variables for obsfit_read_obs.F
       obsfit_curfile_buff=0
       DO l=1,1000
        obsfit_data_buff(l)=0. _d 0
-       obsfit_weight_buff(l)=0. _d 0
+       obsfit_uncert_buff(l)=0. _d 0
       ENDDO
 
       yymmddMin=modelstartdate(1)
@@ -229,6 +231,8 @@ C Read number of samples (if missing, assume it's 1):
 C Read the info for observations:
         err = NF_INQ_VARID(fid,'obs_YYYYMMDD', varid1a )
         err = err + NF_INQ_VARID(fid,'obs_HHMMSS', varid1b )
+        err = err + NF_INQ_VARID(fid,'obs_val', varid5a )
+        err = err + NF_INQ_VARID(fid,'obs_uncert', varid5b )
 
         IF (err.NE.NF_NOERR) THEN
          IL  = ILNBLNK( obsfitFile )
@@ -257,7 +261,7 @@ C Read the info for samples:
         err = NF_INQ_VARID(fid,'sample_type',varid2)
         err = err + NF_INQ_VARID(fid,'sample_x', varid3a )
         err = err + NF_INQ_VARID(fid,'sample_y', varid3b )
-        err = err + NF_INQ_VARID(fid,'sample_z', varid4 )
+        err = err + NF_INQ_VARID(fid,'sample_z', varid3c )
         IF (err.NE.NF_NOERR) THEN
          IL  = ILNBLNK( obsfitFile )
          WRITE(msgBuf,'(3A)')
@@ -268,7 +272,7 @@ C Read the info for samples:
         ENDIF
 
         weighSamples=1
-        err = NF_INQ_VARID(fid,'sample_weight', varid5 )
+        err = NF_INQ_VARID(fid,'sample_weight', varid4 )
 C Weight for each sample (if missing, assume all samples weigh equally):
         IF (err.NE.NF_NOERR) THEN
          weighSamples=0
@@ -301,25 +305,28 @@ C Read interpolation information (grid points, coeffs, etc.)
         ENDIF
 
 C Variables names for equi files
-        obsfit_namesequi = 'mod_val'
-        obsfit_namesmask = 'mod_mask'
-        obsfit_names = 'obs_val'
-        obsfit_namesweight = 'obs_weight'
+        obsfit_nameequi = 'mod_val'
+        obsfit_namemask = 'mod_mask'
+        obsfit_nameval = 'obs_val'
+        obsfit_nameuncert = 'obs_uncert'
 
 C Create new netcdf global file for obs-equivalent 
         IF ( myProcId .eq. 0 ) THEN
          JL  = ILNBLNK( obsfitDir )
 
-         WRITE(fnameequinc(1:80),'(3a)')
+         WRITE(fnameequincglo(1:80),'(3a)')
      &    obsfitDir(1:JL),obsfitFile(1:IL),'.equi.nc'
-         WRITE(adfnameequinc(1:80),'(4a)')
+         WRITE(adfnameequincglo(1:80),'(4a)')
      &    obsfitDir(1:JL),'ad',
      &    obsfitFile(1:IL),'.equi.nc'
 
-         inquire( file=fnameequinc, exist=exst )
+         print*,'CAV 1',fnameequincglo
+         print*,'CAV 1',adfnameequincglo
+
+         inquire( file=fnameequincglo, exist=exst )
          IF (.NOT.exst) THEN
 
-          err = NF_CREATE(fnameequinc,NF_CLOBBER,fidglobal(num_file))
+          err = NF_CREATE(fnameequincglo,NF_CLOBBER,fidglobal(num_file))
           err = NF_DEF_DIM(fidglobal(num_file),'iOBS',ObsNo(num_file),
      &           dimid)
 
@@ -341,17 +348,18 @@ C Create new netcdf global file for obs-equivalent
 
           err = NF_ENDDEF(fidglobal(num_file))
           err = NF_CLOSE(fidglobal(num_file))
-          err = NF_OPEN(fnameequinc, NF_WRITE, fidglobal(num_file))
+          err = NF_OPEN(fnameequincglo, NF_WRITE, fidglobal(num_file))
 
          ELSE
-          err = NF_OPEN(fnameequinc, NF_WRITE, fidglobal(num_file))
+          err = NF_OPEN(fnameequincglo, NF_WRITE, fidglobal(num_file))
+
          ENDIF
 
 #ifdef ALLOW_ADJOINT_RUN
-         inquire( file=adfnameequinc, exist=exst )
+         inquire( file=adfnameequincglo, exist=exst )
          IF (.NOT.exst) THEN
 
-          err = NF_CREATE(adfnameequinc,NF_CLOBBER,
+          err = NF_CREATE(adfnameequincglo,NF_CLOBBER,
      &           fidadglobal(num_file))
           err = NF_DEF_DIM(fidadglobal(num_file),'iOBS',
      &           ObsNo(num_file),dimid)
@@ -374,10 +382,12 @@ C Create new netcdf global file for obs-equivalent
 
           err = NF_ENDDEF(fidadglobal(num_file))
           err = NF_CLOSE(fidadglobal(num_file))
-          err = NF_OPEN(adfnameequinc, NF_WRITE, fidadglobal(num_file))
+          err = NF_OPEN(adfnameequincglo, NF_WRITE, 
+     &         fidadglobal(num_file))
 
          ELSE
-          err = NF_OPEN(adfnameequinc, NF_WRITE, fidadglobal(num_file))
+          err = NF_OPEN(adfnameequincglo, NF_WRITE, 
+     &         fidadglobal(num_file))
          ENDIF
 #endif
         ENDIF
@@ -645,10 +655,10 @@ c read a chunk
      &       vec_count, tmp_lon2)
             err = NF_GET_VARA_DOUBLE(fid,varid3b,vec_start,
      &       vec_count, tmp_lat2)
-            err = NF_GET_VARA_DOUBLE(fid,varid4,vec_start,
+            err = NF_GET_VARA_DOUBLE(fid,varid3c,vec_start,
      &       vec_count, tmp_depth2)
             IF (weighSamples.EQ.1) THEN  
-             err = NF_GET_VARA_DOUBLE(fid,varid5,vec_start,
+             err = NF_GET_VARA_DOUBLE(fid,varid4,vec_start,
      &        vec_count, tmp_weight2)
             ENDIF
             
@@ -1068,6 +1078,9 @@ C===========================================================
      &       obsfitDir(1:JL),'ad',
      &       obsfitFile(1:IL),'.',iG,'.',jG,'.equi.nc'
 
+         print*,'CAV 2',fnameequinc
+         print*,'CAV 2',adfnameequinc
+
             inquire( file=fnameequinc, exist=exst )
             IF (.NOT.exst) THEN
       
@@ -1075,6 +1088,8 @@ C===========================================================
      &        fiddata_obs(num_file),fnameequinc,
      &        fidfwd_obs(num_file,bi,bj),SampleNo(num_file,bi,bj),
      &        myThid)
+
+         print*,'CAV 4',fnameequinc
      
             ELSE
       
@@ -1088,6 +1103,9 @@ C===========================================================
      &        adfnameequinc, fidadj_obs(num_file,bi,bj),
      &        SampleNo(num_file,bi,bj),
      &        myThid)
+
+         print*,'CAV 4',adfnameequinc
+
             ELSE
              err = NF_OPEN(adfnameequinc,NF_WRITE,
      &        fidadj_obs(num_file,bi,bj))
@@ -1101,6 +1119,9 @@ C===========================================================
             WRITE(adfnameequinc(1:80),'(4a,i3.3,a,i3.3,a)')
      &         obsfitDir(1:JL),'ad',
      &         obsfitFile(1:IL),'.',iG,'.',jG,'.equi.data'
+
+         print*,'CAV 3',fnameequinc
+         print*,'CAV 3',adfnameequinc
 
             inquire( file=fnameequinc, exist=exst )
 #ifdef OBSFIT_USE_MDSFINDUNITS

@@ -81,20 +81,12 @@ C !LOCAL VARIABLES:
         DO num_file=1,NFILESMAX_OBS
 
          DO sample_num=1,NSAMPLESMAX
-         IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
+          IF (sample_num.LE.sampleNo(num_file,bi,bj)) THEN
 
-                 print*,'CAV samplenum',sample_num,
-     &   sampleNo(num_file,bi,bj), num_file
-                 print*,'CAV======== time ',
-     &   sample_timeE(num_file,sample_num,bi,bj),
-     &   sample_timeS(num_file,sample_num,bi,bj),mytime,deltaTclock
-
-                 IF ((sample_timeE(num_file,sample_num,bi,bj).GE.myTime)
+           IF ((sample_timeE(num_file,sample_num,bi,bj).GE.myTime)
      &      .AND.(sample_timeS(num_file,sample_num,bi,bj).LT. 
      &      (myTime+deltaTclock))) THEN
 
-                 print*,'CAVCAV samplenum222',sample_num,
-     &   sample_timeS(num_file,sample_num,bi,bj),mytime,deltaTclock
             DO k=1,NUM_INTERP_PTS_OBS
              sample_i(k)= sample_interp_i(num_file,sample_num,k,bi,bj)
              sample_j(k)= sample_interp_j(num_file,sample_num,k,bi,bj)
@@ -106,39 +98,43 @@ CADJ STORE sample_modval  = comlev1_bibj, key=itdkey, kind=isbyte
 CADJ STORE saved_modval  = comlev1_bibj, key=itdkey, kind=isbyte
 CADJ STORE sample_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
 
-             sample_modval=0
-             saved_modval=0
+            sample_modval=0
+            saved_modval=0
 
 C If averaging or integrating in time, read previously 
 C recorded value and add to it
-              IF (obsfitOperation(num_file).gt.0) THEN
-               CALL active_read_obs_tile(num_file,
+            IF (obsfitOperation(num_file).gt.0) THEN
+             CALL active_read_obs_tile(num_file,
      &          saved_modval,
      &          sample_num,.false.,optimcycle,bi,bj,myThid,
      &          obsfit_dummy(num_file,bi,bj))
-              ENDIF
+            ENDIF
 
-              CALL obsfit_interp(sample_modval,
+            CALL obsfit_interp(sample_modval,
      &         sample_i,sample_j,sample_k,sample_w,
      &         sample_type(num_file,sample_num,bi,bj),
      &         num_file,myTime,bi,bj,myThid)
 
-              sample_modval=sample_modval*
+            sample_modval=sample_modval*
      &                   obsfit_facmod(num_file)
 
-              IF (obsfitOperation(num_file).gt.0) THEN
+            IF (obsfitOperation(num_file).gt.0) THEN
                sample_modval = saved_modval+sample_modval*deltaTclock
-              ENDIF
+            ENDIF
 
-              sample_modmask(bi,bj)=sample_modmask(bi,bj)*
+            print*,'CAVmask before',sample_modval,sample_modmask(bi,bj)
+            print*,'CAVsample weight',
+     &        sample_weight(num_file,sample_num,bi,bj)
+
+            sample_modmask(bi,bj)=sample_modmask(bi,bj)*
      &                   sample_weight(num_file,sample_num,bi,bj)
 
-              CALL active_write_obs_tile(num_file,
+            CALL active_write_obs_tile(num_file,
      &         sample_modval,
      &         sample_num,optimcycle,bi,bj,myThid,
      &         obsfit_dummy(num_file,bi,bj))
 
-              print*,'CAV sample_modval',sample_modval
+            print*,'CAV',sample_modval,sample_modmask(bi,bj)
 
            ENDIF !if ((sample_time...
           ENDIF !if (sampleNo(num_file,bi,bj).NE.0) then
