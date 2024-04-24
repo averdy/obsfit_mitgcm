@@ -8,7 +8,10 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 
 # How to use:
 
-Follow the steps below to run an example on pleiades (or modify build options and build scripts for other machines).
+1) copy the folder "<b>obsfit</b>" into MITgcm/pkg
+2) copy the contents of "<b>code_folder</b>" into your local "code" or "code_ad" folder
+
+Follow the steps below to run an example on pleiades (or modify build options and build scripts for other machines):
 
 #obtain MITgcm checkpoint 68w  <br />
 git clone https://github.com/MITgcm/MITgcm.git <br />
@@ -39,7 +42,7 @@ cd ../build_ad_obsfit <br />
 - After the run, sampled values are read and averaged to calculate the model-equivalent for each observation. The results are written in a global netcdf file (which is in the same format as the input file). The global file is then read during cost calculation (hopefully this will make the package compatible with multigrid).
 
 # Bugs:
-- The runtime option obsfitdoncoutput = .true. does not work properly
+- The runtime option obsfitdoncoutput = .true. does not work properly yet. Must run with obsfitdoncoutput = .false.
 
 # To do:
 - obsfit_init_fixed.F: update sample_interp_weights using triangular interpolation
