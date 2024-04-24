@@ -8,8 +8,7 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 
 # How to use:
 
-Follow the steps below to run an example (1-day run with obsfit test file)
-on pleiades (or modify build options and build scripts for other machines).
+Follow the steps below to run an example on pleiades (or modify build options and build scripts for other machines).
 
 #obtain MITgcm checkpoint 68w  <br />
 git clone https://github.com/MITgcm/MITgcm.git <br />
@@ -20,7 +19,6 @@ git clone https://github.com/averdy/obsfit_mitgcm.git <br />
 cd obsfit_mitgcm <br />
 mv obsfit ../pkg <br />
 mv global_oce_biogeo_bling/* ../verification/global_oce_biogeo_bling/ <br />
-cp code_folder/* ../verification/global_oce_biogeo_bling/code_ad_obsfit/ <br />
 cd ../verification/global_oce_biogeo_bling/ <br /><br />
 #compile executable <br />
 cd build_fwd_obsfit <br />
@@ -33,13 +31,12 @@ cd ../build_ad_obsfit <br />
 
 
 # Notes:
-- Input files are netcdf; they provide the observation(s) start time and duration, observed value(s) with associated uncertainty, and the number of samples that make each observation, as well as sample(s) location (longitude, latitude, depth) and sample(s) weight (relative importance of each sample in calculating the observed value). 
-- Observations with a positive duration are averaged in time, and a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. 
+- Input files are netcdf; they contain the observation(s) start time and duration, observed value(s) and associated uncertainty. If observations are made of more than 1 sample, the number of samples must be provided (otherwise it is assumed to be 1). Each sample is assigned a type (1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH) as well as location (longitude, latitude, depth). An optional weight gives the relative importance of each sample in calculating the observed value. 
+- Observations with a positive duration are averaged in time, whereas a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. 
 - If no sample weights are provided, it is assumed that all samples are weighed equally.  
-- During the model run, model values at sampled locations are saved in binary tiled files.
+- During the model run, model values at sampled locations are saved in tiled files.
 - After the run, sampled values are read and averaged to calculate the model-equivalent for each observation. The results are written in a global netcdf file (which is in the same format as the input file). The global file is then read during cost calculation (hopefully this will make the package compatible with multigrid).
 
 
 # To do:
-- generic grid
 - obsfit_init_fixed.F: update sample_interp_weights using triangular interpolation
