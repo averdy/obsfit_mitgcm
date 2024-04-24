@@ -101,7 +101,6 @@ C Horizontal interpolation:
                tab_coeffs1(q)=0. _d 0
          ENDIF
          tab_coeffs3(q)=maskC(i_cur(q),j_cur(q),k_cur(q),bi,bj)
-         print*,'CAV w',tab_coeffs3(q),weights_cur(q)
          weighing_pts(q)=tab_coeffs3(q)*weights_cur(q)
          weighingSUM=weighingSUM+weighing_pts(q)
         ENDDO

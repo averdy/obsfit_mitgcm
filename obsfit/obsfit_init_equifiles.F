@@ -43,10 +43,6 @@ C !LOCAL VARIABLES:
       INTEGER irec
       Real*8  tmp_vec(2)
 
-
-      print*,'CAV file2',file2
-
-
       IF (obsfitDoNcOutput) THEN
       
 C Create a netcdf file

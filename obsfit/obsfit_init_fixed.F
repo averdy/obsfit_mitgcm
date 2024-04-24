@@ -320,9 +320,6 @@ C Create new netcdf global file for obs-equivalent
      &    obsfitDir(1:JL),'ad',
      &    obsfitFile(1:IL),'.equi.nc'
 
-         print*,'CAV 1',fnameequincglo
-         print*,'CAV 1',adfnameequincglo
-
          inquire( file=fnameequincglo, exist=exst )
          IF (.NOT.exst) THEN
 
@@ -1078,9 +1075,6 @@ C===========================================================
      &       obsfitDir(1:JL),'ad',
      &       obsfitFile(1:IL),'.',iG,'.',jG,'.equi.nc'
 
-         print*,'CAV 2',fnameequinc
-         print*,'CAV 2',adfnameequinc
-
             inquire( file=fnameequinc, exist=exst )
             IF (.NOT.exst) THEN
       
@@ -1089,8 +1083,6 @@ C===========================================================
      &        fidfwd_obs(num_file,bi,bj),SampleNo(num_file,bi,bj),
      &        myThid)
 
-         print*,'CAV 4',fnameequinc
-     
             ELSE
       
              err = NF_OPEN(fnameequinc,NF_WRITE,
@@ -1103,8 +1095,6 @@ C===========================================================
      &        adfnameequinc, fidadj_obs(num_file,bi,bj),
      &        SampleNo(num_file,bi,bj),
      &        myThid)
-
-         print*,'CAV 4',adfnameequinc
 
             ELSE
              err = NF_OPEN(adfnameequinc,NF_WRITE,
@@ -1119,9 +1109,6 @@ C===========================================================
             WRITE(adfnameequinc(1:80),'(4a,i3.3,a,i3.3,a)')
      &         obsfitDir(1:JL),'ad',
      &         obsfitFile(1:IL),'.',iG,'.',jG,'.equi.data'
-
-         print*,'CAV 3',fnameequinc
-         print*,'CAV 3',adfnameequinc
 
             inquire( file=fnameequinc, exist=exst )
 #ifdef OBSFIT_USE_MDSFINDUNITS

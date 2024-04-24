@@ -122,10 +122,6 @@ C recorded value and add to it
                sample_modval = saved_modval+sample_modval*deltaTclock
             ENDIF
 
-            print*,'CAVmask before',sample_modval,sample_modmask(bi,bj)
-            print*,'CAVsample weight',
-     &        sample_weight(num_file,sample_num,bi,bj)
-
             sample_modmask(bi,bj)=sample_modmask(bi,bj)*
      &                   sample_weight(num_file,sample_num,bi,bj)
 
@@ -133,8 +129,6 @@ C recorded value and add to it
      &         sample_modval,
      &         sample_num,optimcycle,bi,bj,myThid,
      &         obsfit_dummy(num_file,bi,bj))
-
-            print*,'CAV',sample_modval,sample_modmask(bi,bj)
 
            ENDIF !if ((sample_time...
           ENDIF !if (sampleNo(num_file,bi,bj).NE.0) then
