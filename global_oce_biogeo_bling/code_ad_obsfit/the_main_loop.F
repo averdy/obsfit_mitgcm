@@ -411,16 +411,11 @@ C     end of initialisation and use of tapelev_init: write buffer to disk
       CALL AUTODIFF_WHTAPEIO_SYNC( 1 , 1, myThid )
 #endif
 
-      print*,'CAV main loop'
-
-
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 #ifndef ALLOW_OPENAD
 # ifdef ALLOW_AUTODIFF
 #  ifdef ALLOW_TAMC_CHECKPOINTING
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-      print*,'CAV ------ loop loop'
 
 #   ifdef AUTODIFF_4_LEVEL_CHECKPOINT
       max_lev4=nTimeSteps/(nchklev_1*nchklev_2*nchklev_3)+1
@@ -684,7 +679,6 @@ C--   Reset the model iteration counter and the model time.
         myIter = nIter0 + (iloop-1)
         myTime = startTime + deltaTClock*(iloop-1)
 #endif
-        print*,'CAV profiles!!!!!!!'
         CALL TIMER_START('PROFILES_INLOOP    [MAIN_DO_LOOP]', myThid)
         CALL PROFILES_INLOOP( myTime, myThid )
         CALL TIMER_STOP ('PROFILES_INLOOP    [MAIN_DO_LOOP]', myThid)
@@ -693,23 +687,7 @@ C--   Reset the model iteration counter and the model time.
 
 cav(
 #ifdef ALLOW_OBSFIT
-      print*,'CAV 2'
-      write(msgbuf,'(a)') ' '
-      CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
-      write(msgbuf,'(a)') 'CAV 2'
-      CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
-
       IF (useOBSFIT) THEN
-      print*,'CAV 3'
-      write(msgbuf,'(a)') ' '
-      CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
-      write(msgbuf,'(a)') 'CAV 3'
-      CALL print_message( msgbuf,
-     &  standardmessageunit,SQUEEZE_RIGHT, myThid)
-
 #ifdef ALLOW_DEBUG
         IF (debugMode) CALL DEBUG_CALL('obsfit_inloop',myThid)
 #endif
