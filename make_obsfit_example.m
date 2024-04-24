@@ -6,7 +6,7 @@ obs_val = rand(1,100);
 n_obs = length(obs_val);
 
 % Uncertainty
-obs_weight = ones(1,100);
+obs_uncert = 0.02*ones(1,100);
 
 % Time of observations
 obs_YYYYMMDD = repmat(20220101,[1 100]);
@@ -51,7 +51,7 @@ sampledepth_id = netcdf.defVar(ncid,'sample_z','double',sampledim_id);
 sampletype_id = netcdf.defVar(ncid,'sample_type','double',sampledim_id);
 sampleweight_id = netcdf.defVar(ncid,'sample_weight','double',sampledim_id);
 obsval_id = netcdf.defVar(ncid,'obs_val','double',[obsdim_id]); 
-obsweight_id = netcdf.defVar(ncid,'obs_weight','double',[obsdim_id]); 
+obsuncert_id = netcdf.defVar(ncid,'obs_uncert','double',[obsdim_id]); 
 
 % leave define mode and enter data mode
 netcdf.endDef(ncid);
@@ -66,7 +66,7 @@ netcdf.putVar(ncid,sampledepth_id,sample_z);
 netcdf.putVar(ncid,sampletype_id,sample_type);
 netcdf.putVar(ncid,sampleweight_id,sample_weight);
 netcdf.putVar(ncid,obsval_id,obs_val);
-netcdf.putVar(ncid,obsweight_id,obs_weight);
+netcdf.putVar(ncid,obsuncert_id,obs_uncert);
 
 % close output netcdf
 netcdf.close(ncid);
