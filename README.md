@@ -31,7 +31,8 @@ cd ../build_ad_obsfit <br />
 
 
 # Notes:
-- Input files are netcdf; they contain the observation(s) start time and duration, observed value(s) and associated uncertainty. If observations are made of more than 1 sample, the number of samples must be provided (otherwise it is assumed to be 1). Each sample is assigned a type (1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH) as well as location (longitude, latitude, depth). An optional weight gives the relative importance of each sample in calculating the observed value. 
+- Input files are netcdf; they contain the observation(s) start time and duration, observed value(s) and associated uncertainty. If observations are made of more than 1 sample, the number of samples must be provided (otherwise it is assumed to be 1). Each sample is assigned a property type (T, S, SSH, etc) as well as location (longitude, latitude, depth). An optional weight gives the relative importance of each sample in calculating the observed value.
+- Sample types are assigned as integers: 1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH
 - Observations with a positive duration are averaged in time, whereas a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. 
 - If no sample weights are provided, it is assumed that all samples are weighed equally.  
 - During the model run, model values at sampled locations are saved in tiled files.
