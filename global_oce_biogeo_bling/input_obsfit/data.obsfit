@@ -1,9 +1,0 @@
-# ******************
-# OBSFIT cost f',tion
-# ******************
- &OBSFIT_NML
-# obsfitDir = 'OBSFIT',
- obsfitFiles(1) = 'obsfit_SSH',
- mult_obsfit(1) = 1.0,
- obsfitdoncoutput = .false.,
- &
