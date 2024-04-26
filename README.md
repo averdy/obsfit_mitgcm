@@ -3,7 +3,7 @@ obsfit package for MITgcm [in development! Please reach out if bugs are found!]
 
 
 # Summary:
-An alternative to the "profiles" package for model-observations comparisons. Given an observational dataset, obsfit samples the model during run time at the time and location of observations, calculates the cost (sum of weighted misfits), and produces a model-equivalent output file that is directly comparable to the input file. Observations do not need to be on a regular grid or a fixed set of depths. Observations can be made of multiple samples that are averaged or integrated spatially and/or temporally.
+An alternative to the "profiles" package for model-observations comparisons. Given an observational dataset, obsfit samples the model during the run at the time and location of observations, calculates the cost (sum of weighted misfits), and produces a model-equivalent output file that is directly comparable to the input file. Observations do not need to be on a regular grid or a fixed set of depths. Observations can be made of multiple samples that are averaged or integrated spatially and/or temporally.
 
 
 # How to use:
