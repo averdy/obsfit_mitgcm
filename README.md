@@ -47,4 +47,5 @@ cd ../build_ad_obsfit <br />
 - The runtime option obsfitdoncoutput = .true. does not work properly yet. Must run with obsfitdoncoutput = .false.
 
 # To do:
+- Add sound speed, SSH anomalies as possible observations <br />
 - obsfit_init_fixed.F: update sample_interp_weights using triangular interpolation
