@@ -733,7 +733,7 @@ c       do num_var_obs=1,NVARMAX_OBS
          IL  = max (IL,30)
          write(ifc,'(4A,2D22.15)')
      &    obsfitfiles(num_file_obs)(1:IL),' ',
-     &    obsfit_names, ' = ',
+     &    obsfit_nameval, ' = ',
      &    f_obsfit(num_file_obs),
      &    no_obsfit(num_file_obs)
         endif
