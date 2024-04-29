@@ -1,5 +1,5 @@
 # obsfit
-obsfit package for MITgcm [in development! Please reach out if bugs are found!]
+obsfit package for MITgcm [<i>in development! Please reach out if bugs are found!</i>]
 
 
 # Summary:
@@ -13,7 +13,7 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 3) Make netcdf input files; see make_obsfit_example.m for a matlab example
 
  <br />
-<i>Note that obsfit requires the cost, ctrl, and ecco packages to be compiled (in packages.conf)</i>
+<i>Note that obsfit requires the cost package to be compiled (in packages.conf)</i>
  
  <br />
  <br />
