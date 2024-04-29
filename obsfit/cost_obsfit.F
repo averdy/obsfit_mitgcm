@@ -52,8 +52,8 @@ C bi,bj     :: Tile indices
 #ifndef ALLOW_CTRL
       INTEGER optimcycle
 #endif
-      CHARACTER*(max_len_mbuf) msgbuf
-      CHARACTER*(MAX_LEN_MBUF) obsfitfile, fnameequinc
+      CHARACTER*(MAX_LEN_MBUF) msgbuf
+      CHARACTER*(MAX_LEN_FNAM) obsfitfile, fnameequinc
       INTEGER IL, JL, err
       INTEGER irec, ii, varid1
       INTEGER samples_cnt, obs_num, num_valid_samples
@@ -100,11 +100,11 @@ c then re-open it to compute cost function
            iG=bi+(myXGlobalLo-1)/sNx ! Kludge until unstructered tiles
            jG=bj+(myYGlobalLo-1)/sNy ! Kludge until unstructered tiles
            IL  = ILNBLNK( obsfitfiles(num_file) )
-           write(obsfitfile(1:80),'(1a)')
+           write(obsfitfile,'(1a)')
      &     obsfitfiles(num_file)(1:IL)
            IL  = ILNBLNK( obsfitfile )
            JL  = ILNBLNK( obsfitDir )
-           write(fnameequinc(1:80),'(3a,i3.3,a,i3.3,a)')
+           write(fnameequinc,'(3a,i3.3,a,i3.3,a)')
      &     obsfitDir(1:JL),obsfitfile(1:IL),'.',iG,'.',jG,'.equi.nc'
 c
            err = NF_OPEN(fnameequinc,NF_NOWRITE,
@@ -217,11 +217,11 @@ c Write to global netcdf file
 cc         IF ( myProcId .eq. 0 ) THEN
            err = NF_CLOSE(fidglobal(num_file))
            IL  = ILNBLNK( obsfitfiles(num_file) )
-           write(obsfitfile(1:80),'(1a)')
+           write(obsfitfile,'(1a)')
      &      obsfitfiles(num_file)(1:IL)
            IL  = ILNBLNK( obsfitfile )
            JL  = ILNBLNK( obsfitDir )
-           write(fnameequinc(1:80),'(3a)')
+           write(fnameequinc,'(3a)')
      &      obsfitDir(1:JL),obsfitfile(1:IL),'.equi.nc'
            err = NF_OPEN(fnameequinc,NF_NOWRITE,fidglobal(num_file))
 cc         ENDIF

@@ -35,7 +35,7 @@ CEOP
 C !INPUT PARAMETERS:
       INTEGER num_file, fid1, fid2
       INTEGER bi, bj, myThid, length
-      CHARACTER*(MAX_LEN_MBUF) file2
+      CHARACTER*(MAX_LEN_FNAM) file2
 
 #ifdef ALLOW_OBSFIT
 C !LOCAL VARIABLES:
