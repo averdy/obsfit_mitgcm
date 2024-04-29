@@ -13,8 +13,9 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 3) Make netcdf input files; see make_obsfit_example.m for a matlab example
 
  <br />
-Note that obsfit requires the cost, ctrl, and ecco packages to be compiled (in packages.conf)
+<i>Note that obsfit requires the cost, ctrl, and ecco packages to be compiled (in packages.conf)</i>
  
+ <br />
  <br />
  <br />
 
