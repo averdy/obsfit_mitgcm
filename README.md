@@ -12,6 +12,11 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 2) Copy the contents of "<b>code_folder</b>" into your local "code" or "code_ad" folder
 3) Make netcdf input files; see make_obsfit_example.m for a matlab example
 
+ <br />
+Note that obsfit requires the cost, ctrl, and ecco packages to be compiled (in packages.conf)
+ 
+ <br />
+
 Follow the steps below to run an example on pleiades (or modify build options and build scripts for other machines):
 
 #obtain MITgcm checkpoint 68w  <br />
