@@ -2,6 +2,9 @@
 #ifdef ALLOW_CTRL
 # include "CTRL_OPTIONS.h"
 #endif
+#ifdef ALLOW_AUTODIFF
+# include "AUTODIFF_OPTIONS.h"
+#endif
 
 CBOP
 C !ROUTINE: COST_OBSFIT
@@ -31,6 +34,9 @@ C == Global variables ===
 #endif
 #ifdef ALLOW_CTRL
 # include "OPTIMCYCLE.h"
+#endif
+#ifdef ALLOW_AUTODIFF
+# include "tamc.h"
 #endif
 
 C !INPUT PARAMETERS: 
@@ -68,6 +74,10 @@ C bi,bj     :: Tile indices
       _RL  tmpgs
       INTEGER tmpgsi
       INTEGER ObsNo2,fid,dimid
+#ifdef ALLOW_AUTODIFF_TAMC
+      INTEGER itdkey
+#endif
+
  
 C !FUNCTIONS
       INTEGER  ILNBLNK
@@ -77,12 +87,19 @@ C !FUNCTIONS
       optimcycle = 0
 #endif
 
+#ifdef ALLOW_AUTODIFF_TAMC
+      itdkey = bi + (bj - 1)*nSx + (ikey_dynamics - 1)*nSx*nSy
+#endif
+
       write(msgbuf,'(a)') ' '
       CALL print_message( msgbuf,
      &  standardmessageunit,SQUEEZE_RIGHT, myThid)
       write(msgbuf,'(a)') '== cost_obsfit: begin =='
       CALL print_message( msgbuf,
      &  standardmessageunit,SQUEEZE_RIGHT, myThid)
+
+CADJ STORE obs_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
+CADJ STORE obsfit_globaldummy  = comlev1_bibj, key=itdkey, kind=isbyte
 
         _BEGIN_MASTER( myThid )
 
