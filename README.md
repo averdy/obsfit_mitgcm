@@ -54,7 +54,7 @@ cd ../build_ad_obsfit
 - After the run, sampled values are read and averaged to calculate the model-equivalent for each observation. The results are written in a global netcdf file (which is in the same format as the input file). The global file is then read during cost calculation (hopefully this will make the package compatible with multigrid).
 
 # Bugs:
-- The runtime option obsfitdoncoutput = .true. does not work properly yet. Must run with obsfitdoncoutput = .false.
+- 
 
 # To do:
 - Add sound speed, SSH anomalies as possible observations <br />
