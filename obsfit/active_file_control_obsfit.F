@@ -53,7 +53,7 @@ CEOP
 
 #ifdef ALLOW_OBSFIT
 C !LOCAL VARIABLES:
-      integer  err, varid1
+      integer  err, varid1, varid2
       integer  vec_start, vec_count
       integer  ivar, i
       _RL      active_data_t
@@ -72,12 +72,12 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1)
+      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
-      err = NF_INQ_VARID(fid, obsfit_namemask, varid1)
-      err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
+      err = NF_INQ_VARID(fid, obsfit_namemask, varid2)
+      err = NF_GET_VARA_DOUBLE(fid, varid2, vec_start, vec_count,
      & sample_modmask(bi,bj))
 
       else
@@ -114,7 +114,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1)
+      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -124,7 +124,7 @@ c     Store the result on disk.
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1)
+      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -173,7 +173,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1)
+      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
@@ -244,7 +244,7 @@ CEOP
 
 #ifdef ALLOW_OBSFIT
 C !LOCAL VARIABLES:
-      integer  err, varid1
+      integer  err, varid1, varid2, varid3
       integer  vec_start, vec_count
       integer  ivar, i
       _RL      active_data_t
@@ -263,16 +263,16 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1)
+      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
-      err = NF_INQ_VARID(fid, obsfit_namemask, varid1)
-      err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
+      err = NF_INQ_VARID(fid, obsfit_namemask, varid2)
+      err = NF_PUT_VARA_DOUBLE(fid, varid2, vec_start, vec_count,
      & sample_modmask(bi,bj))
 
-      err = NF_INQ_VARID(fid,'sample_ind_glob', varid1 )
-      err = NF_PUT_VAR1_INT(fid, varid1, vec_start,
+      err = NF_INQ_VARID(fid,'sample_ind_glob', varid3 )
+      err = NF_PUT_VAR1_INT(fid, varid3, vec_start,
      & irecglob)
 
       else
@@ -310,7 +310,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
 
       vec_start=irec
       vec_count=1
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1)
+      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -321,7 +321,7 @@ c     Add active_var to data.
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1)
+      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_data_t)
 
@@ -365,7 +365,7 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       vec_start=irec
       vec_count=1
 
-      err = NF_INQ_VARID(fid, obsfit_nameval, varid1)
+      err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
@@ -438,7 +438,7 @@ CEOP
 
 #ifdef ALLOW_OBSFIT
 C !LOCAL VARIABLES:
-      integer  err, varid1
+      integer  err, varid1, varid2
       integer  vec_start, vec_count
       integer  ivar, i
       _RL      active_data_t
@@ -459,8 +459,8 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
 
-      err = NF_INQ_VARID(fid, obsfit_namemask, varid1)
-      err = NF_GET_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
+      err = NF_INQ_VARID(fid, obsfit_namemask, varid2)
+      err = NF_GET_VARA_DOUBLE(fid, varid2, vec_start, vec_count,
      & obs_modmask)
 
         _END_MASTER( myThid )
@@ -567,7 +567,7 @@ CEOP
 
 #ifdef ALLOW_OBSFIT
 C !LOCAL VARIABLES:
-      integer  err, varid1
+      integer  err, varid1, varid2
       integer  vec_start, vec_count
       integer  ivar, i
       _RL      active_data_t
@@ -587,11 +587,9 @@ c     >>>>>>>>>>>>>>>>>>>             <<<<<<<<<<<<<<<<<<<
       err = NF_INQ_VARID(fid, obsfit_nameequi, varid1)
       err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
      & active_var)
-      err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
-     & active_var)
 
-      err = NF_INQ_VARID(fid, obsfit_namemask, varid1)
-      err = NF_PUT_VARA_DOUBLE(fid, varid1, vec_start, vec_count,
+      err = NF_INQ_VARID(fid, obsfit_namemask, varid2)
+      err = NF_PUT_VARA_DOUBLE(fid, varid2, vec_start, vec_count,
      & obs_modmask)
 
         _END_MASTER( myThid )
