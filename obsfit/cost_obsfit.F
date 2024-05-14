@@ -74,6 +74,8 @@ C bi,bj     :: Tile indices
       _RL  tmpgs
       INTEGER tmpgsi
       INTEGER ObsNo2,fid,dimid
+      INTEGER nmodmean, nobsmean
+      _RL offset, mod_mean, obs_mean
 #ifdef ALLOW_AUTODIFF_TAMC
       INTEGER itdkey
 #endif
@@ -231,18 +233,59 @@ c Write to global netcdf file
           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
          ENDDO !do obs_num=..
 
-cc         IF ( myProcId .eq. 0 ) THEN
-           err = NF_CLOSE(fidglobal(num_file))
-           IL  = ILNBLNK( obsfitfiles(num_file) )
-           write(obsfitfile,'(1a)')
+         err = NF_CLOSE(fidglobal(num_file))
+         IL  = ILNBLNK( obsfitfiles(num_file) )
+         write(obsfitfile,'(1a)')
      &      obsfitfiles(num_file)(1:IL)
-           IL  = ILNBLNK( obsfitfile )
-           JL  = ILNBLNK( obsfitDir )
-           write(fnameequinc,'(3a)')
+         IL  = ILNBLNK( obsfitfile )
+         JL  = ILNBLNK( obsfitDir )
+         write(fnameequinc,'(3a)')
      &      obsfitDir(1:JL),obsfitfile(1:IL),'.equi.nc'
-           err = NF_OPEN(fnameequinc,NF_NOWRITE,fidglobal(num_file))
-cc         ENDIF
-         
+         err = NF_OPEN(fnameequinc,NF_NOWRITE,fidglobal(num_file))
+
+         IF (obs_is_ssh(num_file).EQ.1) THEN
+C Read data to calculate the mean offset between model and obs
+          offset=0.
+          mod_mean=0.
+          obs_mean=0.
+          nmodmean=0
+          nobsmean=0.
+
+C Loop over obs
+          DO obs_num=1,NOBSMAX_OBS
+           IF (obs_num.LE.ObsNo(num_file)) THEN
+
+            obs_modval=0.
+            obs_data=0.
+            obs_uncert=0.
+
+C Read observation and uncertainty
+            CALL obsfit_read_obs(num_file,1,
+     &           obs_ind_glob(num_file,obs_num),
+     &           obs_data,myThid)
+
+            CALL obsfit_read_obs(num_file,-1,
+     &           obs_ind_glob(num_file,obs_num),
+     &           obs_uncert,myThid)
+
+            IF (obs_data.GT.-9999) THEN
+             obs_mean=obs_mean+obs_data
+             nobsmean=nobsmean+1
+            ENDIF
+            IF (obs_modval.GT.-9999) THEN
+             mod_mean=mod_mean+obs_modval
+             nmodmean=nmodmean+1
+            ENDIF
+           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
+          ENDDO !do obs_num...
+          mod_mean=mod_mean/nmodmean
+          obs_mean=obs_mean/nobsmean
+          offset=mod_mean-obs_mean
+         ELSE
+          offset=0.
+         ENDIF
+
+C Read data to calculate the cost
 C Loop over obs
          DO obs_num=1,NOBSMAX_OBS
           IF (obs_num.LE.ObsNo(num_file)) THEN
@@ -265,12 +308,10 @@ C Read observation and uncertainty
            ENDIF
 
 C Read model equivalent from global file
-cc           IF ( myProcId .eq. 0 ) THEN
               CALL active_read_obs_glob(num_file,
      &         obs_modval,
      &         obs_num,.false.,optimcycle,myThid,
      &         obsfit_globaldummy(num_file))
-cc           ENDIF
 
            IF (obs_uncert.GT.0.
      &            ) THEN
@@ -278,8 +319,8 @@ cc           ENDIF
                  objf_obsfit(num_file)=
      &             objf_obsfit(num_file)
      &             +obs_weight*obs_modmask
-     &             *(obs_modval-obs_data)
-     &             *(obs_modval-obs_data)
+     &             *(obs_modval-obs_data-offset)
+     &             *(obs_modval-obs_data-offset)
                  num_obsfit(num_file)=
      &               num_obsfit(num_file)
      &               +obs_modmask
