@@ -49,12 +49,13 @@ C    OBSFIT integer parameters
       INTEGER fidadglobal(NFILESMAX_OBS)
       INTEGER fidtangglobal(NFILESMAX_OBS)
       INTEGER obs_sample1_ind(NFILESMAX_OBS,NOBSMAX_OBS)
+      INTEGER obs_is_ssh(NFILESMAX_OBS)
 
       COMMON /OBSFIT_I/ obs_ind_glob, obs_np, obsfitOperation,
      & sample_ind_glob, ObsNo, sampleNo,
      & fidfwd_obs, fidadj_obs, fidtan_obs, fiddata_obs, 
      & fidglobal, fidadglobal, fidtangglobal,
-     & obs_sample1_ind
+     & obs_sample1_ind, obs_is_ssh
 
 C    OBSFIT character strings
       CHARACTER*(8)  obsfit_nameval
