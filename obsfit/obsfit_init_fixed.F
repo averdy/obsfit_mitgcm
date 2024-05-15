@@ -79,7 +79,8 @@ C !LOCAL VARIABLES:
       INTEGER stopGenericGrid
       Real*8 xy_buffer_r8(0:sNx+1,0:sNy+1)
       INTEGER vec_start2(2), vec_count2(2)
-      INTEGER hh, obsNo_hh, obs_np_max
+      INTEGER hh, obsNo_hh, obs_np_max, ii
+      INTEGER ntype_ssh,ntype_other
       LOGICAL exst
 
 C !FUNCTIONS:
@@ -171,6 +172,7 @@ C Initialize global variables for obsfit_read_obs.F
 
        ObsNo_hh=0
        obs_np_max=0
+       obs_is_ssh(num_file)=0
 
        obsfitFile=' '
        IL  = ILNBLNK( obsfitFiles(num_file) )
@@ -617,6 +619,9 @@ C if isample is not a dimension, use iobs for size of sampleno
           SampleNo_tile=0
           Obsno_div1000=max(0,int(SampleNo(num_file,bi,bj)/1000))
       
+          ntype_ssh=0
+          ntype_other=0
+
           DO kk=1,Obsno_div1000+1
 
            IF (min(sampleNo(num_file,bi,bj), 1000*kk).GE.
@@ -831,6 +836,13 @@ C when time averaging
                 ENDIF
 
                 sample_type(num_file,SampleNo_tile,bi,bj)=type_cur
+C Keep track of which variables in the file
+              IF (type_cur.EQ.5) THEN
+                 ntype_ssh=ntype_ssh+1
+                ELSE
+                 ntype_other=ntype_other+1
+                ENDIF
+
 C then store interpolation coeffs and indices
                 lon_fac=(lon_cur-lon_1)/(lon_2-lon_1)
                 lat_fac=(lat_cur-lat_1)/(lat_2-lat_1)
@@ -1048,6 +1060,13 @@ C Number of valid samples in the file
           CALL print_message(
      &       msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
 
+         IF (ntype_ssh.GT.0) THEN
+          IF (ntype_other.GT.0) THEN
+CAV add error message
+          ELSE
+           obs_is_ssh(num_file)=obs_is_ssh(num_file)+1
+          ENDIF
+         ENDIF
 
 C===========================================================
 C Create files for model counterparts to samples
