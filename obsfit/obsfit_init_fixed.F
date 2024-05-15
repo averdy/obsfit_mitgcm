@@ -80,7 +80,7 @@ C !LOCAL VARIABLES:
       Real*8 xy_buffer_r8(0:sNx+1,0:sNy+1)
       INTEGER vec_start2(2), vec_count2(2)
       INTEGER hh, obsNo_hh, obs_np_max, ii
-      INTEGER ntype_ssh,ntype_other
+      INTEGER ntype_ssh,ntype_other, obs_is_ssh_loc
       LOGICAL exst
 
 C !FUNCTIONS:
@@ -172,6 +172,7 @@ C Initialize global variables for obsfit_read_obs.F
 
        ObsNo_hh=0
        obs_np_max=0
+       obs_is_ssh_loc=0
        obs_is_ssh(num_file)=0
 
        obsfitFile=' '
@@ -1064,7 +1065,7 @@ C Number of valid samples in the file
           IF (ntype_other.GT.0) THEN
 CAV add error message
           ELSE
-           obs_is_ssh(num_file)=obs_is_ssh(num_file)+1
+           obs_is_ssh_loc=obs_is_ssh_loc+1
           ENDIF
          ENDIF
 
@@ -1162,6 +1163,9 @@ C===========================================================
 
          ENDDO !bj
         ENDDO !bi
+
+        CALL GLOBAL_SUM_INT(obs_is_ssh_loc, myThid)
+        obs_is_ssh(num_file)=obs_is_ssh_loc
 
 C===========================================================
        ELSE
