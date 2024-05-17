@@ -76,9 +76,9 @@ C bi,bj     :: Tile indices
       INTEGER ObsNo2,fid,dimid
       INTEGER nmodmean, nobsmean
       _RL offset, mod_mean, obs_mean
-#ifdef ALLOW_AUTODIFF_TAMC
-      INTEGER itdkey
-#endif
+c#ifdef ALLOW_AUTODIFF_TAMC
+c      INTEGER itdkey
+c#endif
 
  
 C !FUNCTIONS
@@ -89,9 +89,9 @@ C !FUNCTIONS
       optimcycle = 0
 #endif
 
-#ifdef ALLOW_AUTODIFF_TAMC
-      itdkey = bi + (bj - 1)*nSx + (ikey_dynamics - 1)*nSx*nSy
-#endif
+c#ifdef ALLOW_AUTODIFF_TAMC
+c      itdkey = bi + (bj - 1)*nSx + (ikey_dynamics - 1)*nSx*nSy
+c#endif
 
       write(msgbuf,'(a)') ' '
       CALL print_message( msgbuf,
@@ -100,8 +100,9 @@ C !FUNCTIONS
       CALL print_message( msgbuf,
      &  standardmessageunit,SQUEEZE_RIGHT, myThid)
 
-CADJ STORE obs_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
-CADJ STORE obsfit_globaldummy  = comlev1_bibj, key=itdkey, kind=isbyte
+CAV - need something for recomputations, but this crashed the adjoint run
+cCADJ STORE obs_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
+cCADJ STORE obsfit_globaldummy  = comlev1_bibj, key=itdkey, kind=isbyte
 
         _BEGIN_MASTER( myThid )
 
