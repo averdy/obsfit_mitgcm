@@ -94,9 +94,9 @@ C !LOCAL VARIABLES:
              sample_w(k)= sample_interp_w(num_file,sample_num,k,bi,bj)
             ENDDO
 
-CADJ STORE sample_modval  = comlev1_bibj, key=itdkey, kind=isbyte
-CADJ STORE saved_modval  = comlev1_bibj, key=itdkey, kind=isbyte
-CADJ STORE sample_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
+cCADJ STORE sample_modval  = comlev1_bibj, key=itdkey, kind=isbyte
+cCADJ STORE saved_modval  = comlev1_bibj, key=itdkey, kind=isbyte
+cCADJ STORE sample_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
 
             sample_modval=0
             saved_modval=0

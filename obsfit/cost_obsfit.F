@@ -11,7 +11,7 @@ C !ROUTINE: COST_OBSFIT
 
 C !INTERFACE: 
       SUBROUTINE COST_OBSFIT(
-     I                     myTime, myIter, myThid )
+     I                     myIter, myTime, myThid )
 
 C !DESCRIPTION:
 C Computes the cost function for obsfit data
@@ -76,9 +76,6 @@ C bi,bj     :: Tile indices
       INTEGER ObsNo2,fid,dimid
       INTEGER nmodmean, nobsmean
       _RL offset, mod_mean, obs_mean
-c#ifdef ALLOW_AUTODIFF_TAMC
-c      INTEGER itdkey
-c#endif
 
  
 C !FUNCTIONS
@@ -89,20 +86,12 @@ C !FUNCTIONS
       optimcycle = 0
 #endif
 
-c#ifdef ALLOW_AUTODIFF_TAMC
-c      itdkey = bi + (bj - 1)*nSx + (ikey_dynamics - 1)*nSx*nSy
-c#endif
-
       write(msgbuf,'(a)') ' '
       CALL print_message( msgbuf,
      &  standardmessageunit,SQUEEZE_RIGHT, myThid)
       write(msgbuf,'(a)') '== cost_obsfit: begin =='
       CALL print_message( msgbuf,
      &  standardmessageunit,SQUEEZE_RIGHT, myThid)
-
-CAV - need something for recomputations, but this crashed the adjoint run
-cCADJ STORE obs_modmask  = comlev1_bibj, key=itdkey, kind=isbyte
-cCADJ STORE obsfit_globaldummy  = comlev1_bibj, key=itdkey, kind=isbyte
 
         _BEGIN_MASTER( myThid )
 
@@ -277,6 +266,7 @@ C Read observation and uncertainty
              mod_mean=mod_mean+obs_modval
              nmodmean=nmodmean+1
             ENDIF
+
            ENDIF !if (obs_num.LE.ObsNo(num_file)) then
           ENDDO !do obs_num...
           mod_mean=mod_mean/nmodmean
@@ -290,6 +280,13 @@ C Read data to calculate the cost
 C Loop over obs
          DO obs_num=1,NOBSMAX_OBS
           IF (obs_num.LE.ObsNo(num_file)) THEN
+
+#ifdef ALLOW_AUTODIFF_TAMC
+CADJ STORE obs_modmask         = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
+CADJ STORE obsfit_globaldummy  = comlev1, key = ikey_dynamics,
+CADJ &     kind = isbyte
+#endif
 
            obs_modval=0.
            obs_data=0.
@@ -330,7 +327,7 @@ C Read model equivalent from global file
           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
          ENDDO !do obs_num...
 
-         ENDIF !if myprocid = 0
+        ENDIF !if myprocid = 0
 
       ENDDO !do num_file=1,NFILESMAX_OBS
   
