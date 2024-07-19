@@ -669,6 +669,7 @@ C Loop through this chunk
             DO m=1,min(1000,SampleNo(num_file,bi,bj)-1000*(kk-1))
              IF ( stopObsfit .EQ. 0) THEN
       
+              obsIsInRunTime=1
               sampleIsInTile=1
       
               IF (tmp_sample_time(m+1000*(kk-1)).LT.0. _d 0) THEN
@@ -677,9 +678,6 @@ C Loop through this chunk
 
               IF (tmp_sample_time(m+1000*(kk-1)).GT.
      &                        modelend-modelstart) THEN
-               sampleIsInTile=0
-              ENDIF
-              IF (tmp_sample_time(m+1000*(kk-1)).LT.0) THEN
                sampleIsInTile=0
               ENDIF
 
@@ -949,8 +947,10 @@ c meridional velocity
 
                ENDIF
 
+
 C Determine whether sample is in current tile domain (generic grid case)
-               ELSEIF (sampleIsInTile.EQ.1) THEN
+               ELSEIF (obsIsInRunTime.EQ.1) THEN
+c               ELSEIF (sampleIsInTile.EQ.1) THEN
 
                 IF (stopGenericGrid.EQ.0) THEN
 
@@ -958,11 +958,56 @@ C Determine whether sample is in current tile domain (generic grid case)
      & .AND.( abs( tmp_yC11(m) - yC(1,1,bi,bj) ).LT.0.0001 _d 0) 
      & .AND.( abs( tmp_xCNINJ(m) - xC(sNx,sNy,bi,bj) ).LT.0.0001 _d 0 ) 
      & .AND.( abs( tmp_yCNINJ(m) - yC(sNx,sNy,bi,bj) ).LT.0.0001 _d 0 )
-     & .AND.(sampleIsInTile.EQ.1)) THEN
+     & .AND.(obsIsInRunTime.EQ.1)) THEN
+c     & .AND.(sampleIsInTile.EQ.1)) THEN
 
 C if yes then store sample_time and interpolation coeffs and indices:
+c determine value of k down of data point
+                sample_k1 = -10
+                sample_k2 = -10
+                depth_1 = -10
+                depth_2 = -10
+c case 1: above first depth level
+                IF (-rC(1).GT.depth_cur) THEN
+                 sample_k1=1
+                 sample_k2=1
+                 depth_fac=1. _d 0
+                ENDIF
+c case 2: below last depth level
+                IF (-rC(Nr).LE.depth_cur) THEN
+                 sample_k1=Nr
+                 sample_k2=Nr
+                 depth_fac=1. _d 0
+                ENDIF
+c case 3: between two depth levels
+                DO k=1,Nr-1
+                IF ((-rC(k).LE.depth_cur).AND.
+     &             (-rC(k+1).GT.depth_cur)) THEN
+                 sample_k1=k
+                 sample_k2=k+1
+                 depth_1=-rC(k)
+                 depth_2=-rC(k+1)
+                 depth_fac=(depth_cur-depth_1)/(depth_2-depth_1)
+                ENDIF
+                ENDDO
+c if yes then store sample_time and interpolation coeffs and indices:
        SampleNo_tile=SampleNo_tile+1
-       sample_timeS(num_file,SampleNo_tile,bi,bj)=diffsecs
+       sample_type(num_file,SampleNo_tile,bi,bj)=type_cur
+c       sample_timeS(num_file,SampleNo_tile,bi,bj)=diffsecs
+
+       sample_timeS(num_file,SampleNo_tile,bi,bj)=
+     &           tmp_sample_time(m+1000*(kk-1))
+cav "-1" to avoid counting in an extra time step 
+cav when time averaging
+       IF (obsfitOperation(num_file).eq.0) THEN
+          sample_timeE(num_file,SampleNo_tile,bi,bj)=
+     &     sample_timeS(num_file,SampleNo_tile,bi,bj)
+     &     +tmp_sample_delT(m+1000*(kk-1))
+       ELSE
+          sample_timeE(num_file,SampleNo_tile,bi,bj)=
+     &     sample_timeS(num_file,SampleNo_tile,bi,bj)
+     &     +tmp_sample_delT(m+1000*(kk-1))-1
+       ENDIF
        sample_interp_xC11(num_file,SampleNo_tile,bi,bj)=tmp_xC11(m)
        sample_interp_yC11(num_file,SampleNo_tile,bi,bj)=tmp_yC11(m)
        sample_interp_xCNINJ(num_file,SampleNo_tile,bi,bj)=tmp_xCNINJ(m)
@@ -976,6 +1021,7 @@ C if yes then store sample_time and interpolation coeffs and indices:
              sample_interp_j(num_file,SampleNo_tile,q,bi,bj)
      &       =tmp_j(m,q)
              tmp_sum_weights=tmp_sum_weights+tmp_weights(m,q)
+
 C more test of the inputs: is the offline-computed
 C interpolation information consistent (self and with grid)
               IF ( (tmp_i(m,q).LT.0).OR.(tmp_j(m,q).LT.0)
@@ -1093,7 +1139,7 @@ C===========================================================
              CALL obsfit_init_equifiles(num_file,
      &        fiddata_obs(num_file),fnameequinc,
      &        fidfwd_obs(num_file,bi,bj),SampleNo(num_file,bi,bj),
-     &        myThid)
+     &        bi,bj,myThid)
      
             ELSE
       
@@ -1106,7 +1152,7 @@ C===========================================================
              CALL obsfit_init_equifiles(num_file,fiddata_obs(num_file),
      &        adfnameequinc, fidadj_obs(num_file,bi,bj),
      &        SampleNo(num_file,bi,bj),
-     &        myThid)
+     &        bi,bj,myThid)
             ELSE
              err = NF_OPEN(adfnameequinc,NF_WRITE,
      &        fidadj_obs(num_file,bi,bj))
@@ -1131,7 +1177,7 @@ C===========================================================
              CALL obsfit_init_equifiles(num_file,fiddata_obs(num_file),
      &        fnameequinc,fidfwd_obs(num_file,bi,bj),
      &        SampleNo(num_file,bi,bj),
-     &        myThid)
+     &        bi,bj,myThid)
             ELSE
              open( fidfwd_obs(num_file,bi,bj),file=fnameequinc,
      &        form ='unformatted',status='unknown', access='direct',
@@ -1149,7 +1195,7 @@ C===========================================================
              CALL obsfit_init_equifiles(num_file,fiddata_obs(num_file),
      &         adfnameequinc, fidadj_obs(num_file,bi,bj),
      &         SampleNo(num_file,bi,bj),
-     &         myThid)
+     &         bi,bj,myThid)
             ELSE
              open( fidadj_obs(num_file,bi,bj),file=adfnameequinc,
      &         form ='unformatted',status='unknown', access='direct',
