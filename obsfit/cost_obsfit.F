@@ -60,8 +60,9 @@ C bi,bj     :: Tile indices
 #endif
       CHARACTER*(MAX_LEN_MBUF) msgbuf
       CHARACTER*(MAX_LEN_FNAM) obsfitfile, fnameequinc
-      INTEGER IL, JL, err
-      INTEGER irec, ii, varid1
+      CHARACTER*(MAX_LEN_FNAM) fnamemisfit
+      INTEGER IL, JL, err, err2
+      INTEGER irec, ii, varid1, varid2
       INTEGER samples_cnt, obs_num, num_valid_samples
       _RL sample_mask_sum
       LOGICAL exst
@@ -73,9 +74,9 @@ C bi,bj     :: Tile indices
       _RL  samples_mask_glob(NSAMPLESMAX)
       _RL  tmpgs
       INTEGER tmpgsi
-      INTEGER ObsNo2,fid,dimid
+      INTEGER ObsNo2, fid, dimid
       INTEGER nmodmean, nobsmean
-      _RL offset, mod_mean, obs_mean
+      _RL offset, mod_mean, obs_mean, misfit
 
  
 C !FUNCTIONS
@@ -233,7 +234,7 @@ c Write to global netcdf file
      &      obsfitDir(1:JL),obsfitfile(1:IL),'.equi.nc'
          err = NF_OPEN(fnameequinc,NF_NOWRITE,fidglobal(num_file))
 
-         IF (obs_is_ssh(num_file).EQ.1) THEN
+         IF (obs_is_ssh(num_file).GT.0) THEN
 C Read data to calculate the mean offset between model and obs
           offset=0.
           mod_mean=0.
@@ -277,6 +278,19 @@ C Read observation and uncertainty
          ENDIF
 
 C Read data to calculate the cost
+C and write misfits to global file
+
+C Global file for misfits
+         IL  = ILNBLNK( obsfitfiles(num_file) )
+         write(obsfitfile,'(1a)')
+     &      obsfitfiles(num_file)(1:IL)
+         IL  = ILNBLNK( obsfitfile )
+         JL  = ILNBLNK( obsfitDir )
+         write(fnamemisfit,'(3a)')
+     &      obsfitDir(1:JL),obsfitfile(1:IL),'.misfit.nc'
+         err2 = NF_OPEN(fnamemisfit,NF_WRITE,fidmisfit(num_file))
+         err2 = NF_INQ_VARID(fidmisfit(num_file),'misfit',varid2)
+
 C Loop over obs
          DO obs_num=1,NOBSMAX_OBS
           IF (obs_num.LE.ObsNo(num_file)) THEN
@@ -322,10 +336,17 @@ C Read model equivalent from global file
                  num_obsfit(num_file)=
      &               num_obsfit(num_file)
      &               +obs_modmask
+
+C Write misfit to global netcdf file
+                 misfit=obs_modval-obs_data-offset
+                 err2 = NF_PUT_VARA_DOUBLE(fidmisfit(num_file),varid2,
+     &             obs_ind_glob(num_file,obs_num),1,misfit)
            ENDIF
 
           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
          ENDDO !do obs_num...
+
+         err2=NF_CLOSE(fidmisfit(num_file))
 
         ENDIF !if myprocid = 0
 
