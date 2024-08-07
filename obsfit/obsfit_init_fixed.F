@@ -67,6 +67,7 @@ C !LOCAL VARIABLES:
       CHARACTER*(MAX_LEN_FNAM) obsfitfile, fnamedatanc
       CHARACTER*(MAX_LEN_FNAM) fnameequinc, adfnameequinc
       CHARACTER*(MAX_LEN_FNAM) fnameequincglo, adfnameequincglo
+      CHARACTER*(MAX_LEN_FNAM) fnamemisfit
       INTEGER IL, JL, KL, err, err_s
       INTEGER varid(2)
       INTEGER varid_intp1, varid_intp2, varid_intp11, varid_intp22
@@ -346,6 +347,21 @@ C Create new netcdf global file for obs-equivalent
          ELSE
           err = NF_OPEN(fnameequincglo, NF_WRITE, fidglobal(num_file))
          ENDIF
+
+C Global file for misfits
+         WRITE(fnamemisfit,'(3a)')
+     &     obsfitDir(1:JL),obsfitfile(1:IL),'.misfit.nc'
+
+         err = NF_CREATE(fnamemisfit,NF_CLOBBER,fidmisfit(num_file))
+         err = NF_DEF_DIM(fidmisfit(num_file),'iOBS',ObsNo(num_file),
+     &           dimid)
+         err = NF_DEF_VAR(fidmisfit(num_file),'misfit',
+     &     NF_DOUBLE,1,dimid,varid(1))
+         err = NF_PUT_ATT_DOUBLE(fidmisfit(num_file),varid(1),
+     &     '_FillValue',NF_DOUBLE,1,-9999. _d 0)
+
+         err = NF_ENDDEF(fidmisfit(num_file))
+         err = NF_CLOSE(fidmisfit(num_file))
 
 #ifdef ALLOW_ADJOINT_RUN
          inquire( file=adfnameequincglo, exist=exst )
