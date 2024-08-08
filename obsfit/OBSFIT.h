@@ -55,7 +55,7 @@ C    OBSFIT integer parameters
       COMMON /OBSFIT_I/ obs_ind_glob, obs_np, obsfitOperation,
      & sample_ind_glob, ObsNo, sampleNo,
      & fidfwd_obs, fidadj_obs, fidtan_obs, fiddata_obs, 
-     & fidglobal, fidadglobal, fidtangglobal,
+     & fidglobal, fidadglobal, fidtangglobal, fidmisfit,
      & obs_sample1_ind, obs_is_ssh
 
 C    OBSFIT character strings
