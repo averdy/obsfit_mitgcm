@@ -48,6 +48,7 @@ C    OBSFIT integer parameters
       INTEGER fidglobal(NFILESMAX_OBS)
       INTEGER fidadglobal(NFILESMAX_OBS)
       INTEGER fidtangglobal(NFILESMAX_OBS)
+      INTEGER fidmisfit(NFILESMAX_OBS)
       INTEGER obs_sample1_ind(NFILESMAX_OBS,NOBSMAX_OBS)
       INTEGER obs_is_ssh(NFILESMAX_OBS)
 
