@@ -14,9 +14,9 @@ Input files must contain the following fields:
 
 obs_val (observed value) <br />
 obs_uncert (uncertainty on the observed value) <br />
-obs_YYYYMMDD (observation start time (year+month+day)) <br />
-obs_HHMMSS (observation start time (hour+min+sec)) <br />
-sample_type (variable type [<b>1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH</b>]) <br />
+obs_YYYYMMDD (observation start time [year,month,day]) <br />
+obs_HHMMSS (observation start time [hour,min,sec]) <br />
+sample_type (variable type: <b>1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH</b>) <br />
 sample_x (longitude) <br />
 sample_y (latitude) <br />
 sample_z (depth) <br />
@@ -31,7 +31,7 @@ See make_obsfit_example.m for a matlab example <br />
 
 In the simplest case, the number of samples per observation is 1; then obs_np = 1 (by default), sample_weight = 1 (by default), and sample_{type/x/y/z} give the variable type/longitude/latitude/depth of the observation. If there are {N} observations, each field listed above is a vector of size {1xN}.<br />
 
-If desired, ObsFit allows for observations to be made of multiple samples that differ in type and/or location. In that case, one must specify the number of samples that make the observation, as well as their relative weight. If there are {N} observations, obs* fields are vectors of size {1xN}, and sample* fields are vectors of size sum_i(np(i)) <br />
+If desired, ObsFit allows for observations to be made of multiple samples that differ in type and/or location. In that case, one must specify the number of samples that make the observation, as well as their relative weight. If there are {N} observations, obs* fields are vectors of size {1xN}, and sample* fields are vectors of size $`\sum_N`$(obs_np). <br />
 
 # How to use: 2) compile code
 
@@ -73,6 +73,7 @@ cd ../build_ad_obsfit
 - Input files are netcdf; they contain the observation(s) start time and duration, observed value(s) and associated uncertainty. If observations are made of more than 1 sample, the number of samples must be provided (otherwise it is assumed to be 1). Each sample is assigned a property type (T, S, SSH, etc) as well as location (longitude, latitude, depth). An optional weight gives the relative importance of each sample in calculating the observed value.
 - The contents of the input file are all vectors: obs_val, obs_uncert, obs_YYYYMMDD, obs_HHMMSS, obs_delt, obs_np have $`N`$ elements; sample_type, sample_x, sample_y, sample_z, sample_weight have $`\sum_N`$(obs_np) elements. 
 - Sample types are assigned as integers: <b>1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH</b>
+- obs_YYYYMMDD and obs_HHMMSS are integers, e.g. 20240501 for 2024 May 1 and 143000 for 2:30 pm. 
 - Observations with a positive duration are averaged in time, whereas a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. 
 - If no sample weights are provided, it is assumed that all samples are weighed equally.  
 - During the model run, model values at sampled locations are saved in tiled files.
