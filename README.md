@@ -25,7 +25,7 @@ The following fields are optional: <br />
 
 obs_delt (the observation duration (default=0)) <br />
 obs_np (the number of samples in the observation (default=1)) <br />
-sample_weight (weighing factor) <br />
+sample_weight (weighing factor (default=1)) <br />
 
 See make_obsfit_example.m for a matlab example <br />
 
