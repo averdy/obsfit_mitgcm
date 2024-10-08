@@ -13,14 +13,14 @@ C     !INTERFACE:
       SUBROUTINE G_ACTIVE_READ_OBS_TILE(
      I                                 active_num_file,
      O                                 active_var,
+     I                                 g_active_var,
      I                                 irec,
      I                                 lAdInit,
      I                                 myOptimIter,
      I                                 bi,
      I                                 bj,
      I                                 myThid,
-     I                                 dummy,
-     I                                 g_active_var )
+     I                                 dummy)
 
 C     !DESCRIPTION: 
 C     ==================================================================
@@ -83,13 +83,13 @@ C     !INTERFACE:
       SUBROUTINE G_ACTIVE_WRITE_OBS_TILE(
      I                           active_num_file,
      I                           active_var,
+     I                           g_active_var,
      I                           irec,
      I                           myOptimIter,
      I                           bi,
      I                           bj,
      I                           myThid,
      I                           dummy,
-     I                           g_active_var,
      I                           g_dummy )
 
 C     !DESCRIPTION: 
