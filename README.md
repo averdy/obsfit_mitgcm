@@ -6,11 +6,34 @@ obsfit package for MITgcm [<i>in development! Please reach out if bugs are found
 An alternative to the "profiles" package for model-observations comparisons. Given an observational dataset, obsfit samples the model during the run at the time and location of observations, calculates the cost (sum of weighted misfits), and produces a model-equivalent output file that is directly comparable to the input file. Observations do not need to be on a regular grid or a fixed set of depths. Observations can be made of multiple samples that are averaged or integrated spatially and/or temporally.
 
 
-# How to use:
+# How to use - A) make "obsfit" input files
+
+Observations input files will be specified in data.obsfit. For an example see xxx. 
+
+Input files must contain the following fields:
+
+obs_val (observed value) <br />
+obs_uncert (uncertainty on the observed value) <br />
+obs_YYYYMMDD (observation start time (year+month+day)) <br />
+obs_HHMMSS (observation start time (hour+min+sec)) <br />
+sample_type (variable type) <br />
+sample_x (longitude) <br />
+sample_y (latitude) <br />
+sample_z (depth) <br />
+
+The following fields are optional: <br />
+
+obs_delt (the observation duration (default=0)) <br />
+obs_np (the number of samples in the observation (default=1)) <br />
+sample_weight (weighing factor) <br />
+
+See make_obsfit_example.m for a matlab example <br />
+
+
+# How to use - B) compile code
 
 1) Copy the folder "<b>obsfit</b>" into MITgcm/pkg
 2) Copy the contents of "<b>code_folder</b>" into your local "code" or "code_ad" folder
-3) Make netcdf input files; see make_obsfit_example.m for a matlab example
 
  <br />
 <i>Note that obsfit requires the cost package to be compiled (in packages.conf)</i>
@@ -42,7 +65,6 @@ mv pleiades_build_options ../../
 cd ../build_ad_obsfit 
 ./makescript_pleiades_adj
 ```
-
 
 # Notes:
 - Input files are netcdf; they contain the observation(s) start time and duration, observed value(s) and associated uncertainty. If observations are made of more than 1 sample, the number of samples must be provided (otherwise it is assumed to be 1). Each sample is assigned a property type (T, S, SSH, etc) as well as location (longitude, latitude, depth). An optional weight gives the relative importance of each sample in calculating the observed value.
