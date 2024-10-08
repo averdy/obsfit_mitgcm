@@ -16,7 +16,7 @@ obs_val (observed value) <br />
 obs_uncert (uncertainty on the observed value) <br />
 obs_YYYYMMDD (observation start time (year+month+day)) <br />
 obs_HHMMSS (observation start time (hour+min+sec)) <br />
-sample_type (variable type) <br />
+sample_type (variable type [<b>1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH</b>]) <br />
 sample_x (longitude) <br />
 sample_y (latitude) <br />
 sample_z (depth) <br />
@@ -29,6 +29,9 @@ sample_weight (weighing factor (default=1)) <br />
 
 See make_obsfit_example.m for a matlab example <br />
 
+In the simplest case, the number of samples per observation is 1; then obs_np = 1 (by default), sample_weight = 1 (by defults), and sample_{type/x/y/z} give the variable type/longitude/latitude/depth of the observation. <br />
+
+If desired, ObsFit allows for observations to be made of multiple samples that differ in type or location. In that case, one must specify the number of samples that make the observation, as well as their relative weight.  <br />
 
 # How to use - B) compile code
 
