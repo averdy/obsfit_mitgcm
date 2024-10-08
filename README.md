@@ -8,7 +8,7 @@ An alternative to the "profiles" package for model-observations comparisons. Giv
 
 # How to use - A) make "obsfit" input files
 
-Observations input files will be specified in data.obsfit. For an example see xxx. 
+Observations input files will be specified in data.obsfit. For an example see global_oce_biogeo_bling/input_obsfit/data.obsfit 
 
 Input files must contain the following fields:
 
