@@ -6,7 +6,7 @@ obsfit package for MITgcm [<i>in development! Please reach out if bugs are found
 An alternative to the "profiles" package for model-observations comparisons. Given an observational dataset, obsfit samples the model during the run at the time and location of observations, calculates the cost (sum of weighted misfits), and produces a model-equivalent output file that is directly comparable to the input file. Observations do not need to be on a regular grid or a fixed set of depths. Observations can be made of multiple samples that are averaged or integrated spatially and/or temporally.
 
 
-# How to use - A) make "obsfit" input files
+# How to use: 1) make "obsfit" input files
 
 Observations input files will be specified in data.obsfit (e.g. global_oce_biogeo_bling/input_obsfit/data.obsfit)
 
@@ -33,7 +33,7 @@ In the simplest case, the number of samples per observation is 1; then obs_np = 
 
 If desired, ObsFit allows for observations to be made of multiple samples that differ in type and/or location. In that case, one must specify the number of samples that make the observation, as well as their relative weight. If there are {N} observations, obs* fields are vectors of size {1xN}, and sample* fields are vectors of size sum_i(np(i)) <br />
 
-# How to use - B) compile code
+# How to use: 2) compile code
 
 1) Copy the folder "<b>obsfit</b>" into MITgcm/pkg
 2) Copy the contents of "<b>code_folder</b>" into your local "code" or "code_ad" folder
