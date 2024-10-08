@@ -65,8 +65,10 @@ C !LOCAL VARIABLES:
       INTEGER sample_cnt, sample_valid_cnt, ns
       INTEGER vec_start3, vec_count3
       CHARACTER*(MAX_LEN_FNAM) obsfitfile, fnamedatanc
-      CHARACTER*(MAX_LEN_FNAM) fnameequinc, adfnameequinc
-      CHARACTER*(MAX_LEN_FNAM) fnameequincglo, adfnameequincglo
+      CHARACTER*(MAX_LEN_FNAM) fnameequinc
+      CHARACTER*(MAX_LEN_FNAM) adfnameequinc, tanfnameequinc
+      CHARACTER*(MAX_LEN_FNAM) fnameequincglo
+      CHARACTER*(MAX_LEN_FNAM) adfnameequincglo, tanfnameequincglo
       CHARACTER*(MAX_LEN_FNAM) fnamemisfit
       INTEGER IL, JL, KL, err, err_s
       INTEGER varid(2)
@@ -316,6 +318,9 @@ C Create new netcdf global file for obs-equivalent
          WRITE(adfnameequincglo,'(4a)')
      &    obsfitDir(1:JL),'ad',
      &    obsfitFile(1:IL),'.equi.nc'
+         WRITE(tanfnameequincglo,'(4a)')
+     &    obsfitDir(1:JL),'tl',
+     &    obsfitFile(1:IL),'.equi.nc'
 
          inquire( file=fnameequincglo, exist=exst )
          IF (.NOT.exst) THEN
@@ -396,6 +401,41 @@ C Global file for misfits
          ELSE
           err = NF_OPEN(adfnameequincglo, NF_WRITE, 
      &         fidadglobal(num_file))
+         ENDIF
+#endif
+#ifdef ALLOW_TANGENTLINEAR_RUN
+         inquire( file=tanfnameequincglo, exist=exst )
+         IF (.NOT.exst) THEN
+
+          err = NF_CREATE(tanfnameequincglo,NF_CLOBBER,
+     &           fidtanglobal(num_file))
+          err = NF_DEF_DIM(fidtanglobal(num_file),'iOBS',
+     &           ObsNo(num_file),dimid)
+
+          err = NF_DEF_VAR(fidtanglobal(num_file),
+     &         'mod_val',NF_DOUBLE,
+     &         1,dimid,varid(1))
+
+          err = NF_PUT_ATT_DOUBLE(fidtanglobal(num_file),
+     &         varid(1),'_FillValue',
+     &         NF_DOUBLE,1, 0. _d 0 )
+
+          err = NF_DEF_VAR(fidglobal(num_file),
+     &         'mod_mask',NF_DOUBLE,
+     &         1,dimid,varid(2))
+
+          err = NF_PUT_ATT_DOUBLE(fidglobal(num_file),
+     &         varid(2),'_FillValue',
+     &         NF_DOUBLE,1, 0. _d 0 )
+
+          err = NF_ENDDEF(fidtanglobal(num_file))
+          err = NF_CLOSE(fidtanglobal(num_file))
+          err = NF_OPEN(tanfnameequincglo, NF_WRITE, 
+     &         fidtanglobal(num_file))
+
+         ELSE
+          err = NF_OPEN(tanfnameequincglo, NF_WRITE, 
+     &         fidtanglobal(num_file))
          ENDIF
 #endif
         ENDIF
@@ -1148,6 +1188,9 @@ C===========================================================
             WRITE(adfnameequinc,'(4a,i3.3,a,i3.3,a)')
      &       obsfitDir(1:JL),'ad',
      &       obsfitFile(1:IL),'.',iG,'.',jG,'.equi.nc'
+            WRITE(tanfnameequinc,'(4a,i3.3,a,i3.3,a)')
+     &       obsfitDir(1:JL),'tl',
+     &       obsfitFile(1:IL),'.',iG,'.',jG,'.equi.nc'
 
             inquire( file=fnameequinc, exist=exst )
             IF (.NOT.exst) THEN
@@ -1174,6 +1217,18 @@ C===========================================================
      &        fidadj_obs(num_file,bi,bj))
             ENDIF
 #endif
+#ifdef ALLOW_TANGENTLINEAR_RUN
+            inquire( file=tanfnameequinc, exist=exst )
+            IF (.NOT.exst) THEN
+             CALL obsfit_init_equifiles(num_file,fiddata_obs(num_file),
+     &        tanfnameequinc, fidtan_obs(num_file,bi,bj),
+     &        SampleNo(num_file,bi,bj),
+     &        bi,bj,myThid)
+            ELSE
+             err = NF_OPEN(tanfnameequinc,NF_WRITE,
+     &        fidtan_obs(num_file,bi,bj))
+            ENDIF
+#endif
            ELSE
 
             WRITE(fnameequinc,'(3a,i3.3,a,i3.3,a)')
@@ -1181,6 +1236,9 @@ C===========================================================
      &        '.equi.data'
             WRITE(adfnameequinc,'(4a,i3.3,a,i3.3,a)')
      &         obsfitDir(1:JL),'ad',
+     &         obsfitFile(1:IL),'.',iG,'.',jG,'.equi.data'
+            WRITE(tanfnameequinc,'(4a,i3.3,a,i3.3,a)')
+     &         obsfitDir(1:JL),'tl',
      &         obsfitFile(1:IL),'.',iG,'.',jG,'.equi.data'
 
             inquire( file=fnameequinc, exist=exst )
@@ -1214,6 +1272,25 @@ C===========================================================
      &         bi,bj,myThid)
             ELSE
              open( fidadj_obs(num_file,bi,bj),file=adfnameequinc,
+     &         form ='unformatted',status='unknown', access='direct',
+     &         recl=  2*WORDLENGTH*2 )
+            ENDIF
+#endif
+#ifdef ALLOW_TANGENTLINEAR_RUN
+            inquire( file=tanfnameequinc, exist=exst )
+#ifdef OBSFIT_USE_MDSFINDUNITS
+            CALL MDSFINDUNIT( fidtan_obs(num_file,bi,bj), myThid )
+#else
+            CALL OBSFIT_FINDUNIT( fidtan_obs(num_file,bi,bj), myThid )
+#endif
+            IF (.NOT.exst) THEN
+
+             CALL obsfit_init_equifiles(num_file,fiddata_obs(num_file),
+     &         tanfnameequinc, fidtan_obs(num_file,bi,bj),
+     &         SampleNo(num_file,bi,bj),
+     &         bi,bj,myThid)
+            ELSE
+             open( fidtan_obs(num_file,bi,bj),file=tanfnameequinc,
      &         form ='unformatted',status='unknown', access='direct',
      &         recl=  2*WORDLENGTH*2 )
             ENDIF
