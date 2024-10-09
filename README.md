@@ -6,11 +6,9 @@ obsfit package for MITgcm [<i>in development! Please reach out if bugs are found
 An alternative to the "profiles" package for model-observations comparisons. Given an observational dataset, obsfit samples the model during the run at the time and location of observations, calculates the cost (sum of weighted misfits), and produces a model-equivalent output file that is directly comparable to the input file. Observations do not need to be on a regular grid or a fixed set of depths. Observations can be made of multiple samples that are averaged or integrated spatially and/or temporally.
 
 
-# How to use: 1) make "obsfit" input files
+# How to use: 1) observations pre-processing
 
-Observations input files will be specified in data.obsfit (e.g. global_oce_biogeo_bling/input_obsfit/data.obsfit)
-
-Input files must contain the following fields:
+ObsFit input files are in netcdf format and must include the following fields:
 
 obs_val (observed value) <br />
 obs_uncert (uncertainty on the observed value) <br />
@@ -23,7 +21,7 @@ sample_z (depth) <br />
 
 The following fields are optional: <br />
 
-obs_delt (the observation duration (default=0)) <br />
+obs_delt (the observation duration (default=0; negative for time integration)) <br />
 obs_np (the number of samples in the observation (default=1)) <br />
 sample_weight (weighing factor (default=1)) <br />
 
@@ -31,9 +29,12 @@ See make_obsfit_example.m for a matlab example <br />
 
 In the simplest case, the number of samples per observation is 1; then obs_np = 1 (by default), sample_weight = 1 (by default), and sample_{type/x/y/z} give the variable type/longitude/latitude/depth of the observation. If there are {N} observations, each field listed above is a vector of size {1xN}.<br />
 
-If desired, ObsFit allows for observations to be made of multiple samples that differ in type and/or location. In that case, one must specify the number of samples that make the observation, as well as their relative weight. If there are {N} observations, obs* fields are vectors of size {1xN}, and sample* fields are vectors of size $`\sum_N`$(obs_np). <br />
+If desired, ObsFit allows for observations to be made of multiple samples that differ in type and/or location. In that case, one must specify the number of samples that make the observation, as well as their relative weight. If there are {N} observations, obs* fields are vectors of size {1xN}, and sample* fields are vectors of size $`\sum_N`$(obs_np). If no sample weights are provided, it is assumed that all samples are weighed equally. <br />
 
-# How to use: 2) compile code
+Observations with a positive duration are averaged in time, whereas a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. 
+ 
+
+# How to use: 2) compiling the code
 
 1) Copy the folder "<b>obsfit</b>" into MITgcm/pkg
 2) Copy the contents of "<b>code_folder</b>" into your local "code" or "code_ad" folder
@@ -69,19 +70,12 @@ cd ../build_ad_obsfit
 ./makescript_pleiades_adj
 ```
 
-# Notes:
-- Input files are netcdf; they contain the observation(s) start time and duration, observed value(s) and associated uncertainty. If observations are made of more than 1 sample, the number of samples must be provided (otherwise it is assumed to be 1). Each sample is assigned a property type (T, S, SSH, etc) as well as location (longitude, latitude, depth). An optional weight gives the relative importance of each sample in calculating the observed value.
-- The contents of the input file are all vectors: obs_val, obs_uncert, obs_YYYYMMDD, obs_HHMMSS, obs_delt, obs_np have $`N`$ elements; sample_type, sample_x, sample_y, sample_z, sample_weight have $`\sum_N`$(obs_np) elements. 
-- Sample types are assigned as integers: <b>1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH</b>
-- obs_YYYYMMDD and obs_HHMMSS are integers, e.g. 20240501 for 2024 May 1 and 143000 for 2:30 pm. 
-- Observations with a positive duration are averaged in time, whereas a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. 
-- If no sample weights are provided, it is assumed that all samples are weighed equally.  
-- During the model run, model values at sampled locations are saved in tiled files.
-- After the run, sampled values are read and averaged to calculate the model-equivalent for each observation. The results are written in a global netcdf file (which is in the same format as the input file). The global file is then read during cost calculation (hopefully this will make the package compatible with multigrid).
+# How to use: 3) model run
 
-# Bugs:
-- 
+Observations input files are specified in data.obsfit (e.g. global_oce_biogeo_bling/input_obsfit/data.obsfit). Note that the file extension ".nc" should not be included. 
 
-# To do:
-- Add sound speed, SSH anomalies as possible observations <br />
-- obsfit_init_fixed.F: update sample_interp_weights using triangular interpolation
+During the model run, model values at sampled locations are saved in tiled files. After the run, sampled values are read and averaged to calculate the model-equivalent for each observation. The results are written in a global netcdf file which is read during cost calculation. This should make the package compatible with multigrid adjoint runs.
+
+Output files include two variables, mod_val and mod_mask. They are in the same format as the input files, thus obs_val and mod_val are directly comparable. The mask indicates missing model-equivalent values. 
+
+
