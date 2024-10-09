@@ -3,7 +3,7 @@ obsfit package for MITgcm [<i>in development! Please reach out if bugs are found
 
 
 # Summary:
-An alternative to the "profiles" package for model-observations comparisons. Given an observational dataset, obsfit samples the model during the run at the time and location of observations, calculates the cost (sum of weighted misfits), and produces a model-equivalent output file that is directly comparable to the input file. Observations do not need to be on a regular grid or a fixed set of depths. Observations can be made of multiple samples that are averaged or integrated spatially and/or temporally.
+An alternative to the "profiles" package for model-observations comparisons. Given an observational dataset, obsfit samples the model during the run at the time and location of observations, calculates the cost (sum of weighted misfits), and produces a model-equivalent output file that is directly comparable to the input file. Observations do not need to be on a regular grid or a fixed set of depths, making it an efficient tool for sparse datasets (e.g., altimetry or tomography data). Observations can be made of multiple samples that are averaged or integrated spatially and/or temporally.
 
 
 # How to use: 1) observations pre-processing
@@ -77,5 +77,11 @@ Observations input files are specified in data.obsfit (e.g. global_oce_biogeo_bl
 During the model run, model values at sampled locations are saved in tiled files. After the run, sampled values are read and averaged to calculate the model-equivalent for each observation. The results are written in a global netcdf file which is read during cost calculation. This should make the package compatible with multigrid adjoint runs.
 
 Output files include two variables, mod_val and mod_mask. They are in the same format as the input files, thus obs_val and mod_val are directly comparable. The mask indicates missing model-equivalent values. 
+
+
+# Notes:
+
+- ObsFit may not be the best name for this package; alternative suggestions are welcome!
+
 
 
