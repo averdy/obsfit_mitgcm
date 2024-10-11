@@ -200,7 +200,7 @@ CEOP
      &     irec, obs_ind_glob(active_num_file,irec),
      &     TANGENT_SIMULATION, myOptimIter, myThid)
 
-      CALL active_read_obs_glob_rl( fidtangglobal(active_num_file),
+      CALL active_read_obs_glob_rl( fidtanglobal(active_num_file),
      &     active_num_file,
      &     g_active_var, lAdInit,
      &     irec, obs_ind_glob(active_num_file,irec),
@@ -267,7 +267,7 @@ CEOP
      &     irec, obs_ind_glob(active_num_file,irec),
      &     TANGENT_SIMULATION, myOptimIter, myThid)
 
-      CALL active_write_obs_glob_rl( fidtangglobal(active_num_file),
+      CALL active_write_obs_glob_rl( fidtanglobal(active_num_file),
      &     active_num_file,
      &     g_active_var,
      &     irec, obs_ind_glob(active_num_file,irec),

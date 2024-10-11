@@ -258,9 +258,9 @@ C Time interval (if missing, assume instanteneous):
                 
 C Read the info for samples:
         err = NF_INQ_VARID(fid,'sample_type',varid2)
-        err = err + NF_INQ_VARID(fid,'sample_x', varid3a )
-        err = err + NF_INQ_VARID(fid,'sample_y', varid3b )
-        err = err + NF_INQ_VARID(fid,'sample_z', varid4 )
+        err = err + NF_INQ_VARID(fid,'sample_lon', varid3a )
+        err = err + NF_INQ_VARID(fid,'sample_lat', varid3b )
+        err = err + NF_INQ_VARID(fid,'sample_depth', varid4 )
         IF (err.NE.NF_NOERR) THEN
          IL  = ILNBLNK( obsfitFile )
          WRITE(msgBuf,'(3A)')
