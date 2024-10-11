@@ -52,8 +52,8 @@ samplelat_id = netcdf.defVar(ncid,'sample_lat','double',sampledim_id);
 sampledepth_id = netcdf.defVar(ncid,'sample_depth','double',sampledim_id);
 sampletype_id = netcdf.defVar(ncid,'sample_type','double',sampledim_id);
 sampleweight_id = netcdf.defVar(ncid,'sample_weight','double',sampledim_id);
-obsval_id = netcdf.defVar(ncid,'obs_val','double',[obsdim_id]); 
-obsuncert_id = netcdf.defVar(ncid,'obs_uncert','double',[obsdim_id]); 
+obsval_id = netcdf.defVar(ncid,'obs_val','double',obsdim_id); 
+obsuncert_id = netcdf.defVar(ncid,'obs_uncert','double',obsdim_id); 
 
 % leave define mode and enter data mode
 netcdf.endDef(ncid);
