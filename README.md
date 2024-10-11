@@ -45,10 +45,10 @@ Observations with a positive duration are averaged in time, whereas a negative d
 
 Follow the steps below to run an example on pleiades (or modify build options and build scripts for other machines):
 ```
-#obtain MITgcm checkpoint 68w  
+#obtain MITgcm checkpoint 69a
 git clone https://github.com/MITgcm/MITgcm.git 
 cd MITgcm 
-git checkout checkpoint68w 
+git checkout checkpoint69a
 
 #obtain obsfit package code and example 
 git clone https://github.com/averdy/obsfit_mitgcm.git 
