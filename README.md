@@ -82,7 +82,7 @@ Output files include two variables, mod_val and mod_mask. They are in the same f
 - ObsFit may not be the best name for this package; alternative suggestions are welcome!
 - cost_obsfit.F can be very slow for large datasets. This is where tiled fields are read, combined, and written to a global file. There is probably a more efficient way to do this (help appreciated!)
 - I/O routines active_file_* are adapted from pkg/profiles, which has a known problem with tangent linear runs (PR #873)
-- Compatibility with LLG grids is being implemented by Shoshi Reich (sreich@utexas.edu)
+- Compatibility with LLC grids is in development
 
 
 
