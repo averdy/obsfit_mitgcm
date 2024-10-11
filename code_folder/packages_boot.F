@@ -79,11 +79,12 @@ C     data.pkg namelists
      &          useSEAICE,
      &          useSALT_PLUME,
      &          useShelfIce,
+     &          useSTIC,
      &          useStreamIce,
      &          useICEFRONT,
      &          useThSIce,
      &          useLand,
-     &          useATM2D,
+     &          useATM2d,
      &          useAIM,
      &          useAtm_Phys,
      &          useFizhi,
@@ -144,11 +145,12 @@ c     useGAD          =.FALSE.
       useSEAICE       =.FALSE.
       useSALT_PLUME   =.FALSE.
       useShelfIce     =.FALSE.
+      useSTIC         =.FALSE.
       useStreamIce    =.FALSE.
       useICEFRONT     =.FALSE.
       useThSIce       =.FALSE.
       useLand         =.FALSE.
-      useATM2D        =.FALSE.
+      useATM2d        =.FALSE.
       useAIM          =.FALSE.
       useAtm_Phys     =.FALSE.
       useFizhi        =.FALSE.
@@ -203,7 +205,6 @@ C--   packages with hard-coded switch
      &                      SQUEEZE_RIGHT, myThid )
         usePROFILES=.FALSE.
       ENDIF
-cav(
       IF (useOBSFIT) THEN
         WRITE(msgBuf,'(2A)') '** WARNING ** pkg/obsfit uses NetCDF',
      &   ' which is unavailable (genmake2 test failed)'
@@ -219,7 +220,6 @@ cav(
      &                      SQUEEZE_RIGHT, myThid )
         useOBSFIT=.FALSE.
       ENDIF
-cav)
 #endif
 
 #ifdef ALLOW_CAL
@@ -379,6 +379,9 @@ C----- pkgs with a standard "usePKG" On/Off switch in "data.pkg":
 #ifdef ALLOW_SHELFICE
       CALL PACKAGES_PRINT_MSG( useShelfIce,   'ShelfIce',    ' ' )
 #endif
+#ifdef ALLOW_STEEP_ICECAVITY
+      CALL PACKAGES_PRINT_MSG( useSTIC,   'STEEP_ICECAVITY', ' ' )
+#endif
 #ifdef ALLOW_STREAMICE
       CALL PACKAGES_PRINT_MSG( useStreamIce,  'StreamIce',   ' ' )
 #endif
@@ -392,7 +395,7 @@ C----- pkgs with a standard "usePKG" On/Off switch in "data.pkg":
       CALL PACKAGES_PRINT_MSG( useLand,       'Land',        ' ' )
 #endif
 #ifdef ALLOW_ATM2D
-      CALL PACKAGES_PRINT_MSG( useATM2D,      'ATM2D',       ' ' )
+      CALL PACKAGES_PRINT_MSG( useATM2d,      'ATM2d',       ' ' )
 #endif
 #ifdef ALLOW_AIM_V23
       CALL PACKAGES_PRINT_MSG( useAIM,        'aim_v23', 'useAIM' )

@@ -284,9 +284,6 @@ C     == Local variables ==
 #  endif
 # endif /* ALLOW_TAMC_CHECKPOINTING */
 #endif /* ALLOW_AUTODIFF */
-cav(
-      CHARACTER*(MAX_LEN_MBUF) msgBuf
-cav)
 CEOP
 
 #ifdef ALLOW_DEBUG
@@ -572,6 +569,11 @@ CADJ &    nchklev_1*nSx*nSy*(MaxTsf+1)*niter_bulk*sNx*sNy
 #    endif
 #   endif /* ALLOW_THSICE */
 c--
+#   ifdef ALLOW_STEEP_ICECAVITY
+CADJ INIT comlev1_stic_bibj_ijk = COMMON,
+CADJ &    nchklev_1*nSx*nSy*Nr*(2*OLy+sNy)*(2*OLx+sNx)
+#   endif
+c--
 #   ifdef ALLOW_STREAMICE
 CADJ INIT comlev1_stream_nl    = COMMON,nchklev_1*streamice_max_nl
 CADJ INIT comlev1_stream_front = COMMON,nchklev_1*4
@@ -685,7 +687,6 @@ C--   Reset the model iteration counter and the model time.
       ENDIF
 #endif
 
-cav(
 #ifdef ALLOW_OBSFIT
       IF (useOBSFIT) THEN
 #ifdef ALLOW_DEBUG
@@ -702,7 +703,6 @@ C--   Reset the model iteration counter and the model time.
         CALL TIMER_STOP ('OBSFIT_INLOOP      [MAIN_DO_LOOP]', myThid)
       ENDIF
 #endif
-cav)
 
       CALL TIMER_START('MAIN_DO_LOOP        [THE_MAIN_LOOP]', myThid)
       CALL MAIN_DO_LOOP( iloop, myTime, myIter, myThid )
@@ -760,7 +760,6 @@ c--   Compute all profiles cost function contributions.
       ENDIF
 #endif
 
-cav(
 #ifdef ALLOW_OBSFIT
       IF (useOBSFIT) THEN
 c--   Accumulate in-situ time averages of temperature, salinity, SSH.
@@ -771,7 +770,6 @@ c--   Compute all obsfit cost function contributions.
         CALL COST_OBSFIT( myIter, myTime, myThid )
       ENDIF
 #endif
-cav)
 
 #ifdef ALLOW_ECCO
       IF ( useECCO ) then
