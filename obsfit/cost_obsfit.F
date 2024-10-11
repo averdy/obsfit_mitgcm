@@ -162,10 +162,10 @@ C Combine all threads here
 C Combine all processes
          DO ii=1,NSAMPLESMAX
           tmpgs = samples_buff(ii)
-          _GLOBAL_SUM_RL (tmpgs, myThid) 
+          _GLOBAL_SUM_RL(tmpgs, myThid) 
           samples_modval_glob(ii) = tmpgs
           tmpgs = samples_mask_buff(ii)
-          _GLOBAL_SUM_RL (tmpgs, myThid)
+          _GLOBAL_SUM_RL(tmpgs, myThid)
           samples_mask_glob(ii) = tmpgs
          ENDDO     
 
