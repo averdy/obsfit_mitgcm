@@ -15,9 +15,9 @@ obs_uncert (uncertainty on the observed value) <br />
 obs_YYYYMMDD (observation start time [year,month,day]) <br />
 obs_HHMMSS (observation start time [hour,min,sec]) <br />
 sample_type (variable type: <b>1 for temperature, 2 for salinity, 3 / 4 for zonal / meridional velocity, or 5 for SSH</b>) <br />
-sample_x (longitude) <br />
-sample_y (latitude) <br />
-sample_z (depth) <br />
+sample_lon (longitude) <br />
+sample_lat (latitude) <br />
+sample_depth (depth) <br />
 
 The following fields are optional: <br />
 
@@ -29,7 +29,7 @@ See make_obsfit_example.m for a matlab example <br />
 
 In the simplest case, the number of samples per observation is 1; then obs_np = 1 (by default), sample_weight = 1 (by default), and sample_{type/x/y/z} give the variable type/longitude/latitude/depth of the observation. If there are {N} observations, each field listed above is a vector of size {1xN}.<br />
 
-If desired, ObsFit allows for observations to be made of multiple samples that differ in type and/or location. In that case, one must specify the number of samples that make the observation, as well as their relative weight. If there are {N} observations, obs* fields are vectors of size {1xN}, and sample* fields are vectors of size $`\sum_N`$(obs_np). If no sample weights are provided, it is assumed that all samples are weighed equally. <br />
+If desired, ObsFit allows for observations to be the weighted average of multiple samples that can differ in type and/or location. In that case, one must specify the number of samples that make the observation, as well as their relative weight. If there are {N} observations, obs* fields are vectors of size {1xN}, and sample* fields are vectors of size $`\sum_N`$(obs_np). If no sample weights are provided, it is assumed that all samples are weighed equally. <br />
 
 Observations with a positive duration are averaged in time, whereas a negative duration is used to indicate time integration, and instantaneous observations have duration=0; if no duration is provided duration=0 is assumed. 
  
@@ -39,11 +39,8 @@ Observations with a positive duration are averaged in time, whereas a negative d
 1) Copy the folder "<b>obsfit</b>" into MITgcm/pkg
 2) Copy the contents of "<b>code_folder</b>" into your local "code" or "code_ad" folder
 
- <br />
 <i>Note that obsfit requires the cost package to be compiled (in packages.conf)</i>
  
- <br />
- <br />
  <br />
 
 Follow the steps below to run an example on pleiades (or modify build options and build scripts for other machines):
@@ -81,7 +78,10 @@ Output files include two variables, mod_val and mod_mask. They are in the same f
 
 # Notes:
 
+- Contact me with any questions or comments: averdy@ucsd.edu
 - ObsFit may not be the best name for this package; alternative suggestions are welcome!
+- cost_obsfit.F can be very slow for large datasets. This is where tiled fields are read, combined, and written to a global file. There is probably a more efficient way to do this (help appreciated!)
+- Compatibility with LLG grids is being implemented by Shoshi Reich (sreich@utexas.edu)
 
 
 
