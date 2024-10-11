@@ -30,9 +30,9 @@ sample_type = repmat(5,[1 n_obs]);
 sample_weight = repmat(1,[1 n_obs]);
 
 % Location of samples
-sample_x = linspace(220,230,n_obs);
-sample_y = 0*sample_x;
-sample_z = repmat(0,[1 n_obs]);
+sample_lon = linspace(220,230,n_obs);
+sample_lat = 0*sample_x;
+sample_depth = repmat(0,[1 n_obs]);
 
 
 % create netcdf
