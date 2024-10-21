@@ -512,29 +512,6 @@ c read number of samples per obs
            stopObsfit=1
           ENDIF
 
-c if obsfitDoGenGrid then also read in the interpolation coeffs and indices
-C          IF (obsfitDoGenGrid) THEN
-C           err = NF_GET_VARA_DOUBLE(fid,varid_intp1,vec_start,
-C     &      vec_count, tmp_xC11)
-C           err = NF_GET_VARA_DOUBLE(fid,varid_intp2,vec_start,
-C     &      vec_count, tmp_yC11)
-C           err = NF_GET_VARA_DOUBLE(fid,varid_intp11,vec_start,
-C     &      vec_count, tmp_xCNINJ)
-C           err = NF_GET_VARA_DOUBLE(fid,varid_intp22,vec_start,
-C     &      vec_count, tmp_yCNINJ)
-C           DO q=1,iINTERP
-C            vec_start2(1)=q
-C            vec_start2(2)=1+1000*(kk-1)
-C            vec_count2(1)=1
-C            vec_count2(2)=min(1000,ObsNo(num_file)-1000*(kk-1))
-C            err = NF_GET_VARA_DOUBLE(fid,varid_intp3,vec_start2,
-C     &      vec_count2, tmp_weights(1,q))
-C            err = NF_GET_VARA_DOUBLE(fid,varid_intp4,vec_start2,
-C     &      vec_count2, tmp_i(1,q))
-C            err = NF_GET_VARA_DOUBLE(fid,varid_intp5,vec_start2,
-C     &      vec_count2, tmp_j(1,q))
-C           ENDDO
-C          ENDIF
 
 c loop through this chunk
           DO m=1,min(1000,ObsNo(num_file)-1000*(kk-1))
