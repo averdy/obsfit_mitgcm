@@ -73,9 +73,11 @@ C !LOCAL VARIABLES:
       INTEGER IL, JL, KL, err, err_s
       INTEGER varid(2)
       INTEGER varid_intp1, varid_intp2, varid_intp11, varid_intp22
-      INTEGER varid_intp3, varid_intp4, varid_intp5, q, iINTERP
+      INTEGER varid_intp3, varid_intp4, varid_intp5, varid_intp6
+      INTEGER q, iINTERP
       _RL tmp_i(1000,NUM_INTERP_PTS_OBS)
       _RL tmp_j(1000,NUM_INTERP_PTS_OBS)
+      _RL tmp_k(1000,NUM_INTERP_PTS_OBS)
       _RL tmp_weights(1000,NUM_INTERP_PTS_OBS),tmp_sum_weights
       _RL tmp_xC11(1000),tmp_yC11(1000)
       _RL tmp_xCNINJ(1000),tmp_yCNINJ(1000)
@@ -305,6 +307,7 @@ C Read interpolation information (grid points, coeffs, etc.)
          err = NF_INQ_VARID(fid,'sample_interp_w',varid_intp3)
          err = NF_INQ_VARID(fid,'sample_interp_i',varid_intp4)
          err = NF_INQ_VARID(fid,'sample_interp_j',varid_intp5)
+         err = NF_INQ_VARID(fid,'sample_interp_k',varid_intp6)
          IF (err.NE.NF_NOERR) THEN
           IL  = ILNBLNK( obsfitFile )
           WRITE(msgBuf,'(3A)')
@@ -701,7 +704,8 @@ c read a chunk
              err = NF_GET_VARA_DOUBLE(fid,varid5,vec_start,
      &        vec_count, tmp_weight2)
             ENDIF
-            
+           
+c if obsfitDoGenGrid then also read in the interpolation coeffs and indices 
           IF (obsfitDoGenGrid) THEN
            err = NF_GET_VARA_DOUBLE(fid,varid_intp1,vec_start,
      &      vec_count, tmp_xC11)
@@ -722,6 +726,8 @@ c read a chunk
      &      vec_count2, tmp_i(1,q))
             err = NF_GET_VARA_DOUBLE(fid,varid_intp5,vec_start2,
      &      vec_count2, tmp_j(1,q))
+            err = NF_GET_VARA_DOUBLE(fid,varid_intp6,vec_start2,
+     &      vec_count2, tmp_k(1,q))
            ENDDO
           ENDIF
 
@@ -755,6 +761,13 @@ C Loop through this chunk
               lat_cur=tmp_lat2(m)
               depth_cur=tmp_depth2(m)
               
+C Keep track of which variables in the file
+              IF (type_cur.EQ.5) THEN
+                 ntype_ssh=ntype_ssh+1
+              ELSE
+                 ntype_other=ntype_other+1
+              ENDIF
+
 C Determine whether sample is in current tile domain (lat-lon grid case)
               IF ((.NOT.obsfitDoGenGrid).AND.
      &          (sampleIsInTile.EQ.1)) THEN
@@ -904,12 +917,6 @@ C when time averaging
                 ENDIF
 
                 sample_type(num_file,SampleNo_tile,bi,bj)=type_cur
-C Keep track of which variables in the file
-              IF (type_cur.EQ.5) THEN
-                 ntype_ssh=ntype_ssh+1
-                ELSE
-                 ntype_other=ntype_other+1
-                ENDIF
 
 C then store interpolation coeffs and indices
                 lon_fac=(lon_cur-lon_1)/(lon_2-lon_1)
@@ -1018,63 +1025,61 @@ c meridional velocity
 
 
 C Determine whether sample is in current tile domain (generic grid case)
-c               ELSEIF (obsIsInRunTime.EQ.1) THEN
                ELSEIF (sampleIsInTile.EQ.1) THEN
 
                 IF (stopGenericGrid.EQ.0) THEN
 
-c                sampleIsInTile=0
 
              IF ( ( abs( tmp_xC11(m) - xC(1,1,bi,bj) ).LT.0.0001 _d 0 )
      & .AND.( abs( tmp_yC11(m) - yC(1,1,bi,bj) ).LT.0.0001 _d 0) 
      & .AND.( abs( tmp_xCNINJ(m) - xC(sNx,sNy,bi,bj) ).LT.0.0001 _d 0 ) 
      & .AND.( abs( tmp_yCNINJ(m) - yC(sNx,sNy,bi,bj) ).LT.0.0001 _d 0 )
      & .AND.(obsIsInRunTime.EQ.1)) THEN
-c     & .AND.(sampleIsInTile.EQ.1)) THEN
 c do nothing
              ELSE
                 sampleIsInTile=0
              ENDIF
 
-C if yes then store sample_time and interpolation coeffs and indices:
-c determine value of k down of data point
-                sample_k1 = -10
-                sample_k2 = -10
-                depth_1 = -10
-                depth_2 = -10
-
-                IF (sampleIsInTile.EQ.1) THEN
-
-C Value of k, below the data point:
-c case 1: above first depth level
-                IF (-rC(1).GT.depth_cur) THEN
-                 sample_k1=1
-                 sample_k2=1
-                 depth_fac=1. _d 0
-                ENDIF
-c case 2: below last depth level
-                IF (-rC(Nr).LE.depth_cur) THEN
-                 sample_k1=Nr
-                 sample_k2=Nr
-                 depth_fac=1. _d 0
-                ENDIF
-c case 3: between two depth levels
-                DO k=1,Nr-1
-                IF ((-rC(k).LE.depth_cur).AND.
-     &             (-rC(k+1).GT.depth_cur)) THEN
-                 sample_k1=k
-                 sample_k2=k+1
-                 depth_1=-rC(k)
-                 depth_2=-rC(k+1)
-                 depth_fac=(depth_cur-depth_1)/(depth_2-depth_1)
-                ENDIF
-                ENDDO
-
-                IF ((sample_k1.EQ.-10).OR.(sample_k2.EQ.-10)) THEN
-                        sampleIsInTile=0
-                ENDIF
-
-                ENDIF
+CSR: moved to pre-processing routine
+CC if yes then store sample_time and interpolation coeffs and indices:
+Cc determine value of k down of data point
+C                sample_k1 = -10
+C                sample_k2 = -10
+C                depth_1 = -10
+C                depth_2 = -10
+C
+C                IF (sampleIsInTile.EQ.1) THEN
+C
+CC Value of k, below the data point:
+Cc case 1: above first depth level
+C                IF (-rC(1).GT.depth_cur) THEN
+C                 sample_k1=1
+C                 sample_k2=1
+C                 depth_fac=1. _d 0
+C                ENDIF
+Cc case 2: below last depth level
+C                IF (-rC(Nr).LE.depth_cur) THEN
+C                 sample_k1=Nr
+C                 sample_k2=Nr
+C                 depth_fac=1. _d 0
+C                ENDIF
+Cc case 3: between two depth levels
+C                DO k=1,Nr-1
+C                IF ((-rC(k).LE.depth_cur).AND.
+C     &             (-rC(k+1).GT.depth_cur)) THEN
+C                 sample_k1=k
+C                 sample_k2=k+1
+C                 depth_1=-rC(k)
+C                 depth_2=-rC(k+1)
+C                 depth_fac=(depth_cur-depth_1)/(depth_2-depth_1)
+C                ENDIF
+C                ENDDO
+C
+C                IF ((sample_k1.EQ.-10).OR.(sample_k2.EQ.-10)) THEN
+C                        sampleIsInTile=0
+C                ENDIF
+C
+C                ENDIF
 
 
                 IF (sampleIsInTile.EQ.1) THEN
@@ -1096,6 +1101,10 @@ cav when time averaging
      &           sample_timeS(num_file,SampleNo_tile,bi,bj)
      &            +tmp_sample_delT(m+1000*(kk-1))-1
                 ENDIF
+                IF (weighSamples.EQ.1) THEN
+                 sample_weight(num_file,SampleNo_tile,bi,bj)=
+     &            tmp_weight2(m)
+                ENDIF
                  sample_interp_xC11(num_file,SampleNo_tile,bi,bj)=
      &            tmp_xC11(m)
                  sample_interp_yC11(num_file,SampleNo_tile,bi,bj)=
@@ -1112,7 +1121,21 @@ cav when time averaging
      &       =tmp_i(m,q)
              sample_interp_j(num_file,SampleNo_tile,q,bi,bj)
      &       =tmp_j(m,q)
+             sample_interp_k(num_file,SampleNo_tile,q,bi,bj)
+     &       =tmp_k(m,q)
              tmp_sum_weights=tmp_sum_weights+tmp_weights(m,q)
+             WRITE(msgbuf,'(a,i9, i9)')
+     &         ' sample_interp_w = ',
+     &         q, sample_interp_w(num_file,SampleNo_tile,q,bi,bj) 
+             CALL print_message(
+     &         msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
+
+             WRITE(msgbuf,'(a,i9, i9)')
+     &         ' sum of weights in loop = ',
+     &         q, tmp_sum_weights 
+             CALL print_message(
+     &         msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
+
 
 C more test of the inputs: is the offline-computed
 C interpolation information consistent (self and with grid)
@@ -1152,6 +1175,12 @@ C interpolation information consistent (self and with grid)
 
              ENDDO
 
+          WRITE(msgbuf,'(a,i9)')
+     &       ' sum of weights = ',
+     &       tmp_sum_weights 
+          CALL print_message(
+     &       msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
+
              IF ( abs(tmp_sum_weights -1. _d 0 ) .GT. 0.0001 _d 0) THEN
               WRITE(msgBuf,'(4A)')
      &     'OBSFIT_INIT_FIXED: file ', obsfitFile(1:IL),
@@ -1161,7 +1190,6 @@ C interpolation information consistent (self and with grid)
               stopGenericGrid=1
              ENDIF
 
-c             SampleNo_tile=SampleNo_tile+1
              sample_ind_glob(num_file,SampleNo_tile,bi,bj)
      &        =m+1000*(kk-1)
 
