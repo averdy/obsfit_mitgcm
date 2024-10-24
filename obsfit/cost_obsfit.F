@@ -162,10 +162,10 @@ C Combine all threads here
 C Combine all processes
          DO ii=1,NSAMPLESMAX
           tmpgs = samples_buff(ii)
-          _GLOBAL_SUM_RL(tmpgs, myThid) 
+          _GLOBAL_SUM_RL (tmpgs, myThid) 
           samples_modval_glob(ii) = tmpgs
           tmpgs = samples_mask_buff(ii)
-          _GLOBAL_SUM_RL(tmpgs, myThid)
+          _GLOBAL_SUM_RL (tmpgs, myThid)
           samples_mask_glob(ii) = tmpgs
          ENDDO     
 
@@ -249,6 +249,11 @@ C Loop over obs
             obs_modval=0.
             obs_data=0.
             obs_uncert=0.
+C Read model equivalent from global file
+          CALL ACTIVE_READ_OBS_GLOB(num_file,
+     &         obs_modval,
+     &         obs_num,.FALSE.,optimcycle,myThid,
+     &         obsfit_globaldummy(num_file))
 
 C Read observation and uncertainty
             CALL obsfit_read_obs(num_file,1,
@@ -259,18 +264,24 @@ C Read observation and uncertainty
      &           obs_ind_glob(num_file,obs_num),
      &           obs_uncert,myThid)
 
-            IF (obs_data.GT.-9999) THEN
+c            IF (obs_data.GT.-9999) THEN
+c             obs_mean=obs_mean+obs_data
+c             nobsmean=nobsmean+1
+c            ENDIF
+cc??          IF (obs_modmask.GT.0) THEN
+c            IF (obs_modval.GT.-9999) THEN
+c             mod_mean=mod_mean+obs_modval
+c             nmodmean=nmodmean+1
+c            ENDIF
+            IF ((obs_data.GT.-9999).AND.(obs_modval.GT.-9999)) THEN
              obs_mean=obs_mean+obs_data
+             mod_mean=mod_mean+obs_modval
              nobsmean=nobsmean+1
             ENDIF
-            IF (obs_modval.GT.-9999) THEN
-             mod_mean=mod_mean+obs_modval
-             nmodmean=nmodmean+1
-            ENDIF
-
            ENDIF !if (obs_num.LE.ObsNo(num_file)) then
           ENDDO !do obs_num...
-          mod_mean=mod_mean/nmodmean
+c          mod_mean=mod_mean/nmodmean
+          mod_mean=mod_mean/nobsmean
           obs_mean=obs_mean/nobsmean
           offset=mod_mean-obs_mean
          ELSE

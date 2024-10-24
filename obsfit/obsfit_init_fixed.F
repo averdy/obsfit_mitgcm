@@ -719,7 +719,7 @@ c if obsfitDoGenGrid then also read in the interpolation coeffs and indices
             vec_start2(1)=q
             vec_start2(2)=1+1000*(kk-1)
             vec_count2(1)=1
-            vec_count2(2)=min(1000,ObsNo(num_file)-1000*(kk-1))
+            vec_count2(2)=min(1000,SampleNo(num_file,bi,bj)-1000*(kk-1))
             err = NF_GET_VARA_DOUBLE(fid,varid_intp3,vec_start2,
      &      vec_count2, tmp_weights(1,q))
             err = NF_GET_VARA_DOUBLE(fid,varid_intp4,vec_start2,
@@ -1124,17 +1124,6 @@ cav when time averaging
              sample_interp_k(num_file,SampleNo_tile,q,bi,bj)
      &       =tmp_k(m,q)
              tmp_sum_weights=tmp_sum_weights+tmp_weights(m,q)
-             WRITE(msgbuf,'(a,i9, i9)')
-     &         ' sample_interp_w = ',
-     &         q, sample_interp_w(num_file,SampleNo_tile,q,bi,bj) 
-             CALL print_message(
-     &         msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
-
-             WRITE(msgbuf,'(a,i9, i9)')
-     &         ' sum of weights in loop = ',
-     &         q, tmp_sum_weights 
-             CALL print_message(
-     &         msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
 
 
 C more test of the inputs: is the offline-computed
@@ -1175,11 +1164,6 @@ C interpolation information consistent (self and with grid)
 
              ENDDO
 
-          WRITE(msgbuf,'(a,i9)')
-     &       ' sum of weights = ',
-     &       tmp_sum_weights 
-          CALL print_message(
-     &       msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
 
              IF ( abs(tmp_sum_weights -1. _d 0 ) .GT. 0.0001 _d 0) THEN
               WRITE(msgBuf,'(4A)')
