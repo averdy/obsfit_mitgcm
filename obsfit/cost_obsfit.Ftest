@@ -7,19 +7,18 @@
 #endif
 
 CBOP
-C     !ROUTINE: COST_OBSFIT
+C !ROUTINE: COST_OBSFIT
 
-C     !INTERFACE:
-      SUBROUTINE COST_OBSFIT( myIter, myTime, myThid )
+C !INTERFACE:
+      SUBROUTINE COST_OBSFIT(
+     I                     myIter, myTime, myThid )
 
-C     !DESCRIPTION:
-C     ==================================================================
-C     | Computes the cost function for ObsFit data
-C     ==================================================================
+C !DESCRIPTION:
+C Computes the cost function for obsfit data
 
-C     !USES:
+C !USES:
       IMPLICIT NONE
-C     == Global variables ===
+C == Global variables ===
 #include "SIZE.h"
 #include "EEPARAMS.h"
 #include "PARAMS.h"
@@ -40,17 +39,17 @@ C     == Global variables ===
 # include "tamc.h"
 #endif
 
-C     !INPUT PARAMETERS:
-C     myTime    :: Current time in simulation
-C     myIter    :: Current time-step number
-C     myThid    :: my Thread Id number
+C !INPUT PARAMETERS:
+C myTime    :: Current time in simulation
+C myIter    :: Current time-step number
+C myThid    :: my Thread Id number
       _RL     myTime
       INTEGER myIter, myThid
 CEOP
 
 #ifdef ALLOW_OBSFIT
-C     !LOCAL VARIABLES:
-C     bi,bj     :: Tile indices
+C !LOCAL VARIABLES:
+C bi,bj     :: Tile indices
       INTEGER num_file,sample_num
       INTEGER bi,bj,iG,jG
       _RL sample_modval
@@ -73,10 +72,11 @@ C     bi,bj     :: Tile indices
       _RL samples_modval_glob(NSAMPLESMAX)
       _RL samples_mask_glob(NSAMPLESMAX)
       _RL tmpgs
-      INTEGER nobsmean
+      INTEGER nmodmean, nobsmean
       _RL offset, mod_mean, obs_mean, misfit
 
-C     !FUNCTIONS
+
+C !FUNCTIONS
       INTEGER  ILNBLNK
       EXTERNAL ILNBLNK
 
@@ -101,17 +101,17 @@ C File maintenance
 
          IF ( (sampleNo(num_file,bi,bj).GT.0).AND.
      &         (obsfitDoNcOutput) ) THEN
-C Need to close the file so that the data is not lost when run finishes
+C need to close the file so that the data is not lost when run finishes
            err = NF_CLOSE(fidfwd_obs(num_file,bi,bj))
-C Then re-open it to compute cost function
+C then re-open it to compute cost function
            iG=bi+(myXGlobalLo-1)/sNx ! Kludge until unstructered tiles
            jG=bj+(myYGlobalLo-1)/sNy ! Kludge until unstructered tiles
            IL  = ILNBLNK( obsfitfiles(num_file) )
-           WRITE(obsfitfile,'(1a)')
+           write(obsfitfile,'(1a)')
      &     obsfitfiles(num_file)(1:IL)
            IL  = ILNBLNK( obsfitfile )
            JL  = ILNBLNK( obsfitDir )
-           WRITE(fnameequinc,'(3a,i3.3,a,i3.3,a)')
+           write(fnameequinc,'(3a,i3.3,a,i3.3,a)')
      &     obsfitDir(1:JL),obsfitfile(1:IL),'.',iG,'.',jG,'.equi.nc'
            err = NF_OPEN(fnameequinc,NF_NOWRITE,
      &     fidfwd_obs(num_file,bi,bj))
@@ -119,6 +119,7 @@ C Then re-open it to compute cost function
 
         ENDDO
        ENDDO
+
 
 C Loop over samples
        DO ii=1,NSAMPLESMAX
@@ -149,7 +150,7 @@ C Combine all threads here
      &                                 +sample_modmask(bi,bj)
 
           ENDIF !if (sample_num.LE.sampleNo(num_file,bi,bj)) then
-         ENDDO !do sample_num
+         ENDDO !do sample_num=..
 
         ENDDO !bj
        ENDDO !bi
@@ -180,7 +181,7 @@ C Calculate model equi of each obs by averaging NP samples
 
             irec = obs_sample1_ind(num_file,obs_num) + sample_num-1
             obs_modval = obs_modval + samples_modval_glob(irec)
-     &       *samples_mask_glob(irec)
+     &           *samples_mask_glob(irec)
             sample_mask_sum = sample_mask_sum + samples_mask_glob(irec)
             IF (samples_mask_glob(irec) .GT. 0. _d 0) THEN
              num_valid_samples = num_valid_samples+1
@@ -195,7 +196,7 @@ C Time averaging
           ENDIF
 
 C Spatial averaging
-          IF (num_valid_samples.GT.0) THEN
+          IF (num_valid_samples.gt.0) THEN
            obs_modval = obs_modval/sample_mask_sum
            obs_modmask = 1
           ELSE
@@ -214,14 +215,14 @@ C Write to global netcdf file
      &         obsfit_globaldummy(num_file))
 
          ENDIF !if (obs_num.LE.ObsNo(num_file)) then
-        ENDDO !do obs_num
+        ENDDO !do obs_num=..
 
         err = NF_CLOSE(fidglobal(num_file))
         IL  = ILNBLNK( obsfitfiles(num_file) )
-        WRITE(obsfitfile,'(1a)') obsfitfiles(num_file)(1:IL)
+        write(obsfitfile,'(1a)') obsfitfiles(num_file)(1:IL)
         IL  = ILNBLNK( obsfitfile )
         JL  = ILNBLNK( obsfitDir )
-        WRITE(fnameequinc,'(3a)')
+        write(fnameequinc,'(3a)')
      &      obsfitDir(1:JL),obsfitfile(1:IL),'.equi.nc'
         err = NF_OPEN(fnameequinc,NF_NOWRITE,fidglobal(num_file))
 
@@ -230,21 +231,16 @@ C Read data to calculate the mean offset between model and obs
          offset=0.
          mod_mean=0.
          obs_mean=0.
-         nobsmean=0
+         nmodmean=0
+         nobsmean=0.
 
 C Loop over obs
          DO obs_num=1,NOBSMAX_OBS
           IF (obs_num.LE.ObsNo(num_file)) THEN
 
            obs_modval=0.
-           obs_data  =0.
+           obs_data=0.
            obs_uncert=0.
-
-C Read model equivalent from global file
-           CALL ACTIVE_READ_OBS_GLOB(num_file,
-     &         obs_modval,
-     &         obs_num,.FALSE.,optimcycle,myThid,
-     &         obsfit_globaldummy(num_file))
 
 C Read observation and uncertainty
            CALL OBSFIT_READ_OBS(num_file,1,
@@ -255,19 +251,20 @@ C Read observation and uncertainty
      &           obs_ind_glob(num_file,obs_num),
      &           obs_uncert,myThid)
 
-            IF ((obs_data.GT.-9999).AND.(obs_modmask.GT.0)) THEN
-             obs_mean=obs_mean+obs_data
-             mod_mean=mod_mean+obs_modval
-             nobsmean=nobsmean+1
-            ENDIF
+           IF (obs_data.GT.-9999) THEN
+            obs_mean=obs_mean+obs_data
+            nobsmean=nobsmean+1
+           ENDIF
+           IF (obs_modval.GT.-9999) THEN
+            mod_mean=mod_mean+obs_modval
+            nmodmean=nmodmean+1
+           ENDIF
 
           ENDIF !if (obs_num.LE.ObsNo(num_file)) then
-         ENDDO !do obs_num
-         
+         ENDDO !do obs_num...
+         mod_mean=mod_mean/nmodmean
          obs_mean=obs_mean/nobsmean
-         mod_mean=mod_mean/nobsmean
          offset=mod_mean-obs_mean
-         
         ELSE
          offset=0.
         ENDIF
@@ -331,7 +328,7 @@ C Write misfit to global netcdf file
           ENDIF
 
          ENDIF !if (obs_num.LE.ObsNo(num_file)) then
-        ENDDO !do obs_num
+        ENDDO !do obs_num...
 
         err = NF_CLOSE(fidmisfit(num_file))
 
@@ -366,5 +363,3 @@ C Print cost function values
 
       RETURN
       END
-
-C---+----1----+----2----+----3----+----4----+----5----+----6----+----7-|--+----|
