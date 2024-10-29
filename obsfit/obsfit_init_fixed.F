@@ -131,13 +131,13 @@ C     !FUNCTIONS:
        STOP 'ABNORMAL END: S/R OBSFIT_INIT_FIXED'
       ENDIF
 
-      IF ( obsfitDoGenGrid ) THEN
-       WRITE(msgBuf,'(2A)') 'OBSFIT_INIT_FIXED: ',
-     &  'obsfitDoGenGrid has not been tested yet'
-       CALL PRINT_ERROR( msgBuf, myThid )
-       CALL ALL_PROC_DIE( myThid )
-       STOP 'ABNORMAL END: S/R OBSFIT_INIT_FIXED'
-      ENDIF
+c      IF ( obsfitDoGenGrid ) THEN
+c       WRITE(msgBuf,'(2A)') 'OBSFIT_INIT_FIXED: ',
+c     &  'obsfitDoGenGrid has not been tested yet'
+c       CALL PRINT_ERROR( msgBuf, myThid )
+c       CALL ALL_PROC_DIE( myThid )
+c       STOP 'ABNORMAL END: S/R OBSFIT_INIT_FIXED'
+c      ENDIF
 
       WRITE(msgbuf,'(a)') ' '
       CALL print_message( msgbuf, standardmessageunit,
@@ -1061,6 +1061,10 @@ C when time averaging
      &            sample_timeS(num_file,sampleNo_tile,bi,bj)
      &            +tmp_sample_delT(m+1000*(kk-1))-1
                  ENDIF
+                 IF (weighSamples.EQ.1) THEN
+                  sample_weight(num_file,sampleNo_tile,bi,bj)=
+     &             tmp_weight2(m)
+                 ENDIF
                  sample_interp_xC11(num_file,sampleNo_tile,bi,bj)=
      &            tmp_xC11(m)
                  sample_interp_yC11(num_file,sampleNo_tile,bi,bj)=
@@ -1070,7 +1074,7 @@ C when time averaging
                  sample_interp_yCNINJ(num_file,sampleNo_tile,bi,bj)=
      &            tmp_yCNINJ(m)
                  tmp_sum_fracs=0. _d 0
-                 DO q = 1,NUM_INTERP_PTS_OBS
+                 DO q = 1,iINTERP
                   sample_interp_frac(num_file,sampleNo_tile,q,bi,bj)
      &             =tmp_fac(m,q)
                   sample_interp_i(num_file,sampleNo_tile,q,bi,bj)
