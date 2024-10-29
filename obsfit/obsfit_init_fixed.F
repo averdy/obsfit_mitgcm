@@ -225,13 +225,6 @@ C Read number of interpolation points (generic grid only):
          iINTERP = NUM_INTERP_PTS_OBS
         ENDIF
 
-        CALL print_message(
-     &   msgbuf, standardmessageunit, SQUEEZE_RIGHT, myThid)
-
-        WRITE(msgbuf,'(a,i9)')
-     &   '  # of interpolation points                   =',
-     &   iINTERP
-
         WRITE(msgbuf,'(a,i9)')
      &     '  # of interpolation points                   =',
      &     iINTERP
