@@ -80,7 +80,7 @@ C     !LOCAL VARIABLES:
       _RL tmp_i(1000,NUM_INTERP_PTS_OBS)
       _RL tmp_j(1000,NUM_INTERP_PTS_OBS)
       _RL tmp_k(1000,NUM_INTERP_PTS_OBS)
-      _RL tmp_fac(1000,NUM_INTERP_PTS_OBS),tmp_sum_fracs
+      _RL tmp_frac(1000,NUM_INTERP_PTS_OBS),tmp_sum_fracs
       _RL tmp_xC11(1000),tmp_yC11(1000)
       _RL tmp_xCNINJ(1000),tmp_yCNINJ(1000)
       INTEGER stopGenericGrid
@@ -717,7 +717,7 @@ C and indices
               vec_count2(2)=min(1000,
      &         sampleNo(num_file,bi,bj)-1000*(kk-1))
               err = NF_GET_VARA_DOUBLE(fid,varid_intp3,vec_start2,
-     &         vec_count2, tmp_fac(1,q))
+     &         vec_count2, tmp_frac(1,q))
               err = NF_GET_VARA_DOUBLE(fid,varid_intp4,vec_start2,
      &         vec_count2, tmp_i(1,q))
               err = NF_GET_VARA_DOUBLE(fid,varid_intp5,vec_start2,
@@ -1076,14 +1076,14 @@ C when time averaging
                  tmp_sum_fracs=0. _d 0
                  DO q = 1,iINTERP
                   sample_interp_frac(num_file,sampleNo_tile,q,bi,bj)
-     &             =tmp_fac(m,q)
+     &             =tmp_frac(m,q)
                   sample_interp_i(num_file,sampleNo_tile,q,bi,bj)
      &             =tmp_i(m,q)
                   sample_interp_j(num_file,sampleNo_tile,q,bi,bj)
      &             =tmp_j(m,q)
                   sample_interp_k(num_file,sampleNo_tile,q,bi,bj)
      &             =tmp_k(m,q)
-                  tmp_sum_fracs=tmp_sum_fracs+tmp_fac(m,q)
+                  tmp_sum_fracs=tmp_sum_fracs+tmp_frac(m,q)
 
 C More test of the inputs: is the offline-computed
 C interpolation information consistent (self and with grid)
@@ -1098,7 +1098,7 @@ C interpolation information consistent (self and with grid)
                   stopGenericGrid=1
                  ENDIF
 #ifdef ALLOW_OBSFIT_EXCLUDE_CORNERS
-                IF ( tmp_fac(m,q) .NE. 0. _d 0) THEN
+                IF ( tmp_frac(m,q) .NE. 0. _d 0) THEN
                  IF ( ((tmp_i(m,q).EQ.0).AND.(tmp_j(m,q).EQ.0))
      &            .OR.((tmp_i(m,q).EQ.sNx+1).AND.(tmp_j(m,q).EQ.sNy+1))
      &            .OR.((tmp_i(m,q).EQ.0).AND.(tmp_j(m,q).EQ.sNy+1))
@@ -1113,8 +1113,8 @@ C interpolation information consistent (self and with grid)
                  ENDIF
                 ENDIF
 #endif /* ALLOW_OBSFIT_EXCLUDE_CORNERS */
-               IF ( (tmp_fac(m,q).LT.0. _d 0).OR.
-     &          (tmp_fac(m,q).GT.1. _d 0) ) THEN
+               IF ( (tmp_frac(m,q).LT.0. _d 0).OR.
+     &          (tmp_frac(m,q).GT.1. _d 0) ) THEN
                 WRITE(msgBuf,'(4A)')
      &           'OBSFIT_INIT_FIXED: file ', obsfitFile(1:IL),
      &           '.nc includes inconsistent interpolation ',
