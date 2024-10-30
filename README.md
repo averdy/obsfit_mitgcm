@@ -5,6 +5,8 @@ obsfit package for MITgcm [<i>in development! Please reach out if bugs are found
 # Summary:
 An alternative to the "profiles" package for model-observations comparisons. Given an observational dataset, obsfit samples the model during the run at the time and location of observations, calculates the cost (sum of weighted misfits), and produces a model-equivalent output file that is directly comparable to the input file. Observations do not need to be on a regular grid or a fixed set of depths, making it an efficient tool for sparse datasets (e.g., altimetry or tomography data). Observations can be made of multiple samples that are averaged or integrated spatially and/or temporally.
 
+<b>* * * Now compatible with LLC grids! Looking for volunteers to test it! * * *</b>
+
 
 # How to use: 1) observations pre-processing
 
@@ -82,7 +84,6 @@ Output files include two variables, mod_val and mod_mask. They are in the same f
 - ObsFit may not be the best name for this package; alternative suggestions are welcome!
 - cost_obsfit.F can be very slow for large datasets. This is where tiled fields are read, combined, and written to a global file. There is probably a more efficient way to do this (help appreciated!)
 - I/O routines active_file_* are adapted from pkg/profiles, which has a known problem with tangent linear runs (PR #873)
-- Compatibility with LLC grids is in development
 
 
 
