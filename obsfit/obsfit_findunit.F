@@ -32,8 +32,8 @@ C     !LOCAL VARIABLES:
 CEOP
 
 C Sweep through a valid range of unit numbers
-      ioUnit=-1
-      DO ii=2000,9999
+      ioUnit = -1
+      DO ii = 2000,9999
        IF ( ioUnit.EQ.-1 ) THEN
 C Skip reserved unit numbers
         IF (       ii.NE.errorMessageUnit
@@ -54,7 +54,7 @@ C Skip reserved unit numbers
             STOP 'ABNORMAL END: S/R OBSFIT_FINDUNIT'
           ENDIF
           IF ( .NOT.op ) THEN
-            ioUnit=ii
+            ioUnit = ii
           ENDIF
         ENDIF
        ENDIF

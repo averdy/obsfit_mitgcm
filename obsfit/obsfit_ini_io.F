@@ -40,7 +40,7 @@ C !LOCAL VARIABLES:
 
       _BEGIN_MASTER( myThid )
 
-      IF ( obsfitDir .NE. ' ' ) THEN
+      IF (obsfitDir .NE. ' ') THEN
        iL = ILNBLNK( obsfitDir )
 C Append "/", if necessary
        IF ( iL.LT.MAX_LEN_FNAM .AND. obsfitDir(iL:iL).NE.'/' ) THEN
