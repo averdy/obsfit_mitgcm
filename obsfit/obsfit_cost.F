@@ -102,8 +102,7 @@ C File maintenance
          IF ( (sampleNo(num_file,bi,bj).GT.0).AND.
      &         (obsfitDoNcOutput) ) THEN
 C Need to sync the file so that the data is not lost when run finishes
-           err = NF_SYNC(fidforward(num_file,bi,bj))
-           CALL OBSFIT_NF_ERROR('COST: NF_SYNC', err,bi,bj,myThid)
+           err = NF_SYNC(fidfwd_obs(num_file,bi,bj))
          ENDIF
 
         ENDDO

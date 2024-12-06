@@ -54,11 +54,7 @@ C     tmpObsNo :: number of obs in the file
      &  (irec.GT.obsfit_maxind_buff).OR.
      &  (obsfit_curfile_buff.NE.fNb) ) THEN
        err = NF_INQ_DIMID(fiddata_obs(fNb),'iOBS', varid1)
-       CALL OBSFIT_NF_ERROR( 'readobs 1: NF_INQ_DIMID',
-     &      err,bi,bj,myThid )
        err = NF_INQ_DIMLEN(fiddata_obs(fNb), varid1, tmpObsNo)
-       CALL OBSFIT_NF_ERROR( 'readobs 2: NF_INQ_DIMLEN',
-     &      err,bi,bj,myThid )
 
        IF (obsfit_curfile_buff.NE.fNb) THEN
 C No asumption on whether a forward or a backward loop is calling
@@ -90,20 +86,12 @@ C Implies that a forward loop is calling
 
        err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_nameval,
      &      varid1 )
-       CALL OBSFIT_NF_ERROR( 'readobs 3: NF_INQ_VARID',
-     &      err,bi,bj,myThid )
        err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &  vec_count, vec_tmp1)
-       CALL OBSFIT_NF_ERROR( 'readobs 4: NF_GET_VARA_DOUBLE',
-     &      err,bi,bj,myThid )
        err = NF_INQ_VARID(fiddata_obs(fNb),obsfit_nameuncert,
      &      varid1 )
-       CALL OBSFIT_NF_ERROR( 'readobs 5: NF_INQ_VARID',
-     &      err,bi,bj,myThid )
        err = NF_GET_VARA_DOUBLE(fiddata_obs(fNb), varid1, vec_start,
      &  vec_count, vec_tmp2)
-       CALL OBSFIT_NF_ERROR( 'readobs 6: NF_GET_VARA_DOUBLE',
-     &      err,bi,bj,myThid )
 
        IF (err.NE.NF_NOERR) THEN
         WRITE(errorMessageUnit,'(A)')

@@ -56,38 +56,6 @@ C Initialize tiled cost function variables
         DO num_file=1,NFILESMAX_OBS
          obsfit_dummy(num_file,bi,bj) = 0. _d 0
         ENDDO
-#ifdef ALLOW_GRDCHK
-          if (obsfitDoNcOutput) then
-           do num_file=1,NFILESPROFMAX
-            if (ObsNo(num_file,bi,bj).GT.0) then
-C Close .equi file so data in buffer is not lost when run finishes
-             err = NF_CLOSE(fidforward(num_file,bi,bj))
-             CALL OBSFIT_NF_ERROR( 'INIT_VARIA: NF_CLOSE',
-     &            err,bi,bj,myThid )
-
-C determine model equivalent file name
-             iG=bi+(myXGlobalLo-1)/sNx ! Kludge until unstructered tiles
-             jG=bj+(myYGlobalLo-1)/sNy ! Kludge until unstructered tiles
-             IL  = ILNBLNK( obsfitFiles(num_file) )
-             write(obsfitFile,'(a)')
-     &       obsfitFiles(num_file)(1:IL)
-             IL  = ILNBLNK( obsfitFile )
-             JL  = ILNBLNK( obsfitDir )
-             write(fnameequinc,'(3a,2(i3.3,a))')
-     &       obsfitDir(1:JL),obsfitFile(1:IL),'.',
-     &       iG,'.',jG,'.equi.nc'
-
-c re-open to reset write permissions
-             JL  = ILNBLNK( fnameequinc )
-             err = NF_OPEN( fnameequinc(1:JL),NF_WRITE,
-     &       fidforward(num_file,bi,bj))
-             CALL OBSFIT_NF_ERROR(
-     &            'INIT_VARIA: NF_OPEN('//fnameequinc(1:JL)//')',
-     &            err,bi,bj,myThid )
-            endif
-           enddo
-          endif
-#endif /* ALLOW_GRDCHK */
        ENDDO
       ENDDO
 

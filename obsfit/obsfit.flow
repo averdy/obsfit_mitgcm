@@ -9,7 +9,7 @@ CADJ FUNCTION    NF_CLOSE           INPUT  = 1
 CADJ FUNCTION    NF_INQ_VARID       INPUT  = 1,2,3
 CADJ FUNCTION    NF_PUT_VARA_DOUBLE INPUT  = 1,2,3,5,4
 CADJ FUNCTION    NF_SYNC            INPUT  = 1
-CADJ SUBROUTINE  OBSFIT_NF_ERROR    INPUT  = 1,2,3,4,5
+
 C----------------------------------------
 C subroutine active_read_obs_tile
 C----------------------------------------
