@@ -1,5 +1,5 @@
 #include "OBSFIT_OPTIONS.h"
-C--  File active_file_obsfit_ad.F:
+C--  File obsfit_active_file_ad.F:
 C--   Contents
 C--   o adactive_read_obs_tile
 C--   o adactive_write_obs_tile
@@ -12,7 +12,7 @@ C     !ROUTINE: ADACTIVE_READ_OBS_TILE
 C     !INTERFACE:
       SUBROUTINE ADACTIVE_READ_OBS_TILE(
      I                                   active_num_file,
-     I                                   adactive_var,
+     O                                   adactive_var,
      I                                   irec,
      I                                   lAdInit,
      I                                   myIter,
@@ -25,7 +25,7 @@ C     ==================================================================
 C     | Adjoint of active_read_obs_tile
 C     ==================================================================
 
-C     !USES: 
+C     !USES:
       IMPLICIT NONE
 C     == Global variables ===
 #include "EEPARAMS.h"
@@ -40,7 +40,7 @@ C     active_num_file: file number
 C     adactive_var:    array
 C     irec:            record number
 C     myIter:          number of optimization iteration (default: 0)
-C     myThid:          thread number for this instance
+C     myThid:          my thread ID number
 C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       INTEGER active_num_file
@@ -52,12 +52,11 @@ C                      variable and write to active file
 CEOP
 
 #ifdef ALLOW_OBSFIT
-
-      CALL ACTIVE_READ_OBS_TILE_RL( fidadj_obs(active_num_file,bi,bj),
-     &     active_num_file,
-     &     adactive_var, lAdInit,
-     &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
-     &     REVERSE_SIMULATION, myIter, bi, bj, myThid)
+      CALL ACTIVE_READ_OBS_TILE_RL(
+     I     fidadj_obs(active_num_file,bi,bj), active_num_file,
+     O     adactive_var,
+     I     lAdInit, irec, sample_ind_glob(active_num_file,irec,bi,bj),
+     I     REVERSE_SIMULATION, myIter, bi, bj, myThid )
 
 #endif
 
@@ -84,7 +83,7 @@ C     ==================================================================
 C     | Adjoint of active_write_obs_tile
 C     ==================================================================
 
-C     !USES: 
+C     !USES:
       IMPLICIT NONE
 C     == Global variables ===
 #include "EEPARAMS.h"
@@ -99,7 +98,7 @@ C     active_num_file: file number
 C     adactive_var:    array
 C     irec:            record number
 C     myIter:          number of optimization iteration (default: 0)
-C     myThid:          thread number for this instance
+C     myThid:          my thread ID number
 C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       INTEGER active_num_file
@@ -112,11 +111,11 @@ CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      CALL ACTIVE_WRITE_OBS_TILE_RL( fidadj_obs(active_num_file,bi,bj),
-     &     active_num_file,
-     &     adactive_var, 
-     &     irec, sample_ind_glob(active_num_file,irec,bi,bj),
-     &     REVERSE_SIMULATION, myIter, bi, bj, myThid)
+      CALL ACTIVE_WRITE_OBS_TILE_RL(
+     I     fidadj_obs(active_num_file,bi,bj),
+     I     active_num_file, adactive_var,
+     I     irec, sample_ind_glob(active_num_file,irec,bi,bj),
+     I     REVERSE_SIMULATION, myIter, bi, bj, myThid )
 
 #endif
 
@@ -130,7 +129,8 @@ C     !ROUTINE: ADACTIVE_READ_OBS_GLOB
 C     !INTERFACE:
       SUBROUTINE ADACTIVE_READ_OBS_GLOB(
      I                                   active_num_file,
-     I                                   adactive_var,
+     O                                   adactive_var,
+     O                                   adactive_mask,
      I                                   irec,
      I                                   lAdInit,
      I                                   myIter,
@@ -141,7 +141,7 @@ C     ==================================================================
 C     | Adjoint of active_read_obs_glob
 C     ==================================================================
 
-C     !USES: 
+C     !USES:
       IMPLICIT NONE
 C     == Global variables ===
 #include "EEPARAMS.h"
@@ -154,13 +154,15 @@ C     == Global variables ===
 C     !INPUT PARAMETERS:
 C     active_num_file: file number
 C     adactive_var:    array
+C     adactive_mask:   array mask
 C     irec:            record number
 C     myIter:          number of optimization iteration (default: 0)
-C     myThid:          thread number for this instance
+C     myThid:          my thread ID number
 C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       INTEGER active_num_file
       _RL     adactive_var
+      _RL     adactive_mask
       INTEGER irec
       INTEGER myIter
       INTEGER myThid
@@ -169,11 +171,11 @@ CEOP
 
 #ifdef ALLOW_OBSFIT
 
-      CALL ACTIVE_READ_OBS_GLOB_RL( fidadglobal(active_num_file),
-     &     active_num_file,
-     &     adactive_var, lAdInit,
-     &     irec, obs_ind_glob(active_num_file,irec),
-     &     REVERSE_SIMULATION, myIter, myThid )
+      CALL ACTIVE_READ_OBS_GLOB_RL(
+     I     fidadglobal(active_num_file), active_num_file,
+     O     adactive_var, adactive_mask,
+     I     lAdInit, irec, obs_ind_glob(active_num_file,irec),
+     I     REVERSE_SIMULATION, myIter, myThid )
 
 #endif
 
@@ -188,6 +190,7 @@ C     !INTERFACE:
       SUBROUTINE ADACTIVE_WRITE_OBS_GLOB(
      I                                    active_num_file,
      I                                    adactive_var,
+     I                                    adactive_mask,
      I                                    irec,
      I                                    myIter,
      I                                    myThid,
@@ -198,7 +201,7 @@ C     ==================================================================
 C     | Adjoint of active_write_obs_glob
 C     ==================================================================
 
-C     !USES: 
+C     !USES:
       IMPLICIT NONE
 C     == Global variables ===
 #include "EEPARAMS.h"
@@ -211,13 +214,15 @@ C     == Global variables ===
 C     !INPUT PARAMETERS:
 C     active_num_file: file number
 C     adactive_var:    array
+C     adactive_mask:   array mask
 C     irec:            record number
 C     myIter:          number of optimization iteration (default: 0)
-C     myThid:          thread number for this instance
+C     myThid:          my thread ID number
 C     lAdInit:         initialisation of corresponding adjoint
 C                      variable and write to active file
       INTEGER active_num_file
       _RL     adactive_var
+      _RL     adactive_mask
       INTEGER irec
       INTEGER myIter
       INTEGER myThid
@@ -225,12 +230,11 @@ C                      variable and write to active file
 CEOP
 
 #ifdef ALLOW_OBSFIT
-
-      CALL ACTIVE_WRITE_OBS_GLOB_RL( fidadglobal(active_num_file),
-     &     active_num_file,
-     &     adactive_var,
-     &     irec, obs_ind_glob(active_num_file,irec),
-     &     REVERSE_SIMULATION, myIter,myThid )
+      CALL ACTIVE_WRITE_OBS_GLOB_RL(
+     I     fidadglobal(active_num_file), active_num_file,
+     I     adactive_var, adactive_mask,
+     I     irec, obs_ind_glob(active_num_file,irec),
+     I     REVERSE_SIMULATION, myIter,myThid )
 
 #endif
 
