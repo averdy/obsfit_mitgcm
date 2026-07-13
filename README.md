@@ -1,5 +1,9 @@
 # obsfit
-obsfit package for MITgcm [<i>in development! Please reach out if bugs are found!</i>]
+obsfit package for MITgcm 
+
+<i>This is now part of the MITgcm main code:</i> https://github.com/MITgcm/MITgcm/tree/master/pkg/obsfit/
+
+Please use the link above for the latest code!
 
 
 # Summary:
